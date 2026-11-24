@@ -219,6 +219,25 @@ const PLACES = [
     risk:"Passt nicht in einen Dolomiten-Rundkurs → in der App als 'Detour' markiert." }
 ];
 
+/* ---------- Café-, Koch- und Einkaufstipps je Station ----------
+   Bewusst ohne konkrete Betriebe (Öffnungszeiten/Qualität ändern sich) – nur Kategorien und
+   typische Spezialitäten. Vor Ort suchen und prüfen. */
+const FOOD = {
+  meran:  { cafe:"Konditorei/Café unter den Lauben: Apfelstrudel & Kaffee nach dem Tappeinerweg", kochen:"Marktprodukte aus dem Passeiertal; Speck, Käse, Äpfel", asia:"Größere Asia-Auswahl eher in Bozen – vorher einkaufen" },
+  bozen:  { cafe:"Traditions-Kaffeehaus in der Altstadt oder Café am Obstplatz", kochen:"Obstplatz & Markthalle: Gemüse, Pilze, Fisch", asia:"Beste Chance auf Asia-Läden der Region (vor Ort prüfen) – hier für alle Stationen bevorraten" },
+  brixen: { cafe:"Café in der Altstadt (Laubengasse) oder Bäckerei in Villnöss mit Kuchen", kochen:"Metzger/Bäcker: Knödel, Schlutzkrapfen als Gegengewicht zum Wok", asia:"Kleine Märkte – Basics (Reis, Sojasauce) mitbringen" },
+  groeden:{ cafe:"Panorama-Café an der Promenade", kochen:"Berghof-Produkte", asia:"Wenig Auswahl – Vorrat mitbringen" },
+  bruneck:{ cafe:"Café an der Stadtgasse nach dem Spaziergang", kochen:"Pustertaler Käse/Speck/Wild; Marktstände", asia:"Basics im Supermarkt; Spezielles vorher einkaufen" },
+  hochpustertal:{ cafe:"Café am Toblacher See / Gasthaus mit Panorama", kochen:"Regionale Zutaten + Reisgerichte aus mitgebrachtem Vorrat", asia:"Vorrat mitbringen" },
+  cortina:{ cafe:"Café am Corso Italia (Espresso & Pasticceria)", kochen:"Italienische Zutaten für Wok-Fusion", asia:"Wenig Auswahl – Vorrat mitbringen" },
+  fiemme: { cafe:"Dorf-Café in Predazzo", kochen:"Käse, Pilze, Polenta", asia:"Wenig Auswahl – Vorrat mitbringen" },
+  trient: { cafe:"Café in der Altstadt, Pasticceria", kochen:"Großer Markt, Trentiner Produkte; Asia-Läden eher vorhanden (prüfen)", asia:"In größeren Städten wahrscheinlich besser sortiert" },
+  levico: { cafe:"Café am See", kochen:"Seefisch, Gemüse", asia:"Vorrat mitbringen" },
+  bassano:{ cafe:"Café an der Ponte Vecchio / Osteria", kochen:"Baccalà, Risotto-Zutaten", asia:"Größere Märkte; teils Asia-Läden (prüfen)" },
+  vicenza:{ cafe:"Historisches Café um die Piazza dei Signori", kochen:"Baccalà alla vicentina, Markthalle", asia:"Als Stadt vermutlich Asia-Läden vorhanden (prüfen)" },
+  hallstatt:{ cafe:"Café am See", kochen:"Fisch (Reinanke)", asia:"Vorrat mitbringen" }
+};
+
 /* ---------- Routen-Presets ---------- */
 const PRESETS = [
   { name:"A · Täler-Klassiker (Empfehlung)", desc:"Bozen/Ritten → Brixen/Villnöss → Bruneck: nur Talstraßen, Brenner-Richtung bleibt für die Heimreise offen. 2 Nächte je Ort.",
@@ -239,24 +258,28 @@ const QUESTIONS = [
   { id:"corgi", q:"Corgi (5 Jahre): Gassi-Radius", type:"text", pre:"1–2 h am Stück spazieren, Pausen werden eingelegt" },
   { id:"auto", q:"Reifen/Ketten", type:"text", pre:"Allwetterreifen, bisher keine Schneeketten → Täler bevorzugen" },
   { id:"tempo", q:"Tempo", type:"text", pre:"50/50 Highlights und Ruhe" },
-  { id:"zw_hin", q:"NEU: Zwischenübernachtung Hinreise (≈ 1.000 km ab Bremen): Raum München/Rosenheim/Kufstein oder lieber früher (z.B. Nürnberg/Regensburg) mit kürzerer Etappe am Folgetag?", type:"select", opts:["Raum München/Kufstein (ca. 8 h am ersten Tag)","Früher stoppen (ca. 6 h erster Tag)","Gar nicht – durchfahren (anstrengend, nicht empfohlen)"] },
-  { id:"zw_rueck", q:"NEU: Rückreise am 07.12. direkt (ca. 10 h) oder am 06.12. Zwischenübernachtung?", type:"select", opts:["Zwischenübernachtung am 06.12. (Empfehlung)","Direkt am 07.12. durchfahren"] },
-  { id:"fewo", q:"NEU: Was macht die Ferienwohnung 'gemütlich'? (Mehrfachnennung im Textfeld)", type:"textarea_hint", hint:"z.B. Kamin/Kachelofen, Badewanne, Balkon mit Blick, gut ausgestattete Küche, Leseecke, Garten/Hundezaun" },
-  { id:"kochen", q:"NEU: Wie koch-ambitioniert? Gibt es Lieblingsgerichte (Südtiroler Küche: Knödel, Schlutzkrapfen, Gulasch) oder ein Kochprojekt für die Reise?", type:"text" },
-  { id:"lesen", q:"NEU: Was sind eure Lesestoffe (Genre, kein Titelzwang)? Soll ich passende Café-/Lese-Orte pro Station vorschlagen?", type:"text" },
-  { id:"gassi", q:"NEU: Wie viele Gassi-Runden à 1–2 h pro Tag sind für euch ideal – eine 'große' Wanderung am Vormittag oder zwei kleinere?", type:"select", opts:["Eine Runde 1–2 h + kleine Abendrunde","Zwei Runden à 1–1,5 h","Nur 1 Runde, dafür ausgedehnt mit Café-Pause"] },
-  { id:"ketten", q:"NEU: Schneeketten kaufen/leihen für den A 140? (Reifengröße müsste ich kennen – aus dem Fahrzeugschein, ohne Kennzeichen)", type:"select", opts:["Ja, kaufen","Leihen/vor Ort besorgen","Nein – nur Talrouten bei sicherem Wetter"] }
+  { id:"zw_hin", q:"Zwischenübernachtung Hinreise", type:"text", pre:"Erster Stopp München (29.11.)" },
+  { id:"zw_rueck", q:"Zwischenübernachtung Rückreise", type:"text", pre:"Vielleicht (in der App an-/abschaltbar)" },
+  { id:"fewo", q:"Gemütliche Ferienwohnung", type:"text", pre:"Kamin, Küche, Leseecke" },
+  { id:"kochen", q:"Kochen & Essen", type:"text", pre:"Asiatisch kochen; zusätzlich Cafés und Restaurants einplanen" },
+  { id:"gassi", q:"Tagesrhythmus", type:"text", pre:"Früh los, nachmittags zurück in die Ferienwohnung" },
+  { id:"route_wahl", q:"NEU: Welche Route (A–D) gefällt euch am meisten, oder was würdet ihr ändern?", type:"text" },
+  { id:"asia", q:"NEU: Welche asiatische Küche kocht ihr am liebsten (z.B. Thai, Japanisch, Koreanisch, Sichuan)? Dann plane ich Einkauf, Utensilien (Wok/Reiskocher) und passende Rezepte.", type:"text" },
+  { id:"lesen", q:"Lesen (noch offen): Welche Genres? Soll ich pro Station Café-Leseorte vorschlagen?", type:"text" },
+  { id:"ketten", q:"Schneeketten (noch offen): kaufen, leihen oder nur bei sicherem Wetter fahren? Reifengröße steht im Fahrzeugschein (ohne Kennzeichen).", type:"select", opts:["Ja, kaufen","Leihen/vor Ort besorgen","Nein – nur Talrouten bei sicherem Wetter"] },
+  { id:"restaurant", q:"NEU: Restaurants/Cafés: Hund darf mit rein? Budget pro Essen? (Reiner Tipp: in Italien oft erlaubt, immer vorher fragen.)", type:"text" }
 ];
 
 /* ---------- Checkliste (Faktenrahmen) ---------- */
 const CHECKLIST = [
   "Reifen: Allwetterreifen müssen Alpine-Symbol (3PMSF) bzw. M+S tragen und genug Profil haben; Pflichtregeln für Südtirol/Österreich vorab prüfen (Südtirol 15.11.–15.04.)",
   "Schneeketten passend zur Reifengröße kaufen/leihen und zuhause einmal Probe montieren (Notfall-Sicherheit)",
-  "Hinreise ≈ 1.000 km: Zwischenübernachtung buchen (Raum München/Kufstein), Hund erlaubt prüfen",
+  "Hinreise ≈ 1.000 km: Zwischenübernachtung buchen (München), Hund erlaubt prüfen",
   "Österreich: Vignette/Brenner-Maut und Italien-Maut A22 einplanen",
   "Hundepass/EU-Heimtierausweis, Tollwutimpfung gültig, Chip vorhanden",
   "Hund (5 J.): Leine, Kotbeutel, Decke, Pfotenschutz/Handtuch (Streusalz), Reisefutter, Wasser für Pausen",
   "Wanderungen: Eisspikes/Grödel, Stirnlampe, Powerbank, warme Hundejacke für Pausen",
+  "Asiatisch kochen: Wok/Pfanne, Reiskocher, Basis-Gewürze mitnehmen; Gas/Induktion der Ferienwohnung prüfen; Einkauf größerer Asia-Zutaten in Bozen oder München",
   "Echtzeit-Check Straßen & Wetter vorm Losfahren (offizielle Verkehrsportale)",
   "Ferienwohnungen: Hund erlaubt + Heizung/Kamin + Parkplatz + vollständige Küche prüfen",
   "Märkte/Museen/Cafés: Öffnungstage 2026 kurz vorher prüfen"
@@ -403,7 +426,7 @@ function vRahmen() {
       el("b", {}, "Wintertermin = andere Dolomiten. "),
       "Hütten und viele Lifte sind noch zu, die Skisaison startet um den 5.–8. Dezember. Wandern funktioniert am besten auf Talwegen, Waalwegen und Uferpromenaden. Passstraßen (Falzarego, Pordoi, Sella, Gröden) sind wetterabhängig – Echtzeit-Portale vor jeder Fahrt prüfen."),
     el("div", { class: "grid" },
-      el("div", { class: "card" }, el("h3", {}, "🧭 Anreise ab Bremen"), el("p", {}, "≈ 1.000 km, ca. 10 h reine Fahrzeit (Schätzung). Realistisch: 29.11. bis Raum München/Kufstein, 30.11. weiter über den Brenner. Rückreise genauso. Damit bleiben 6 Nächte vor Ort – ideal für 3 Stationen à 2 Nächte oder 2 à 3.")),
+      el("div", { class: "card" }, el("h3", {}, "🧭 Anreise ab Bremen"), el("p", {}, "≈ 1.000 km, ca. 10 h reine Fahrzeit (Schätzung). Euer Plan: erster Stopp München am 29.11. (1. Advent), 30.11. weiter über den Brenner (München → Bozen ≈ 3,5 h). Rückreise genauso. Damit bleiben 6 Nächte vor Ort – ideal für 3 Stationen à 2 Nächte oder 2 à 3.")),
       el("div", { class: "card" }, el("h3", {}, "🚗 Auto"), el("p", {}, "Mercedes A 140 mit Allwetterreifen, noch ohne Ketten. Darum: Talstraßen bevorzugen (Eisacktal, Pustertal, Etschtal), keine hohen Pässe. Ketten besorgen und Probe montieren; Allwetterreifen nur mit Alpine-Symbol (3PMSF) sinnvoll – Regeln prüfen.")),
       el("div", { class: "card" }, el("h3", {}, "🐕 Corgi (5 J.)"), el("p", {}, "1–2 h spazieren am Stück, Pausen sind eingeplant → Touren ca. 4–7 km, flach, mit Café-/Bank-Stopps. Streusalz → Pfoten abwischen. Keine Wellness-Planung nötig.")),
       el("div", { class: "card" }, el("h3", {}, "🎄 Märkte"), el("p", {}, "Weihnachtsmärkte in Bozen, Meran, Brixen und Bruneck öffnen meist um den 27.–28.11. – Termine 2026 bitte vorab prüfen.")),
@@ -530,7 +553,7 @@ function vShort() {
   box.append(el("h2", {}, "Eure Route"));
   const tcard = el("div", { class: "card" }, el("h3", {}, "Anreise & Rückreise ab Bremen (≈ 1.000 km)"),
     el("div", { class: "row" },
-      el("label", {}, el("input", { type: "checkbox", checked: state.transit.out, onchange: e => { state.transit.out = e.target.checked; save(); render(); } }), " Zwischenübernachtung Hinreise (29.11., Raum München/Kufstein)"),
+      el("label", {}, el("input", { type: "checkbox", checked: state.transit.out, onchange: e => { state.transit.out = e.target.checked; save(); render(); } }), " Zwischenübernachtung Hinreise (29.11., München)"),
       el("label", {}, el("input", { type: "checkbox", checked: state.transit.back, onchange: e => { state.transit.back = e.target.checked; save(); render(); } }), " Zwischenübernachtung Rückreise (06.12.)")),
     el("p", { class: "muted" }, "Ohne Zwischenstopp bleiben mehr Nächte vor Ort, aber ca. 10 h Fahrt am Stück – für Fahrer und Hund anstrengend."));
   box.append(tcard);
@@ -568,7 +591,7 @@ function vShort() {
   rb.append(el("div", { style: "max-width:320px;margin-top:8px" }, sel));
   box.append(rb);
 
-  if (state.route.length) { box.append(el("h2", {}, "Karte (schematisch)"), routeMap(), vTimeline()); }
+  if (state.route.length) { box.append(el("h2", {}, "Karte (schematisch)"), routeMap(), vTimeline(), el("h2", {}, "Tagesplan (Entwurf)"), el("p", { class: "muted" }, "Rhythmus: früh los, nachmittags zurück in die Ferienwohnung; 50/50 Highlight- und Ruhetage."), vDayPlan()); }
   return box;
 }
 
@@ -589,10 +612,52 @@ function routeMap() {
   return s;
 }
 
+/* ---------- Tagesplan-Entwurf ----------
+   Rhythmus (eure Wahl): früh los, nachmittags zurück in die Ferienwohnung (Kamin, Lesen, Kochen).
+   Ankunftstage = ruhig (Fahrt + Einkauf + Kurzspaziergang), Folgetage wechseln zwischen Highlight (3–4 h) und Ruhe. */
+const MUC = { name: "München", lat: 48.137, lon: 11.575 };
+/* München→Südtirol: überwiegend Autobahn (Brenner), daher Ø 70 km/h bei Faktor 1,35 (≈ 3,5 h bis Bozen). Schätzung! */
+function leg(a, b) {
+  if (a === HOME) return homeMin(b);
+  if (a === MUC) return Math.round(km(a, b) * 1.35 / 70 * 60 / 15) * 15;
+  return driveMin(a, b);
+}
+function buildDays() {
+  const days = []; let d = 0;
+  const push = (title, items) => days.push({ date: addDays(START, d++), title, items });
+  if (state.transit.out)
+    push("Anreise → München", ["Früh starten, alle ~2 h Pause für den Corgi (Wiese/Raststätte)", "Übernachtung in München (Hund erlaubt prüfen)", "1. Advent: Christkindlmarkt/Altstadt nur kurz, Hundeeinschränkungen prüfen"]);
+  state.route.forEach((r, i) => {
+    const p = byId(r.id), f = FOOD[p.id] || {};
+    const prev = i === 0 ? (state.transit.out ? MUC : HOME) : byId(state.route[i - 1].id);
+    for (let n = 0; n < r.nights; n++) {
+      const hike = p.hikes[(i + n) % p.hikes.length];
+      if (n === 0) {
+        push(`Ankunft ${p.name}`, [`🚗 ≈ ${fmtMin(leg(prev, p))} (Schätzung, ohne Pausen)`, "Ferienwohnung beziehen, Kamin an, Einkauf (" + (f.kochen || "regional") + ")", "🥾 Kurzspaziergang vor Ort (~1 h)", "🍜 Abends kochen: " + (f.asia || "asiatisch mit Vorrat")]);
+      } else if (n % 2 === 1) {
+        push(`Highlight-Tag · ${p.name}`, ["Früh los (ca. 9 Uhr): 🥾 " + hike, "☕ Café-Stopp: " + (f.cafe || "Café vor Ort"), "✨ " + p.highlights[(i + n) % p.highlights.length], "Nachmittags (~15 Uhr) zurück, Kamin & Lesen, abends Restaurant oder Wok"]);
+      } else {
+        push(`Ruhetag · ${p.name}`, ["Spät frühstücken, kurze Runde (1–1,5 h) im Ort", "☕ Café: " + (f.cafe || "Café vor Ort"), "📖 Leseecke & Kamin, 🍜 Kochprojekt (asiatisch)"]);
+      }
+    }
+  });
+  if (state.transit.back) {
+    push("Rückreise → München", ["Frühstück, Auto packen, früh los", "Übernachtung München (Hund erlaubt prüfen)"]);
+    push("Heimreise → Bremen", ["≈ 7–8 h Fahrt, Pausen für Corgi alle ~2 h"]);
+  } else {
+    push("Heimreise → Bremen", ["≈ 10 h Fahrt: sehr früh los, Pausen für Corgi alle ~2 h (lang!)"]);
+  }
+  return days;
+}
+function vDayPlan() {
+  return el("div", { class: "grid" }, buildDays().map(dy => el("div", { class: "card" },
+    el("div", { class: "muted" }, fmtDate(dy.date)), el("h3", {}, dy.title), el("ul", { class: "tight" }, dy.items.map(x => el("li", {}, x))))));
+}
+
 function vTimeline() {
   let day = state.transit.out ? 1 : 0;
   const rows = [];
-  if (state.transit.out) rows.push(el("tr", {}, el("td", {}, "→"), el("td", {}, "Anreise: Zwischenübernachtung (Raum München/Kufstein)"), el("td", {}, `${fmtDate(START)} → ${fmtDate(addDays(START, 1))}`), el("td", {}, 1)));
+  if (state.transit.out) rows.push(el("tr", {}, el("td", {}, "→"), el("td", {}, "Anreise: Zwischenübernachtung (München)"), el("td", {}, `${fmtDate(START)} → ${fmtDate(addDays(START, 1))}`), el("td", {}, 1)));
   state.route.forEach((r, i) => {
     const p = byId(r.id), a = addDays(START, day), b = addDays(START, day + r.nights);
     day += r.nights;
@@ -629,6 +694,7 @@ function vPresent() {
       el("div", {}, "🐕 ", p.dog), el("div", { class: "warn" }, "⚠ ", p.risk),
       state.notes[p.id] ? el("div", { class: "callout" }, "📝 ", state.notes[p.id]) : null));
   });
+  slides.push(el("div", { class: "slide" }, el("h2", {}, "Tagesplan"), vDayPlan()));
   /* Schlussfolie */
   slides.push(el("div", { class: "slide" }, el("h2", {}, "Vor der Abfahrt"),
     el("ul", { class: "tight" }, CHECKLIST.map(t => el("li", {}, t)))));
