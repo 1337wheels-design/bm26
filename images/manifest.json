@@ -71,6 +71,11 @@
         "src": "images/activities/bozen-markt.jpg",
         "title": "Christkindlmarkt Bozen",
         "imgSource": "Christkindlmarkt Bozen"
+      },
+      {
+        "src": "images/activities/bozen-ritten.jpg",
+        "title": "Rittner Erdpyramiden",
+        "imgSource": "Rittner Erdpyramiden"
       }
     ],
     "brixen": [
@@ -78,14 +83,35 @@
         "src": "images/activities/brixen-villnoess.jpg",
         "title": "Geislerspitzen Villnöss",
         "imgSource": "Geislerspitzen Villnöss"
+      },
+      {
+        "src": "images/activities/brixen-kloster.jpg",
+        "title": "Kloster Neustift",
+        "imgSource": "Kloster Neustift"
       }
     ],
-    "groeden": [],
+    "groeden": [
+      {
+        "src": "images/activities/groeden-seiser.jpg",
+        "title": "Seiser Alm Dolomiten",
+        "imgSource": "Seiser Alm Dolomiten"
+      },
+      {
+        "src": "images/activities/groeden-langkofel.jpg",
+        "title": "Langkofel Gröden",
+        "imgSource": "Langkofel Gröden"
+      }
+    ],
     "bruneck": [
       {
         "src": "images/activities/bruneck-pragser.jpg",
         "title": "Pragser Wildsee",
         "imgSource": "Pragser Wildsee"
+      },
+      {
+        "src": "images/activities/bruneck-schloss.jpg",
+        "title": "Schloss Bruneck",
+        "imgSource": "Schloss Bruneck"
       }
     ],
     "hochpustertal": [
@@ -93,6 +119,11 @@
         "src": "images/activities/hochpustertal-dreizinnen.jpg",
         "title": "Drei Zinnen",
         "imgSource": "Drei Zinnen"
+      },
+      {
+        "src": "images/activities/hochpustertal-toblach.jpg",
+        "title": "Toblacher See",
+        "imgSource": "Toblacher See"
       }
     ],
     "cortina": [
@@ -100,19 +131,84 @@
         "src": "images/activities/cortina-corso.jpg",
         "title": "Cortina Corso Italia",
         "imgSource": "Cortina Corso Italia"
+      },
+      {
+        "src": "images/activities/cortina-lago.jpg",
+        "title": "Lago di Misurina",
+        "imgSource": "Lago di Misurina"
       }
     ],
-    "fiemme": [],
+    "fiemme": [
+      {
+        "src": "images/activities/fiemme-predazzo.jpg",
+        "title": "Predazzo Dolomiti",
+        "imgSource": "Predazzo Dolomiti"
+      },
+      {
+        "src": "images/activities/fiemme-paneveggio.jpg",
+        "title": "Foresta del Paneveggio",
+        "imgSource": "Foresta del Paneveggio"
+      }
+    ],
     "trient": [
       {
         "src": "images/activities/trient-muse.jpg",
         "title": "MUSE Trento",
         "imgSource": "MUSE Trento"
+      },
+      {
+        "src": "images/activities/trient-markt.jpg",
+        "title": "Mercatini Natale Trento",
+        "imgSource": "Mercatini Natale Trento"
       }
     ],
-    "levico": [],
-    "bassano": [],
-    "vicenza": [],
-    "hallstatt": []
+    "levico": [
+      {
+        "src": "images/activities/levico-terme.jpg",
+        "title": "Terme di Levico",
+        "imgSource": "Terme di Levico"
+      },
+      {
+        "src": "images/activities/levico-lago.jpg",
+        "title": "Lago di Caldonazzo",
+        "imgSource": "Lago di Caldonazzo"
+      }
+    ],
+    "bassano": [
+      {
+        "src": "images/activities/bassano-ponte.jpg",
+        "title": "Ponte degli Alpini",
+        "imgSource": "Ponte degli Alpini"
+      },
+      {
+        "src": "images/activities/bassano-grappa.jpg",
+        "title": "Monte Grappa Bassano",
+        "imgSource": "Monte Grappa Bassano"
+      }
+    ],
+    "vicenza": [
+      {
+        "src": "images/activities/vicenza-teatro.jpg",
+        "title": "Teatro Olimpico Vicenza",
+        "imgSource": "Teatro Olimpico Vicenza"
+      },
+      {
+        "src": "images/activities/vicenza-rotonda.jpg",
+        "title": "Villa La Rotonda",
+        "imgSource": "Villa La Rotonda"
+      }
+    ],
+    "hallstatt": [
+      {
+        "src": "images/activities/hallstatt-see.jpg",
+        "title": "Hallstätter See",
+        "imgSource": "Hallstätter See"
+      },
+      {
+        "src": "images/activities/hallstatt-dorf.jpg",
+        "title": "Hallstatt Altstadt",
+        "imgSource": "Hallstatt Altstadt"
+      }
+    ]
   }
 }
