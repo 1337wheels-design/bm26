@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
   SICHERHEITSHINWEIS (Content-Security-Policy):
-  Die App ist komplett offline lauffähig: keine CDN-Skripte, keine Kartenkacheln, keine externen
-  Requests. Die CSP unten erzwingt das technisch (Schutz gegen XSS und unbeabsichtigten Datenabfluss).
+  Keine CDN-Skripte, keine Kartenkacheln, keine externen Laufzeit-Requests (außer optional
+  images/manifest.json vom gleichen Host, z. B. GitHub Pages). Bilder nur 'self' + data: URLs.
 -->
 <meta http-equiv="Content-Security-Policy"
-      content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'">
+      content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'none'">
 <title>Dolomiten Winterreise 2026</title>
 <style>
   /* ---------- Design-Tokens (hell/dunkel) ---------- */
@@ -78,6 +78,13 @@
   .pager{display:flex;justify-content:space-between;align-items:center;margin-top:12px}
   @media print{ nav,.pager,.funnel,header .sub{display:none} body{background:#fff;color:#000} }
   @media (max-width:560px){ .slide{padding:18px} .slide h2{font-size:1.5rem} }
+  .place-photo{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:10px;margin:0 0 10px;border:1px solid var(--line)}
+  .place-photo.hero{aspect-ratio:21/9;max-height:320px}
+  .media-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin:10px 0 4px}
+  .media-item{margin:0}
+  .media-item img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
+  .media-item figcaption{font-size:.75rem;color:var(--muted);margin-top:4px;line-height:1.3}
+  .img-credit{font-size:.72rem;color:var(--muted);margin-top:6px}
 </style>
 </head>
 <body>
@@ -125,6 +132,9 @@ const CRITERIA = [
    Skalen 1–5 sind SUBJEKTIVE Ersteinschätzungen für Ende Nov./Anfang Dez.
    Öffnungszeiten, Märkte, Passsperren: IMMER kurz vor Reise bei offiziellen Quellen prüfen!
    lat/lon dienen nur der groben Karte und Fahrzeit-Schätzung. */
+/* Bilder: images/manifest.json (Wikimedia Commons, siehe ATTRIBUTION.md) */
+let IMAGE_MANIFEST = { places: {}, activities: {} };
+
 const PLACES = [
   { id:"meran", name:"Meran & Umgebung", region:"Südtirol", lat:46.669, lon:11.159,
     s:{w:5,wel:5,k:4,l:4,h:4,wi:5}, tags:["Waalwege","Therme","Weihnachtsmarkt","mild"],
@@ -314,6 +324,29 @@ function svg(tag, attrs = {}, text) {
   return e;
 }
 const byId = id => PLACES.find(p => p.id === id);
+function imgEl(src, alt, className) {
+  if (!src) return null;
+  return el("img", { class: className, src, alt: alt || "", loading: "lazy", decoding: "async",
+    onerror: e => { e.target.hidden = true; } });
+}
+function mediaGrid(items) {
+  if (!items?.length) return null;
+  return el("div", { class: "media-grid" },
+    ...items.map(m => el("figure", { class: "media-item" },
+      imgEl(m.src, m.title, "") || el("span", {}, ""),
+      el("figcaption", {}, m.title))));
+}
+async function applyImageManifest() {
+  try {
+    const r = await fetch("images/manifest.json", { cache: "no-cache" });
+    if (r.ok) IMAGE_MANIFEST = await r.json();
+  } catch (e) { /* offline / file:// ohne Bilderordner */ }
+  for (const p of PLACES) {
+    const meta = IMAGE_MANIFEST.places[p.id];
+    if (meta?.img) p.img = meta.img;
+    p.media = IMAGE_MANIFEST.activities[p.id] || [];
+  }
+}
 const fmtDate = d => d.toLocaleDateString("de-DE", { weekday: "short", day: "2-digit", month: "2-digit" });
 const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
 
@@ -442,6 +475,7 @@ function vRahmen() {
   box.append(list);
   box.append(el("div", { class: "callout" }, el("b", {}, "Sicherheitsrelevant: "), "Wintertauglichkeit des Fahrzeugs, Wetter-/Lawinenlage, Leinenpflicht und Datenschutz bei Buchungen (keine Ausweis-/Zahlungsdaten in Notizen der App speichern)."));
   box.append(vDataTools());
+  box.append(el("p", { class: "img-credit" }, "Fotos: Wikimedia Commons (siehe ATTRIBUTION.md im Repository)."));
   return box;
 }
 
@@ -510,6 +544,8 @@ function bar(label, v) {
 function placeCard(p) {
   const sel = !!state.short[p.id];
   const card = el("div", { class: "card" + (sel ? " sel" : "") + (p.id === "hallstatt" ? " faded" : "") });
+  const hero = imgEl(p.img, "Eindruck: " + p.name, "place-photo");
+  if (hero) card.append(hero);
   card.append(
     el("div", { class: "row", style: "justify-content:space-between" },
       el("h3", {}, p.name),
@@ -520,6 +556,8 @@ function placeCard(p) {
     el("div", { class: "chips" }, p.tags.map(t => el("span", { class: "chip" }, t))),
     el("p", {}, p.why));
   CRITERIA.forEach(c => card.append(bar(c.label.split(" ")[0], p.s[c.key])));
+  const actGrid = mediaGrid(p.media);
+  if (actGrid) card.append(el("h4", { style: "margin:8px 0 4px;font-size:.9rem" }, "Geplante Eindrücke"), actGrid);
   card.append(el("details", {}, el("summary", {}, "Wandern, Highlights, Hund & Risiko"),
     el("b", {}, "Wanderungen"), el("ul", { class: "tight" }, p.hikes.map(x => el("li", {}, x))),
     el("b", {}, "Highlights"), el("ul", { class: "tight" }, p.highlights.map(x => el("li", {}, x))),
@@ -571,7 +609,10 @@ function vShort() {
     const p = byId(r.id);
     const prev = i > 0 ? byId(state.route[i - 1].id) : null;
     const mins = prev ? driveMin(prev, p) : 0;
-    routeList.append(el("div", { class: "card" },
+    const routeCard = el("div", { class: "card" });
+    const routeImg = imgEl(p.img, p.name, "place-photo");
+    if (routeImg) routeCard.append(routeImg);
+    routeCard.append(
       el("h3", {}, `${i + 1}. ${p.name}`),
       prev ? el("div", { class: mins > 180 ? "warn" : "muted" }, `≈ ${fmtMin(mins)} ab ${prev.name} (grobe Schätzung${mins > 180 ? " – lang!" : ""})`)
            : el("div", { class: "muted" }, `≈ ${fmtMin(homeMin(p))} ab ${HOME.name} (Schätzung, ohne Pausen)`),
@@ -580,7 +621,8 @@ function vShort() {
         el("input", { type: "number", id: "n" + i, min: 1, max: 8, value: r.nights, onchange: e => { r.nights = Math.min(8, Math.max(1, Math.round(Number(e.target.value)) || 1)); save(); render(); } }),
         el("button", { class: "btn small", "aria-label": "nach oben", onclick: () => move(i, -1) }, "↑"),
         el("button", { class: "btn small", "aria-label": "nach unten", onclick: () => move(i, 1) }, "↓"),
-        el("button", { class: "btn small", onclick: () => { state.route.splice(i, 1); save(); render(); } }, "Entfernen"))));
+        el("button", { class: "btn small", onclick: () => { state.route.splice(i, 1); save(); render(); } }, "Entfernen")));
+    routeList.append(routeCard);
   });
   rb.append(routeList);
   function move(i, d) { const j = i + d; if (j < 0 || j >= state.route.length) return; [state.route[i], state.route[j]] = [state.route[j], state.route[i]]; save(); render(); }
@@ -684,7 +726,11 @@ function vPresent() {
   state.route.forEach((r, i) => {
     const p = byId(r.id), prev = i > 0 ? byId(state.route[i - 1].id) : null;
     const a = addDays(START, day), b = addDays(START, day + r.nights); day += r.nights;
-    slides.push(el("div", { class: "slide" },
+    const slide = el("div", { class: "slide" });
+    const slideImg = imgEl(p.img, p.name, "place-photo hero");
+    if (slideImg) slide.append(slideImg);
+    if (p.media?.length) slide.append(mediaGrid(p.media));
+    slide.append(
       el("div", { class: "muted" }, `Station ${i + 1} von ${state.route.length} · ${fmtDate(a)} → ${fmtDate(b)} · ${r.nights} Nächte`),
       el("h2", {}, p.name), el("div", { class: "muted" }, p.region),
       prev ? el("div", { class: "muted" }, `🚗 ≈ ${fmtMin(driveMin(prev, p))} ab ${prev.name} (Schätzung)`) : el("div", { class: "muted" }, `🚗 ≈ ${fmtMin(homeMin(p))} ab ${HOME.name}${state.transit.out ? " (verteilt auf 2 Tage, 1 Zwischenübernachtung)" : ""}`),
@@ -692,7 +738,8 @@ function vPresent() {
       el("div", {}, el("b", {}, "🥾 Wandern"), el("ul", { class: "tight" }, p.hikes.map(x => el("li", {}, x)))),
       el("div", {}, el("b", {}, "✨ Highlights"), el("ul", { class: "tight" }, p.highlights.map(x => el("li", {}, x)))),
       el("div", {}, "🐕 ", p.dog), el("div", { class: "warn" }, "⚠ ", p.risk),
-      state.notes[p.id] ? el("div", { class: "callout" }, "📝 ", state.notes[p.id]) : null));
+      state.notes[p.id] ? el("div", { class: "callout" }, "📝 ", state.notes[p.id]) : null);
+    slides.push(slide);
   });
   slides.push(el("div", { class: "slide" }, el("h2", {}, "Tagesplan"), vDayPlan()));
   /* Schlussfolie */
@@ -732,7 +779,7 @@ function vFragen() {
   return box;
 }
 
-render();
+applyImageManifest().then(render);
 </script>
 </body>
 </html>

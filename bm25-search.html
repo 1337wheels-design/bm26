@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BM25 Search Engine - Live Python</title>
+    <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
+    <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+    <style>
+        :root {
+            --color-bg-base: #0f172a;
+            --color-bg-elevated: #1e293b;
+            --color-bg-surface: #334155;
+            --color-text-primary: #f1f5f9;
+            --color-text-secondary: #cbd5e1;
+            --color-text-muted: #94a3b8;
+            --color-accent: #38bdf8;
+            --color-success: #10b981;
+            --color-border: rgba(148, 163, 184, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--color-bg-base);
+            color: var(--color-text-primary);
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--color-accent);
+            font-weight: 600;
+        }
+
+        .subtitle {
+            color: var(--color-text-muted);
+            margin-bottom: 2rem;
+            font-size: 1rem;
+        }
+
+        .section {
+            background: var(--color-bg-elevated);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--color-border);
+        }
+
+        .section h2 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            color: var(--color-accent);
+            font-weight: 600;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--color-text-secondary);
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+
+        textarea, input[type="text"] {
+            width: 100%;
+            padding: 0.75rem 2.5rem 0.75rem 0.75rem;
+            background: var(--color-bg-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            color: var(--color-text-primary);
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+        }
+
+        textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        textarea:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: var(--color-accent);
+        }
+
+        .tooltip {
+            position: absolute;
+            right: 0.75rem;
+            top: 2.75rem;
+            width: 20px;
+            height: 20px;
+            background: var(--color-text-muted);
+            border-radius: 50%;
+            cursor: help;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .tooltip:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            right: 0;
+            top: -5px;
+            transform: translateY(-100%);
+            background: var(--color-bg-surface);
+            color: var(--color-text-primary);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--color-border);
+            font-size: 0.8rem;
+            white-space: nowrap;
+            z-index: 1000;
+            max-width: 300px;
+            width: max-content;
+        }
+
+        .btn {
+            background: var(--color-accent);
+            color: var(--color-bg-base);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            margin-right: 0.5rem;
+        }
+
+        .btn:hover {
+            background: #0ea5e9;
+            transform: translateY(-1px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: var(--color-bg-surface);
+            color: var(--color-text-primary);
+        }
+
+        .btn-secondary:hover {
+            background: #475569;
+        }
+
+        .btn-success {
+            background: var(--color-success);
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .result-item {
+            background: var(--color-bg-surface);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            border-left: 3px solid var(--color-accent);
+        }
+
+        .result-score {
+            display: inline-block;
+            background: var(--color-accent);
+            color: var(--color-bg-base);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-right: 0.5rem;
+        }
+
+        .result-text {
+            color: var(--color-text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .stat-card {
+            background: var(--color-bg-surface);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--color-accent);
+        }
+
+        .stat-label {
+            color: var(--color-text-muted);
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: var(--color-text-muted);
+        }
+
+        .code-hint {
+            background: var(--color-bg-surface);
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            color: var(--color-text-muted);
+            margin-top: 0.5rem;
+        }
+
+        .live-status {
+            background: var(--color-success);
+            color: var(--color-bg-base);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: inline-block;
+        }
+
+        #loading {
+            display: none;
+            text-align: center;
+            padding: 1rem;
+            color: var(--color-accent);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .python-proof {
+            background: linear-gradient(135deg, var(--color-success), #059669);
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .python-timestamp {
+            font-weight: bold;
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔴 BM25 Search Engine - Live Python</h1>
+        <p class="subtitle">PyScript running live Python with real-time updates & detailed configuration tooltips</p>
+
+        <div class="python-proof" id="python-status">
+            🐍 Python Status: Initializing... <span class="python-timestamp" id="python-timestamp"></span>
+        </div>
+
+        <div class="section">
+            <h2>Document Corpus <span class="tooltip" data-tooltip="Enter documents (one per line). Max 100 docs recommended for browser performance.">ℹ️</span></h2>
+            <div class="input-group">
+                <label for="corpus">Documents:</label>
+                <textarea id="corpus" placeholder="Example:&#10;Python is a high-level programming language&#10;JavaScript is used for web development&#10;Machine learning algorithms analyze data patterns&#10;Artificial intelligence powers modern applications">Python is a high-level programming language
+JavaScript is used for web development
+Machine learning algorithms analyze data patterns
+Artificial intelligence powers modern applications
+Data science combines statistics and programming
+Web frameworks simplify application development
+Neural networks learn from training data
+Cloud computing provides scalable infrastructure</textarea>
+            </div>
+            <div class="button-group">
+                <button id="index-btn" class="btn">🔨 Build Index</button>
+                <button id="clear-btn" class="btn btn-secondary">🗑️ Clear</button>
+            </div>
+            <div class="code-hint">
+                💡 <strong>BM25 Parameters:</strong> k1=1.2 (term saturation), b=0.75 (length normalization) <span class="tooltip" data-tooltip="k1 controls term frequency saturation (1.2=default). b controls document length normalization (0.75=default). Higher k1=more saturation, higher b=more length penalty.">ℹ️</span>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Search Query <span class="tooltip" data-tooltip="Search supports multi-word queries. Returns top-10 results by BM25 score.">ℹ️</span></h2>
+            <div class="input-group">
+                <label for="query">Query:</label>
+                <input type="text" id="query" placeholder="e.g., python programming, machine learning">
+            </div>
+            <div class="button-group">
+                <button id="search-btn" class="btn">🔍 Search</button>
+            </div>
+            <div id="loading">⚙️ Processing with live Python...</div>
+        </div>
+
+        <div class="section">
+            <h2>Index Statistics <span class="tooltip" data-tooltip="Real-time stats updated by Python after each index build.">ℹ️</span></h2>
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="doc-count">0</div>
+                    <div class="stat-label">Documents</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="token-count">0</div>
+                    <div class="stat-label">Unique Tokens</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="avg-len">0</div>
+                    <div class="stat-label">Avg Doc Length</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Search Results <span class="tooltip" data-tooltip="Results ranked by BM25 score. Higher score = better relevance.">ℹ️</span></h2>
+            <div id="results">
+                <div class="empty-state">
+                    Build an index and search to see live Python results here
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="py" config='{"packages": ["numpy"]}'>
+        import math
+        import time
+        import asyncio
+        from js import document, setTimeout
+        from pyodide.ffi import create_proxy
+
+        # PROOF OF LIVE PYTHON EXECUTION WITH REALISTIC UPDATES
+        def update_python_status():
+            """Demonstrate Python is running live with timestamp"""
+            timestamp = time.strftime("%H:%M:%S")
+            status_elem = document.getElementById("python-status")
+            timestamp_elem = document.getElementById("python-timestamp")
+            
+            status_elem.innerHTML = f"🟢 Python LIVE @ {timestamp} | PyScript Active"
+            timestamp_elem.innerText = timestamp
+            
+            # Schedule next update (real-time heartbeat)
+            def schedule_next():
+                update_python_status()
+            proxy = create_proxy(schedule_next)
+            setTimeout(proxy, 1000)
+
+        update_python_status()
+
+        class BM25:
+            def __init__(self, k1=1.2, b=0.75):
+                self.k1 = k1
+                self.b = b
+                self.corpus = []
+                self.tokenized_corpus = []
+                self.doc_freqs = {}
+                self.idf = {}
+                self.doc_len = []
+                self.avgdl = 0
+                self.N = 0
+                self.build_time = 0
+
+            def tokenize(self, text):
+                """Simple tokenization: lowercase and split"""
+                return text.lower().split()
+
+            def build_index(self, corpus):
+                """Build BM25 index from corpus - LIVE PYTHON EXECUTION"""
+                start_time = time.time()
+                self.corpus = corpus
+                self.N = len(corpus)
+                
+                print(f"🐍 Python: Building index for {self.N} documents...")
+                
+                # Tokenize all documents
+                self.tokenized_corpus = [self.tokenize(doc) for doc in corpus]
+                
+                # Calculate document lengths
+                self.doc_len = [len(doc) for doc in self.tokenized_corpus]
+                self.avgdl = sum(self.doc_len) / self.N if self.N > 0 else 0
+                
+                # Calculate document frequencies
+                self.doc_freqs = {}
+                for tokens in self.tokenized_corpus:
+                    unique_tokens = set(tokens)
+                    for token in unique_tokens:
+                        self.doc_freqs[token] = self.doc_freqs.get(token, 0) + 1
+                
+                # Calculate IDF values
+                self.idf = {}
+                for token, freq in self.doc_freqs.items():
+                    self.idf[token] = math.log((self.N - freq + 0.5) / (freq + 0.5) + 1)
+                
+                self.build_time = time.time() - start_time
+                print(f"🐍 Python: Index built in {self.build_time:.2f}s | {len(self.doc_freqs)} unique tokens")
+
+            def score_document(self, query_tokens, doc_idx):
+                """Calculate BM25 score for a document"""
+                score = 0
+                doc_tokens = self.tokenized_corpus[doc_idx]
+                doc_length = self.doc_len[doc_idx]
+                
+                # Count term frequencies in document
+                term_freqs = {}
+                for token in doc_tokens:
+                    term_freqs[token] = term_freqs.get(token, 0) + 1
+                
+                # Calculate score for each query term
+                for token in query_tokens:
+                    if token not in term_freqs:
+                        continue
+                    
+                    tf = term_freqs[token]
+                    idf = self.idf.get(token, 0)
+                    
+                    # BM25 formula
+                    numerator = tf * (self.k1 + 1)
+                    denominator = tf + self.k1 * (1 - self.b + self.b * (doc_length / self.avgdl))
+                    score += idf * (numerator / denominator)
+                
+                return score
+
+            def search(self, query, top_k=10):
+                """Search corpus and return top-k results"""
+                query_tokens = self.tokenize(query)
+                print(f"🐍 Python: Searching for '{query}' ({len(query_tokens)} tokens)")
+                
+                # Score all documents
+                scores = []
+                for idx in range(self.N):
+                    score = self.score_document(query_tokens, idx)
+                    scores.append((idx, score, self.corpus[idx]))
+                
+                # Sort by score descending
+                scores.sort(key=lambda x: x[1], reverse=True)
+                
+                print(f"🐍 Python: Found {len([s for s in scores if s[1] > 0])} relevant results")
+                return scores[:top_k]
+
+            def get_stats(self):
+                """Return index statistics"""
+                return {
+                    'doc_count': self.N,
+                    'token_count': len(self.doc_freqs),
+                    'avg_len': round(self.avgdl, 1),
+                    'build_time': round(self.build_time, 2)
+                }
+
+        # Global BM25 instance
+        bm25 = BM25(k1=1.2, b=0.75)
+
+        def update_stats():
+            """Update statistics display"""
+            stats = bm25.get_stats()
+            document.getElementById('doc-count').innerText = str(stats['doc_count'])
+            document.getElementById('token-count').innerText = str(stats['token_count'])
+            document.getElementById('avg-len').innerText = str(stats['avg_len'])
+
+        async def build_index(event):
+            """Build index from corpus textarea - ASYNC for live updates"""
+            corpus_text = document.getElementById('corpus').value
+            if not corpus_text.strip():
+                display_results([])
+                return
+            
+            # Split by newlines and filter empty lines
+            corpus = [line.strip() for line in corpus_text.split('\n') if line.strip()]
+            
+            # Update status live
+            status_elem = document.getElementById("python-status")
+            status_elem.innerHTML = "🟡 Python: Building index... (live)"
+            
+            # Build index
+            bm25.build_index(corpus)
+            
+            # Live status update
+            update_python_status()
+            update_stats()
+            
+            # Show confirmation with build time
+            results_div = document.getElementById('results')
+            results_div.innerHTML = f'''
+                <div class="live-status">
+                    ✅ Index built LIVE by Python in {bm25.build_time:.2f}s | {len(corpus)} docs | {len(bm25.doc_freqs)} tokens
+                </div>
+            '''
+
+        def search_corpus(event):
+            """Search the indexed corpus"""
+            query = document.getElementById('query').value
+            if not query.strip():
+                return
+            
+            if bm25.N == 0:
+                results_div = document.getElementById('results')
+                results_div.innerHTML = '<div class="empty-state">⚠️ Please build an index first</div>'
+                return
+            
+            # Show loading with Python indicator
+            loading = document.getElementById('loading')
+            loading.style.display = 'block'
+            loading.innerHTML = '⚙️ Python computing BM25 scores live...'
+            
+            # Perform search (synchronous but fast)
+            results = bm25.search(query, top_k=10)
+            
+            # Hide loading
+            loading.style.display = 'none'
+            
+            # Display results
+            display_results(results)
+
+        def display_results(results):
+            """Display search results"""
+            results_div = document.getElementById('results')
+            
+            if not results:
+                results_div.innerHTML = '<div class="empty-state">No results found</div>'
+                return
+            
+            html = ''
+            relevant_count = 0
+            for idx, (doc_idx, score, text) in enumerate(results):
+                if score > 0:
+                    relevant_count += 1
+                    html += f'''
+                    <div class="result-item">
+                        <div>
+                            <span class="result-score">Score: {score:.3f}</span>
+                            <strong>Doc {doc_idx + 1}</strong>
+                        </div>
+                        <div class="result-text">{text}</div>
+                    </div>
+                    '''
+            
+            if not html:
+                results_div.innerHTML = '<div class="empty-state">No relevant results found (all scores ≤ 0)</div>'
+            else:
+                results_div.innerHTML = f'''
+                    <div class="live-status">
+                        🐍 Python found {relevant_count} relevant results (top-10 shown)
+                    </div>
+                    {html}
+                '''
+
+        def clear_corpus(event):
+            """Clear corpus and reset"""
+            document.getElementById('corpus').value = ''
+            bm25.build_index([])
+            update_stats()
+            document.getElementById('results').innerHTML = '<div class="empty-state">Build an index and search to see live Python results here</div>'
+            update_python_status()
+
+        # Attach event listeners
+        document.getElementById('index-btn').onclick = build_index
+        document.getElementById('search-btn').onclick = search_corpus
+        document.getElementById('clear-btn').onclick = clear_corpus
+        
+        # Allow Enter key in query field
+        def handle_enter(event):
+            if event.keyCode == 13:
+                search_corpus(event)
+        
+        document.getElementById('query').onkeypress = handle_enter
+
+        # Initialize stats display
+        update_stats()
+        
+        print("🐍 PyScript Python environment fully loaded and ready!")
+        print("💡 Tip: Watch console for live Python execution logs")
+    </script>
+</body>
+</html>
