@@ -19,7 +19,7 @@
     "riva_garda": { "file": "File:Riva del Garda- Palazzo del Pretorio.jpg", "search": "Riva del Garda Lago" },
     "belluno": { "file": "File:Dolomiti Belluno nuvole.jpg", "search": "Belluno Dolomiti" },
     "treviso": { "file": "File:Treviso - Piazza dei Signori.JPG", "search": "Treviso Piazza dei Signori" },
-    "asolo": { "file": "File:Asolo Piazza Garibaldi.JPG", "search": "Asolo Colli veneti" }
+    "asolo": { "file": null, "search": "Asolo Rocca veneto" }
   },
   "activities": [
     ["meran", "meran-tappeiner", "hike", "Tappeinerweg", "File:Meran Tappeiner Promenade Meran.jpg"],

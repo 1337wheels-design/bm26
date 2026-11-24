@@ -2,35 +2,35 @@
   "places": {
     "meran": {
       "img": "images/places/meran.jpg",
-      "imgSource": "Meran Südtirol"
+      "imgSource": "File:Meran, M. Tappeinerweg (Blick Gegen Die Mendel). (176B) (NBY 420358).jpg"
     },
     "bozen": {
       "img": "images/places/bozen.jpg",
-      "imgSource": "Bozen Südtirol"
+      "imgSource": "File:Bozen Waltherplatz.jpg"
     },
     "brixen": {
       "img": "images/places/brixen.jpg",
-      "imgSource": "Brixen Südtirol"
+      "imgSource": "Brixen Dom Südtirol"
     },
     "groeden": {
       "img": "images/places/groeden.jpg",
-      "imgSource": "Gröden Dolomiten"
+      "imgSource": "Gröden Dolomiten Langkofel"
     },
     "bruneck": {
       "img": "images/places/bruneck.jpg",
-      "imgSource": "Bruneck Südtirol"
+      "imgSource": "Bruneck Altstadt"
     },
     "hochpustertal": {
       "img": "images/places/hochpustertal.jpg",
-      "imgSource": "Pragser Wildsee"
+      "imgSource": "File:Pragser Wildsee.jpg"
     },
     "cortina": {
       "img": "images/places/cortina.jpg",
-      "imgSource": "Cortina d Ampezzo"
+      "imgSource": "File:Corso Italia, Cortina d'Ampezzo.jpg"
     },
     "fiemme": {
       "img": "images/places/fiemme.jpg",
-      "imgSource": "Val di Fiemme"
+      "imgSource": "Predazzo Val di Fiemme"
     },
     "trient": {
       "img": "images/places/trient.jpg",
@@ -46,35 +46,35 @@
     },
     "vicenza": {
       "img": "images/places/vicenza.jpg",
-      "imgSource": "Basilica Palladiana Vicenza"
+      "imgSource": "File:Basilica Palladiana Vicenza.jpg"
     },
     "hallstatt": {
       "img": "images/places/hallstatt.jpg",
-      "imgSource": "Hallstatt Austria"
+      "imgSource": "Hallstatt See winter"
     },
     "verona": {
       "img": "images/places/verona.jpg",
-      "imgSource": "pending"
+      "imgSource": "File:Arena di Verona.jpg"
     },
     "padova": {
       "img": "images/places/padova.jpg",
-      "imgSource": "pending"
+      "imgSource": "File:Prato della Valle, settembre 2022 (Padova) 01.jpg"
     },
     "riva_garda": {
       "img": "images/places/riva_garda.jpg",
-      "imgSource": "pending"
+      "imgSource": "Riva del Garda Lago"
     },
     "belluno": {
       "img": "images/places/belluno.jpg",
-      "imgSource": "pending"
+      "imgSource": "File:Dolomiti Belluno nuvole.jpg"
     },
     "treviso": {
       "img": "images/places/treviso.jpg",
-      "imgSource": "pending"
+      "imgSource": "Treviso Piazza dei Signori"
     },
     "asolo": {
       "img": "images/places/asolo.jpg",
-      "imgSource": "pending"
+      "imgSource": "Asolo Rocca veneto"
     }
   },
   "activities": {
@@ -82,179 +82,182 @@
       {
         "src": "images/activities/meran-tappeiner.jpg",
         "title": "Tappeinerweg",
-        "imgSource": "Tappeinerweg Meran",
-        "kind": "hike"
+        "kind": "hike",
+        "imgSource": "Tappeinerweg"
       },
       {
-        "src": "images/activities/meran-markt.jpg",
+        "src": "images/activities/meran-therme.jpg",
         "title": "Therme Meran",
-        "imgSource": "Therme Meran"
+        "kind": "highlight",
+        "imgSource": "File:Hotel Therme Meran 2011.jpg"
       }
     ],
     "bozen": [
       {
         "src": "images/activities/bozen-markt.jpg",
         "title": "Christkindlmarkt Bozen",
-        "imgSource": "Christkindlmarkt Bozen",
-        "kind": "highlight"
+        "kind": "highlight",
+        "imgSource": "Christkindlmarkt Bozen"
       },
       {
         "src": "images/activities/bozen-ritten.jpg",
         "title": "Rittner Höhenweg",
-        "imgSource": "Rittner Erdpyramiden",
-        "kind": "hike"
+        "kind": "hike",
+        "imgSource": "Rittner Höhenweg"
       }
     ],
     "brixen": [
       {
         "src": "images/activities/brixen-villnoess.jpg",
         "title": "Geislerspitzen (Villnöss)",
-        "imgSource": "Geislerspitzen Villnöss",
-        "kind": "hike"
+        "kind": "hike",
+        "imgSource": "Geislerspitzen (Villnöss)"
       },
       {
         "src": "images/activities/brixen-kloster.jpg",
         "title": "Kloster Neustift",
-        "imgSource": "Kloster Neustift",
-        "kind": "highlight"
+        "kind": "highlight",
+        "imgSource": "File:Kloster Neustift.jpg"
       }
     ],
     "groeden": [
       {
         "src": "images/activities/groeden-seiser.jpg",
         "title": "Seiser Alm",
-        "imgSource": "Seiser Alm Dolomiten",
-        "kind": "hike"
+        "kind": "hike",
+        "imgSource": "Seiser Alm"
       },
       {
         "src": "images/activities/groeden-langkofel.jpg",
         "title": "Langkofel",
-        "imgSource": "Langkofel Gröden",
-        "kind": "highlight"
+        "kind": "highlight",
+        "imgSource": "Langkofel"
       }
     ],
     "bruneck": [
       {
         "src": "images/activities/bruneck-pragser.jpg",
         "title": "Pragser Wildsee",
-        "imgSource": "Pragser Wildsee",
-        "kind": "hike"
+        "kind": "hike",
+        "imgSource": "File:Lago di Braies ghiacciato 2011.jpg"
       },
       {
         "src": "images/activities/bruneck-schloss.jpg",
         "title": "Schloss Bruneck",
-        "imgSource": "Schloss Bruneck",
-        "kind": "highlight"
+        "kind": "highlight",
+        "imgSource": "File:Schloss Bruneck.jpg"
       }
     ],
     "hochpustertal": [
       {
         "src": "images/activities/hochpustertal-dreizinnen.jpg",
         "title": "Drei Zinnen",
-        "imgSource": "Drei Zinnen",
-        "kind": "highlight"
+        "kind": "highlight",
+        "imgSource": "Drei Zinnen"
       },
       {
         "src": "images/activities/hochpustertal-toblach.jpg",
         "title": "Toblacher See",
-        "imgSource": "Toblacher See",
-        "kind": "hike"
+        "kind": "hike",
+        "imgSource": "File:Toblacher See.jpg"
       }
     ],
     "cortina": [
       {
         "src": "images/activities/cortina-corso.jpg",
         "title": "Corso Italia",
-        "imgSource": "Cortina Corso Italia",
-        "kind": "highlight"
+        "kind": "highlight",
+        "imgSource": "File:Corso Italia, Cortina d'Ampezzo.jpg"
       },
       {
-        "src": "images/activities/cortina-lago.jpg",
-        "title": "Lago di Misurina",
-        "imgSource": "Lago di Misurina"
+        "src": "images/activities/cortina-misurina.jpg",
+        "title": "Misurina",
+        "kind": "highlight",
+        "imgSource": "File:Lago di Misurina.jpg"
       }
     ],
     "fiemme": [
       {
         "src": "images/activities/fiemme-predazzo.jpg",
         "title": "Predazzo & Wald",
-        "imgSource": "Predazzo Dolomiti",
-        "kind": "hike"
+        "kind": "hike",
+        "imgSource": "Predazzo & Wald"
       },
       {
         "src": "images/activities/fiemme-paneveggio.jpg",
         "title": "Paneveggio",
-        "imgSource": "Foresta del Paneveggio",
-        "kind": "hike"
+        "kind": "hike",
+        "imgSource": "Paneveggio"
       }
     ],
     "trient": [
       {
         "src": "images/activities/trient-muse.jpg",
         "title": "MUSE Trento",
-        "imgSource": "MUSE Trento",
-        "kind": "highlight"
+        "kind": "highlight",
+        "imgSource": "MUSE Trento"
       },
       {
         "src": "images/activities/trient-markt.jpg",
         "title": "Weihnachtsmarkt",
-        "imgSource": "Mercatini Natale Trento",
-        "kind": "highlight"
+        "kind": "highlight",
+        "imgSource": "Weihnachtsmarkt"
       }
     ],
     "levico": [
       {
         "src": "images/activities/levico-terme.jpg",
         "title": "Terme di Levico",
-        "imgSource": "Terme di Levico",
-        "kind": "highlight"
+        "kind": "highlight",
+        "imgSource": "Terme di Levico"
       },
       {
         "src": "images/activities/levico-lago.jpg",
         "title": "Lago di Caldonazzo",
-        "imgSource": "Lago di Caldonazzo",
-        "kind": "hike"
+        "kind": "hike",
+        "imgSource": "Lago di Caldonazzo"
       }
     ],
     "bassano": [
       {
         "src": "images/activities/bassano-ponte.jpg",
         "title": "Ponte Vecchio",
-        "imgSource": "Ponte degli Alpini",
-        "kind": "highlight"
+        "kind": "highlight",
+        "imgSource": "Ponte Vecchio"
       },
       {
-        "src": "images/activities/bassano-grappa.jpg",
-        "title": "Monte Grappa Bassano",
-        "imgSource": "Monte Grappa Bassano"
+        "src": "images/activities/bassano-brenta.jpg",
+        "title": "Brenta-Ufer",
+        "kind": "hike",
+        "imgSource": "Brenta-Ufer"
       }
     ],
     "vicenza": [
       {
         "src": "images/activities/vicenza-teatro.jpg",
         "title": "Teatro Olimpico",
-        "imgSource": "Teatro Olimpico Vicenza",
-        "kind": "highlight"
+        "kind": "highlight",
+        "imgSource": "Teatro Olimpico"
       },
       {
         "src": "images/activities/vicenza-rotonda.jpg",
         "title": "Villa La Rotonda",
-        "imgSource": "Villa La Rotonda",
-        "kind": "highlight"
+        "kind": "highlight",
+        "imgSource": "Villa La Rotonda"
       }
     ],
     "hallstatt": [
       {
         "src": "images/activities/hallstatt-see.jpg",
         "title": "Seeuferweg",
-        "imgSource": "Hallstätter See",
-        "kind": "hike"
+        "kind": "hike",
+        "imgSource": "File:Hallstätter See.jpg"
       },
       {
         "src": "images/activities/hallstatt-dorf.jpg",
         "title": "Altstadt",
-        "imgSource": "Hallstatt Altstadt",
-        "kind": "highlight"
+        "kind": "highlight",
+        "imgSource": "Altstadt"
       }
     ],
     "verona": [
@@ -262,13 +265,13 @@
         "src": "images/activities/verona-arena.jpg",
         "title": "Arena & Piazza Bra",
         "kind": "highlight",
-        "imgSource": "pending"
+        "imgSource": "File:Arena di Verona.jpg"
       },
       {
         "src": "images/activities/verona-adige.jpg",
         "title": "Adige-Promenade",
         "kind": "hike",
-        "imgSource": "pending"
+        "imgSource": "Adige-Promenade"
       }
     ],
     "padova": [
@@ -276,13 +279,13 @@
         "src": "images/activities/padova-prato.jpg",
         "title": "Prato della Valle",
         "kind": "highlight",
-        "imgSource": "pending"
+        "imgSource": "File:Prato della Valle, settembre 2022 (Padova) 01.jpg"
       },
       {
         "src": "images/activities/padova-basilica.jpg",
         "title": "Basilica di Sant'Antonio",
         "kind": "highlight",
-        "imgSource": "pending"
+        "imgSource": "Basilica di Sant'Antonio"
       }
     ],
     "riva_garda": [
@@ -290,13 +293,13 @@
         "src": "images/activities/riva-lungolago.jpg",
         "title": "Lungolago Riva",
         "kind": "hike",
-        "imgSource": "pending"
+        "imgSource": "Lungolago Riva"
       },
       {
         "src": "images/activities/riva-bastione.jpg",
         "title": "Bastione Panorama",
         "kind": "highlight",
-        "imgSource": "pending"
+        "imgSource": "File:Bastione Riva del Garda.jpg"
       }
     ],
     "belluno": [
@@ -304,13 +307,13 @@
         "src": "images/activities/belluno-dolomiti.jpg",
         "title": "Dolomiten-Vorland",
         "kind": "highlight",
-        "imgSource": "pending"
+        "imgSource": "File:Dolomiti Belluno nuvole.jpg"
       },
       {
         "src": "images/activities/belluno-altstadt.jpg",
         "title": "Piazza & Altstadt",
         "kind": "hike",
-        "imgSource": "pending"
+        "imgSource": "File:Belluno Piazza Duomo.jpg"
       }
     ],
     "treviso": [
@@ -318,13 +321,13 @@
         "src": "images/activities/treviso-canali.jpg",
         "title": "Canali & Ponti",
         "kind": "hike",
-        "imgSource": "pending"
+        "imgSource": "Canali & Ponti"
       },
       {
         "src": "images/activities/treviso-piazza.jpg",
         "title": "Piazza dei Signori",
         "kind": "highlight",
-        "imgSource": "pending"
+        "imgSource": "Piazza dei Signori"
       }
     ],
     "asolo": [
@@ -332,13 +335,13 @@
         "src": "images/activities/asolo-roc.jpg",
         "title": "Rocca di Asolo",
         "kind": "hike",
-        "imgSource": "pending"
+        "imgSource": "Rocca di Asolo"
       },
       {
         "src": "images/activities/asolo-piazza.jpg",
         "title": "Piazza Garibaldi",
         "kind": "highlight",
-        "imgSource": "pending"
+        "imgSource": "Piazza Garibaldi"
       }
     ]
   }
