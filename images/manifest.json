@@ -1,0 +1,118 @@
+{
+  "places": {
+    "meran": {
+      "img": "images/places/meran.jpg",
+      "imgSource": "Meran Südtirol"
+    },
+    "bozen": {
+      "img": "images/places/bozen.jpg",
+      "imgSource": "Bozen Südtirol"
+    },
+    "brixen": {
+      "img": "images/places/brixen.jpg",
+      "imgSource": "Brixen Südtirol"
+    },
+    "groeden": {
+      "img": "images/places/groeden.jpg",
+      "imgSource": "Gröden Dolomiten"
+    },
+    "bruneck": {
+      "img": "images/places/bruneck.jpg",
+      "imgSource": "Bruneck Südtirol"
+    },
+    "hochpustertal": {
+      "img": "images/places/hochpustertal.jpg",
+      "imgSource": "Pragser Wildsee"
+    },
+    "cortina": {
+      "img": "images/places/cortina.jpg",
+      "imgSource": "Cortina d Ampezzo"
+    },
+    "fiemme": {
+      "img": "images/places/fiemme.jpg",
+      "imgSource": "Val di Fiemme"
+    },
+    "trient": {
+      "img": "images/places/trient.jpg",
+      "imgSource": "Trento Piazza Duomo"
+    },
+    "levico": {
+      "img": "images/places/levico.jpg",
+      "imgSource": "Lago di Levico"
+    },
+    "bassano": {
+      "img": "images/places/bassano.jpg",
+      "imgSource": "Ponte degli Alpini Bassano"
+    },
+    "vicenza": {
+      "img": "images/places/vicenza.jpg",
+      "imgSource": "Basilica Palladiana Vicenza"
+    },
+    "hallstatt": {
+      "img": "images/places/hallstatt.jpg",
+      "imgSource": "Hallstatt Austria"
+    }
+  },
+  "activities": {
+    "meran": [
+      {
+        "src": "images/activities/meran-tappeiner.jpg",
+        "title": "Tappeinerweg Meran",
+        "imgSource": "Tappeinerweg Meran"
+      },
+      {
+        "src": "images/activities/meran-markt.jpg",
+        "title": "Therme Meran",
+        "imgSource": "Therme Meran"
+      }
+    ],
+    "bozen": [
+      {
+        "src": "images/activities/bozen-markt.jpg",
+        "title": "Christkindlmarkt Bozen",
+        "imgSource": "Christkindlmarkt Bozen"
+      }
+    ],
+    "brixen": [
+      {
+        "src": "images/activities/brixen-villnoess.jpg",
+        "title": "Geislerspitzen Villnöss",
+        "imgSource": "Geislerspitzen Villnöss"
+      }
+    ],
+    "groeden": [],
+    "bruneck": [
+      {
+        "src": "images/activities/bruneck-pragser.jpg",
+        "title": "Pragser Wildsee",
+        "imgSource": "Pragser Wildsee"
+      }
+    ],
+    "hochpustertal": [
+      {
+        "src": "images/activities/hochpustertal-dreizinnen.jpg",
+        "title": "Drei Zinnen",
+        "imgSource": "Drei Zinnen"
+      }
+    ],
+    "cortina": [
+      {
+        "src": "images/activities/cortina-corso.jpg",
+        "title": "Cortina Corso Italia",
+        "imgSource": "Cortina Corso Italia"
+      }
+    ],
+    "fiemme": [],
+    "trient": [
+      {
+        "src": "images/activities/trient-muse.jpg",
+        "title": "MUSE Trento",
+        "imgSource": "MUSE Trento"
+      }
+    ],
+    "levico": [],
+    "bassano": [],
+    "vicenza": [],
+    "hallstatt": []
+  }
+}
