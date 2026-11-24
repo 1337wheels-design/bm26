@@ -4,9 +4,9 @@ Offline-fähiger Reiseplaner (`dolomiten.html`) mit Orts- und Aktivitätsfotos a
 
 ## GitHub Pages
 
-**Einmalig:** [Repository Settings → Pages](https://github.com/1337wheels-design/bm26/settings/pages) → **Build and deployment → Source: GitHub Actions** speichern. Danach unter **Actions** den fehlgeschlagenen Workflow **Re-run** ausführen.
+**Schnell:** [DEPLOY.md](DEPLOY.md) — **Deploy from a branch** → `main` / `(root)` (kein Workflow nötig).
 
-*(Privates Repo: GitHub Pro/Team für öffentliche Pages-URL, oder Repo auf **Public** stellen.)*
+Alternative GitHub Actions: siehe DEPLOY.md.
 
 Dann erreichbar unter:
 
