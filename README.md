@@ -4,9 +4,7 @@ Offline-fähiger Reiseplaner (`dolomiten.html`) mit Orts- und Aktivitätsfotos a
 
 ## GitHub Pages
 
-**Schnell:** [DEPLOY.md](DEPLOY.md) — **Deploy from a branch** → `main` / `(root)` (kein Workflow nötig).
-
-Alternative GitHub Actions: siehe DEPLOY.md.
+**Integration:** Push auf `main` → Workflow baut Branch `gh-pages`. Einmalig Pages auf Branch **`gh-pages`** stellen — [DEPLOY.md](DEPLOY.md).
 
 Dann erreichbar unter:
 

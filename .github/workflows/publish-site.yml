@@ -1,0 +1,39 @@
+# Publishes the static Dolomiten planner to branch `gh-pages`.
+# One-time in repo: Settings → Pages → Source «Deploy from a branch» → branch `gh-pages` / `(root)`.
+name: Publish site
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-gh-pages
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Assemble site bundle
+        run: |
+          set -euo pipefail
+          rm -rf _site && mkdir _site
+          cp index.html dolomiten.html bm25-search.html LICENSE _site/
+          cp -f .nojekyll _site/ 2>/dev/null || touch _site/.nojekyll
+          cp -r images _site/
+
+      - name: Publish to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./_site
+          publish_branch: gh-pages
+          force_orphan: true
+          commit_message: "deploy: ${{ github.sha }}"

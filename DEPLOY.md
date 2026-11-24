@@ -1,19 +1,28 @@
-# Dolomiten-Planer online stellen (GitHub Pages)
+# Deployment (GitHub Pages)
 
-## Empfohlen: Deploy from a branch (kein Actions-Fehler)
+## Integration
 
-1. [Settings → Pages](https://github.com/1337wheels-design/bm26/settings/pages)
-2. **Build and deployment → Source:** **Deploy from a branch**
-3. **Branch:** `main` · Ordner **`/ (root)`** → **Save**
-4. Nach 1–2 Minuten öffnen: **https://1337wheels-design.github.io/bm26/dolomiten.html**
+| Was | Wie |
+|-----|-----|
+| **CI** | Push auf `main` → Workflow [Publish site](https://github.com/1337wheels-design/bm26/actions/workflows/publish-site.yml) schreibt Branch `gh-pages` (nur HTML + `images/`) |
+| **Hosting** | Einmalig: [Settings → Pages](https://github.com/1337wheels-design/bm26/settings/pages) → **Deploy from a branch** → Branch **`gh-pages`** · **`/ (root)`** → **Save** |
 
-Der Workflow „Deploy GitHub Pages“ wird dabei **nicht** benötigt.
+Danach aktualisiert sich die Live-Seite bei jedem Push auf `main` (nach dem Workflow, ca. 1–2 Min.).
 
-## Alternative: GitHub Actions
+## URLs
 
-Nur wenn du bewusst **GitHub Actions** als Source willst:
+- https://1337wheels-design.github.io/bm26/
+- https://1337wheels-design.github.io/bm26/dolomiten.html
 
-1. Unter Pages zuerst **GitHub Actions** wählen und **Save** (einmalig).
-2. [Actions → Deploy GitHub Pages → Run workflow](https://github.com/1337wheels-design/bm26/actions/workflows/pages.yml)
+## Warum nicht „GitHub Actions“ als Pages-Source?
 
-**Nicht** `configure-pages` mit `enablement: true` verwenden — das bricht nach ~5 s mit *Resource not accessible by integration* ab.
+Der offizielle `deploy-pages`-Flow braucht manuell aktiviertes Pages **und** OIDC (`pages: write`).  
+`configure-pages` mit `enablement: true` schlägt nach ~5 s mit *Resource not accessible by integration* fehl.  
+Der **`gh-pages`-Branch** nutzt nur `contents: write` und funktioniert zuverlässig mit dem Standard-`GITHUB_TOKEN`.
+
+## Lokal testen
+
+```bash
+python3 -m http.server 8080
+# http://127.0.0.1:8080/dolomiten.html
+```
