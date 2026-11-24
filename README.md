@@ -4,7 +4,11 @@ Offline-fähiger Reiseplaner (`dolomiten.html`) mit Orts- und Aktivitätsfotos a
 
 ## GitHub Pages
 
-Nach dem Merge in `main` und einmaliger Aktivierung unter **Settings → Pages → GitHub Actions** ist die App erreichbar unter:
+**Einmalig:** [Repository Settings → Pages](https://github.com/1337wheels-design/bm26/settings/pages) → **Build and deployment → Source: GitHub Actions** speichern. Danach unter **Actions** den fehlgeschlagenen Workflow **Re-run** ausführen.
+
+*(Privates Repo: GitHub Pro/Team für öffentliche Pages-URL, oder Repo auf **Public** stellen.)*
+
+Dann erreichbar unter:
 
 - **Start:** `https://1337wheels-design.github.io/bm26/` (Weiterleitung)
 - **Planer:** `https://1337wheels-design.github.io/bm26/dolomiten.html`
