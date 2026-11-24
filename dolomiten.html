@@ -178,43 +178,85 @@ const PLACES = [
     highlights:["Toblach: Gustav-Mahler-Komponierhäuschen (Öffnung prüfen)","Dürrensee-Panorama"],
     dog:"Flache Winterwege ideal für Corgi – Pfoten bei Streusalz abwischen.",
     risk:"Hohe Lagen: Schnee/Eis wahrscheinlich; Hütten zu." },
-  { id:"cortina", name:"Cortina d'Ampezzo", region:"Veneto (Dolomiten)", lat:46.537, lon:12.136,
-    s:{w:3,wel:4,k:3,l:3,h:3,wi:2}, tags:["Olympia-Ort","Passstraßen","Ski"],
+  { id:"cortina", name:"Cortina d'Ampezzo", region:"Veneto / Dolomiten (Italien)", lat:46.537, lon:12.136,
+    s:{w:3,wel:4,k:3,l:3,h:3,wi:2}, tags:["Italien","Olympia-Ort","Passstraßen","Ski"],
     why:"Mondäne Dolomitenstadt mit Rundum-Panorama, Olympia-Winter-Kulisse und sehr schönen Spaziergängen – aber teuer und stärker vom Winterwetter abhängig.",
     hikes:["Radweg/Fußweg Cortina–Fiames (Altes Bahntrassee)","Lago Ghedina","Weg nach Pocol (kurz, Aussicht)"],
     highlights:["Corso Italia Flanieren & Cafés","Passstraßen Falzarego/Giau: wetterabhängig (nur bei freien Straßen)","Museo Ladin"],
     dog:"Stadt mit Hund ok; Preise Hotelfrühstück/Parken hoch.",
     risk:"Nur Zufahrt über Hochpustertal/Cimabanche (ca. 1.530 m) ohne Ketten riskant; Passstraßen wetterabhängig. Mit Allwetterreifen ohne Ketten eher nicht empfohlen." },
-  { id:"fiemme", name:"Val di Fiemme / Predazzo", region:"Trentino", lat:46.31, lon:11.6,
-    s:{w:4,wel:3,k:3,l:4,h:4,wi:4}, tags:["Fleimstal","Wald","Langlauf","Ruhe"],
+  { id:"fiemme", name:"Val di Fiemme / Predazzo", region:"Trentino (Italien)", lat:46.31, lon:11.6,
+    s:{w:4,wel:3,k:3,l:4,h:4,wi:4}, tags:["Italien","Fleimstal","Wald","Langlauf","Ruhe"],
     why:"Weite Waldtäler, Langlaufloipen und ruhige Dörfer – günstiger als Gröden, gut für Lese-/Wanderpausen zwischen Südtirol und Veneto.",
     hikes:["Waldwege Predazzo – Bellamonte","Paneveggio Naturpark (Winterwege, vorher prüfen)"],
     highlights:["Fleimstaler Holz & Geigen (Stradivari-Tradition)","Ruhige Ferienwohnungen im Trentino"],
     dog:"Naturpark-Regeln beachten (Leinenpflicht).",
     risk:"Hohe Pässe Richtung Süden (Rolle, Costalunga) im Winter wetterabhängig." },
-  { id:"trient", name:"Trient (Trento)", region:"Trentino", lat:46.067, lon:11.121,
-    s:{w:3,wel:3,k:5,l:3,h:4,wi:5}, tags:["Stadt","Weihnachtsmarkt","MUSE","Kochen"],
+  { id:"trient", name:"Trient (Trento)", region:"Trentino (Italien)", lat:46.067, lon:11.121,
+    s:{w:3,wel:3,k:5,l:3,h:4,wi:5}, tags:["Italien","Stadt","Weihnachtsmarkt","MUSE","Kochen"],
     why:"Große Stadt mit berühmtem Weihnachtsmarkt, MUSE-Museum, guten Märkten und Weinen. Sehr gut als wetterfeste Station.",
     hikes:["Doss Trento (kurz)","Etschtal-Radweg Spaziergang","Monte Bondone (Winter: Schnee prüfen)"],
     highlights:["Mercatini di Natale Trento (Termine prüfen)","MUSE Wissenschaftsmuseum","Kochen mit Trentiner Produkten (Polenta, Käse, Teroldego)"],
     dog:"Hundefreundliche Stadt; Märkte abends sehr voll.",
     risk:"Wenig 'Dolomiten-Gefühl', mehr Stadt." },
-  { id:"levico", name:"Levico/Valsugana (Seen & Terme)", region:"Trentino", lat:46.012, lon:11.304,
-    s:{w:3,wel:5,k:3,l:5,h:3,wi:5}, tags:["Thermen","Seen","Ruhe","Lesen"],
+  { id:"levico", name:"Levico/Valsugana (Seen & Terme)", region:"Trentino (Italien)", lat:46.012, lon:11.304,
+    s:{w:3,wel:5,k:3,l:5,h:3,wi:5}, tags:["Italien","Thermen","Seen","Ruhe","Lesen"],
     why:"Ruhiger Kurort am Kalterer-ähnlichen Seenhügelland – Terme Levico/Roncegno und Seeuferwege. Gut für Lese- und Wellnesstage.",
     hikes:["Lago di Caldonazzo/Levico Uferwege (flach)","Castel Selva Spaziergang"],
     highlights:["Terme di Levico (Hunderegeln vorab klären)","Kleine Märkte, Trattorien"],
     dog:"Uferwege flach & hundefreundlich.",
     risk:"Weit weg von den Hochgebirgs-Highlights." },
-  { id:"bassano", name:"Bassano del Grappa", region:"Veneto", lat:45.766, lon:11.735,
-    s:{w:3,wel:3,k:5,l:3,h:4,wi:5}, tags:["Grappa","Brenta","Ponte Vecchio","Kochen"],
+  { id:"bassano", name:"Bassano del Grappa", region:"Veneto (Italien)", lat:45.766, lon:11.735,
+    s:{w:3,wel:3,k:5,l:3,h:4,wi:5}, tags:["Italien","Grappa","Brenta","Ponte Vecchio","Kochen"],
     why:"Holzbrücke Ponte Vecchio, Grappa-Tradition, Brenta-Fluss, Monte Grappa im Hintergrund – schöner Veneto-Kontrast zu den Bergen.",
     hikes:["Brenta-Uferweg","Monte-Grappa-Zufahrt/Panoramastraße (Wetter prüfen)","Altstadtrunde (flach)"],
     highlights:["Ponte degli Alpini","Nardini-Grappa-Verkostung","Weißer Spargel (Saison Frühling – nicht Dez.)","Kochen: Baccalà, Risotto, lokale Märkte"],
     dog:"Altstadt hundefreundlich.",
     risk:"Sehr lange Fahrt ab Norden; Nebel/Feuchte im Dezember." },
-  { id:"vicenza", name:"Vicenza", region:"Veneto", lat:45.545, lon:11.535,
-    s:{w:2,wel:3,k:5,l:4,h:4,wi:5}, tags:["Palladio","UNESCO","Kochen","Stadt"],
+  { id:"verona", name:"Verona", region:"Veneto (Italien)", lat:45.438, lon:10.991,
+    s:{w:3,wel:3,k:5,l:3,h:4,wi:5}, tags:["Italien","Arena","Weihnachtsmarkt","Risotto"],
+    why:"Shakespeare-Stadt mit Arena, Adige-Promenaden und starkem Food-Fokus – im Advent einer der schönsten norditalienischen Märkte.",
+    hikes:["Adige-Ufer & Giardino Giusti (flach)","Castel San Pietro Aussicht (kurz, steiler)","Porta Borsari – Altstadt-Runde"],
+    highlights:["Arena di Verona (Außenbereich)","Casa di Giulietta (sehr voll)","Mercatini / Weihnachtsmarkt (Termine 2026 prüfen)","Risotto all'Amarone, Pastissada"],
+    dog:"Altstadt mit Hund gut möglich; Arena-Innenbereich ohne Hund.",
+    risk:"Stadtverkehr, ZTL – Parkhaus einplanen; Wochenenden voll." },
+  { id:"padova", name:"Padova (Padua)", region:"Veneto (Italien)", lat:45.406, lon:11.877,
+    s:{w:3,wel:3,k:5,l:4,h:4,wi:5}, tags:["Italien","Universität","Märkte","Caffè"],
+    why:"Prato della Valle, Basilica di Sant'Antonio und lebendige Trattoria-Kultur – perfekt für Genuss- und Kochtage.",
+    hikes:["Prato della Valle Runde (flach)","Botanischer Garten Spaziergang","Brentakanal / Portici Altstadt"],
+    highlights:["Caffè Pedrocchi","Mercato Coperto","Basilica di Sant'Antonio","Bigoli in salsa, polenta"],
+    dog:"Innenhöfe & Promenaden meist mit Hund an der Leine.",
+    risk:"Eher Stadt als Berg – weniger Dolomiten-Feeling." },
+  { id:"riva_garda", name:"Riva del Garda & Limone", region:"Gardasee (Italien)", lat:45.886, lon:10.841,
+    s:{w:4,wel:3,k:4,l:4,h:4,wi:5}, tags:["Italien","See","Mild","Promenade"],
+    why:"Nordufer des Gardasees: im Dezember oft milder als in den Hochtälern, flache Uferwege und italienische See-Küche.",
+    hikes:["Lungolago Riva (flach)","Sentiero del Ponale ab Limone (nur trocken/winteroffen prüfen)","Bastione (kurzer Aufstieg)"],
+    highlights:["Limone sul Garda – Zitronenhäuser","Olive & Zitrone auf dem Markt","Torbole kurzer Ausflug"],
+    dog:"Lungolago ideal für Corgi-Pausen.",
+    risk:"Enger Seeverkehr im Sommer; im Dez. ruhiger, aber Regen/Nebel möglich." },
+  { id:"belluno", name:"Belluno (Dolomiten-Vorland)", region:"Veneto (Italien)", lat:46.138, lon:12.217,
+    s:{w:4,wel:2,k:3,l:4,h:4,wi:4}, tags:["Italien","Dolomiti","Tor","Ruhe"],
+    why:"Historische Provinzhauptstadt am Fuß der Belluneser Dolomiten – guter Ausgangspunkt Richtung Cortina, ohne Skipreise-Chaos.",
+    hikes:["Piazza Duomo – Altstadt","Rifugio-Täler nur wetterabhängig","Piave-Uferwege"],
+    highlights:["Palazzo dei Rettori","Coscioni & Schiadones (lokale Küche)","Blick Richtung Schiara"],
+    dog:"Stadt & Talwege hundefreundlich (Leine).",
+    risk:"Hohe Ausflüge im Winter oft gesperrt – Fokus auf Stadt & untere Täler." },
+  { id:"treviso", name:"Treviso", region:"Veneto (Italien)", lat:45.666, lon:12.243,
+    s:{w:3,wel:3,k:5,l:4,h:4,wi:5}, tags:["Italien","Prosecco","Canali","Radicchio"],
+    why:"Kleine Lagunenstadt mit Kanälen, Markt und Nähe zur Prosecco-Region – ideal als italienischer Ausklang.",
+    hikes:["Canali di Buranelli & Centro storico","Murazzi & Sile-Ufer (flach)","Monte di Conegliano nur bei gutem Wetter"],
+    highlights:["Piazza dei Signori","Prosecco (Conegliano-Valdobbiadene – Fahrttag)","Radicchio risotto, tiramisu-Ursprungsnähe"],
+    dog:"Altstadt mit Hund gut; viele Cafés mit Außenbereich.",
+    risk:"Regen/Nebel im Winter; Prosecco-Tour mit Auto: kein Prosecco fürs Fahren." },
+  { id:"asolo", name:"Asolo & Colli Asolani", region:"Veneto (Italien)", lat:45.801, lon:11.914,
+    s:{w:3,wel:3,k:4,l:5,h:4,wi:5}, tags:["Italien","Prosecco","Borgo","Lesen"],
+    why:"„Stadt der hundert Horizonte“ – malerisches Hügelland, Prosecco und ruhige Lese-/Spazier-Tage südlich von Bassano.",
+    hikes:["Rocca di Asolo (kurz)","Ringweg Colli Asolani (flach/teilweise)","Villa Freya / Borgo Gassen"],
+    highlights:["Prosecco Colli Asolani","Antico Refettorio","Gemütliche Osterie"],
+    dog:"Hügelwege kurz und mit Pausen machbar.",
+    risk:"Serpentinen, Nebel – langsam fahren." },
+  { id:"vicenza", name:"Vicenza", region:"Veneto (Italien)", lat:45.545, lon:11.535,
+    s:{w:2,wel:3,k:5,l:4,h:4,wi:5}, tags:["Italien","Palladio","UNESCO","Kochen"],
     why:"UNESCO-Stadt der Palladio-Bauten: Basilica Palladiana, Teatro Olimpico, Monte Berico. Ideal als Genuss-/Kulturstation am Ende der Reise.",
     hikes:["Monte Berico Aufstieg (Arkadenweg)","Parco Querini"],
     highlights:["Teatro Olimpico","Basilica Palladiana","Villa Rotonda (Außenbesichtigung)","Baccalà alla vicentina, Kochkurs"],
@@ -245,6 +287,12 @@ const FOOD = {
   levico: { cafe:"Café am See", kochen:"Seefisch, Gemüse", asia:"Vorrat mitbringen" },
   bassano:{ cafe:"Café an der Ponte Vecchio / Osteria", kochen:"Baccalà, Risotto-Zutaten", asia:"Größere Märkte; teils Asia-Läden (prüfen)" },
   vicenza:{ cafe:"Historisches Café um die Piazza dei Signori", kochen:"Baccalà alla vicentina, Markthalle", asia:"Als Stadt vermutlich Asia-Läden vorhanden (prüfen)" },
+  verona: { cafe:"Caffè in der Altstadt (Verona)", kochen:"Risotto, Amarone, Markt in Pescheria", asia:"Asia-Läden in der Stadt prüfen" },
+  padova: { cafe:"Caffè Pedrocchi / Piazza", kochen:"Bigoli, Markt Padova", asia:"Basics + Treviso/Verona einkaufen" },
+  riva_garda:{ cafe:"Gelateria am Lungolago", kochen:"Zitrone, Olive, See-Fisch", asia:"Vorrat mitbringen" },
+  belluno:{ cafe:"Caffè Piazza Duomo", kochen:"Polenta, Formaggi Bellunesi", asia:"Vorrat mitbringen" },
+  treviso: { cafe:"Caffè Prosecco-Region / Centro", kochen:"Radicchio, Prosecco (zum Essen)", asia:"Treviso Märkte prüfen" },
+  asolo:  { cafe:"Bar in Piazza Garibaldi", kochen:"Prosecco Colli Asolani, lokale Salumi", asia:"Vorrat mitbringen" },
   hallstatt:{ cafe:"Café am See", kochen:"Fisch (Reinanke)", asia:"Vorrat mitbringen" }
 };
 
@@ -257,7 +305,13 @@ const PRESETS = [
   { name:"C · Dolomiten-Panorama", desc:"Brixen/Villnöss → Bruneck → Toblach/Pragser Tal: wenig Fahrerei, Postkartenmotive ohne hohe Pässe.",
     stops:[["brixen",2],["bruneck",2],["hochpustertal",2]] },
   { name:"D · Slow: 2 Basen", desc:"Brixen/Villnöss 3 Nächte → Bruneck 3 Nächte: maximale Ruhe, 50/50 Ausflug/Ferienwohnung.",
-    stops:[["brixen",3],["bruneck",3]] }
+    stops:[["brixen",3],["bruneck",3]] },
+  { name:"E · Veneto-Städte (mehr Italien)", desc:"Verona → Vicenza → Bassano: flache City-Walks, Märkte, Risotto & Grappa – gut kombinierbar mit eurer Short-List.",
+    stops:[["verona",2],["vicenza",2],["bassano",2]] },
+  { name:"F · Gardasee & Trentino", desc:"Riva/Limone → Trient → Levico: mild am Wasser, Weihnachtsmärkte, viel Kochen.",
+    stops:[["riva_garda",2],["trient",2],["levico",2]] },
+  { name:"G · Dolomiten → Prosecco", desc:"Bruneck → Cortina → Treviso: Postkarten-Berge, danach Kanäle & Prosecco-Ausklang.",
+    stops:[["bruneck",2],["cortina",2],["treviso",2]] }
 ];
 
 /* ---------- Offene Fragen (Runde 2) ---------- */
@@ -273,7 +327,7 @@ const QUESTIONS = [
   { id:"fewo", q:"Gemütliche Ferienwohnung", type:"text", pre:"Kamin, Küche, Leseecke" },
   { id:"kochen", q:"Kochen & Essen", type:"text", pre:"Asiatisch kochen; zusätzlich Cafés und Restaurants einplanen" },
   { id:"gassi", q:"Tagesrhythmus", type:"text", pre:"Früh los, nachmittags zurück in die Ferienwohnung" },
-  { id:"route_wahl", q:"NEU: Welche Route (A–D) gefällt euch am meisten, oder was würdet ihr ändern?", type:"text" },
+  { id:"route_wahl", q:"NEU: Welche Route (A–G) gefällt euch am meisten, oder was würdet ihr ändern?", type:"text", pre:"E · Veneto-Städte (mehr Italien) oder Kombi mit Meran–Bozen–Brixen" },
   { id:"asia", q:"NEU: Welche asiatische Küche kocht ihr am liebsten (z.B. Thai, Japanisch, Koreanisch, Sichuan)? Dann plane ich Einkauf, Utensilien (Wok/Reiskocher) und passende Rezepte.", type:"text" },
   { id:"lesen", q:"Lesen (noch offen): Welche Genres? Soll ich pro Station Café-Leseorte vorschlagen?", type:"text" },
   { id:"ketten", q:"Schneeketten (noch offen): kaufen, leihen oder nur bei sicherem Wetter fahren? Reifengröße steht im Fahrzeugschein (ohne Kennzeichen).", type:"select", opts:["Ja, kaufen","Leihen/vor Ort besorgen","Nein – nur Talrouten bei sicherem Wetter"] },
@@ -332,10 +386,14 @@ function imgEl(src, alt, className) {
 function mediaGrid(items) {
   if (!items?.length) return null;
   return el("div", { class: "media-grid" },
-    ...items.map(m => el("figure", { class: "media-item" },
-      imgEl(m.src, m.title, "") || el("span", {}, ""),
-      el("figcaption", {}, m.title))));
+    ...items.map(m => {
+      const cap = (m.kind === "hike" ? "🥾 " : m.kind === "highlight" ? "✨ " : "") + m.title;
+      return el("figure", { class: "media-item" },
+        imgEl(m.src, m.title, "") || el("span", {}, ""),
+        el("figcaption", {}, cap));
+    }));
 }
+const isItalien = p => p.tags.includes("Italien") || /Italien/.test(p.region);
 async function applyImageManifest() {
   try {
     const r = await fetch("images/manifest.json", { cache: "no-cache" });
@@ -463,7 +521,8 @@ function vRahmen() {
       el("div", { class: "card" }, el("h3", {}, "🚗 Auto"), el("p", {}, "Mercedes A 140 mit Allwetterreifen, noch ohne Ketten. Darum: Talstraßen bevorzugen (Eisacktal, Pustertal, Etschtal), keine hohen Pässe. Ketten besorgen und Probe montieren; Allwetterreifen nur mit Alpine-Symbol (3PMSF) sinnvoll – Regeln prüfen.")),
       el("div", { class: "card" }, el("h3", {}, "🐕 Corgi (5 J.)"), el("p", {}, "1–2 h spazieren am Stück, Pausen sind eingeplant → Touren ca. 4–7 km, flach, mit Café-/Bank-Stopps. Streusalz → Pfoten abwischen. Keine Wellness-Planung nötig.")),
       el("div", { class: "card" }, el("h3", {}, "🎄 Märkte"), el("p", {}, "Weihnachtsmärkte in Bozen, Meran, Brixen und Bruneck öffnen meist um den 27.–28.11. – Termine 2026 bitte vorab prüfen.")),
-      el("div", { class: "card" }, el("h3", {}, "🏠 Ferienwohnung"), el("p", {}, "Bis ca. 120 €/Nacht, gemütlich (Kamin/Kachelofen, Küche, Leseecke), Hund erlaubt. 2–3 Nächte pro Ort: so bleibt Zeit zum Kochen, Lesen und Spazieren."))));
+      el("div", { class: "card" }, el("h3", {}, "🏠 Ferienwohnung"), el("p", {}, "Bis ca. 120 €/Nacht, gemütlich (Kamin/Kachelofen, Küche, Leseecke), Hund erlaubt. 2–3 Nächte pro Ort: so bleibt Zeit zum Kochen, Lesen und Spazieren.")),
+      el("div", { class: "card" }, el("h3", {}, "🇮🇹 Mehr Italien"), el("p", {}, "Neu in der Long-List: Verona, Padova, Gardasee (Riva/Limone), Belluno, Treviso, Asolo – plus Presets E–G. Filter „Fokus Italien“ zeigt Veneto, Trentino und Gardasee. Südtirol bleibt fürs Erste deutschsprachig; Rück- oder Verlängerungstour nach Süden passt zu Bassano/Vicenza aus eurer Short-List."))));
   box.append(el("h2", {}, "Checkliste vor der Abreise"));
   const list = el("div", { class: "card" });
   CHECKLIST.forEach((txt, i) => {
@@ -503,7 +562,7 @@ function vDataTools() {
 }
 
 /* ---------- 2 · Long-List ---------- */
-let filters = { dogOk: false, winterOk: false, sort: "fit" };
+let filters = { dogOk: false, winterOk: false, italien: false, sort: "fit" };
 function vLong() {
   const box = el("div");
   box.append(el("h2", {}, "Long-List: alle Kandidaten"),
@@ -522,14 +581,15 @@ function vLong() {
   wbox.append(grid);
   wbox.append(el("div", { class: "row", style: "margin-top:8px" },
     el("label", {}, el("input", { type: "checkbox", checked: filters.dogOk, onchange: e => { filters.dogOk = e.target.checked; renderCards(); } }), " nur hundetauglich (≥ 4)"),
-    el("label", {}, el("input", { type: "checkbox", checked: filters.winterOk, onchange: e => { filters.winterOk = e.target.checked; renderCards(); } }), " nur wintersicher (≥ 4)")));
+    el("label", {}, el("input", { type: "checkbox", checked: filters.winterOk, onchange: e => { filters.winterOk = e.target.checked; renderCards(); } }), " nur wintersicher (≥ 4)"),
+    el("label", {}, el("input", { type: "checkbox", checked: filters.italien, onchange: e => { filters.italien = e.target.checked; renderCards(); } }), " Fokus Italien (Veneto, Trentino, Gardasee …)")));
   box.append(wbox);
 
   const cards = el("div", { class: "grid", style: "margin-top:12px" });
   box.append(cards);
 
   function renderCards() {
-    const list = PLACES.filter(p => (!filters.dogOk || p.s.h >= 4) && (!filters.winterOk || p.s.wi >= 4))
+    const list = PLACES.filter(p => (!filters.dogOk || p.s.h >= 4) && (!filters.winterOk || p.s.wi >= 4) && (!filters.italien || isItalien(p)))
       .sort((a, b) => fit(b) - fit(a));
     cards.replaceChildren(...list.map(placeCard));
     renderNav();
