@@ -83,7 +83,7 @@
 <body>
 <header>
   <h1>🏔️ Dolomiten Winterreise 2026</h1>
-  <div class="sub">29.11. – 07.12.2026 · 2 Erwachsene · 1 Corgi · Mercedes A 140 (Benzin) · Wandern · Wellness · Kochen · Lesen</div>
+  <div class="sub">29.11. – 07.12.2026 · Start Bremen · 2 Erwachsene · 1 Corgi · Mercedes A 140 (Benzin) · Wandern · Wellness · Kochen · Lesen</div>
   <div class="funnel" id="funnel" aria-live="polite"></div>
   <nav id="nav" aria-label="Bereiche"></nav>
 </header>
@@ -105,12 +105,16 @@
 /* ---------- Konstanten ---------- */
 const START = new Date(2026, 10, 29);   // 29.11.2026 (Monat 0-basiert!)
 const TOTAL_NIGHTS = 8;                 // 29.11. -> 07.12.
-const STORE_KEY = "dolomiten-winter-2026-v1";
+const STORE_KEY = "dolomiten-winter-2026-v2";
+/* Startregion: Bremen (nur grobe Koordinate der Stadt, keine Adresse). Dient der Fahrzeit-Schätzung. */
+const HOME = { name: "Bremen", lat: 53.08, lon: 8.80 };
+/* Hin-/Rückreise: ca. 1.000 km. Realistisch ist je eine Zwischenübernachtung (Raum München/Rosenheim/Kufstein/Innsbruck).
+   Beide lassen sich in Schritt 3 an-/abschalten; sie reduzieren die Nächte vor Ort. */
 
 /* ---------- Kriterien (Gewichtung per Slider) ---------- */
 const CRITERIA = [
   { key: "w",  label: "Wandern (winterfest)" },
-  { key: "wel",label: "Wellness" },
+  { key: "wel",label: "Wellness (derzeit aus)" },
   { key: "k",  label: "Kochen / Genuss" },
   { key: "l",  label: "Lesen / Ruhe" },
   { key: "h",  label: "Hundetauglich" },
@@ -165,12 +169,12 @@ const PLACES = [
     dog:"Flache Winterwege ideal für Corgi – Pfoten bei Streusalz abwischen.",
     risk:"Hohe Lagen: Schnee/Eis wahrscheinlich; Hütten zu." },
   { id:"cortina", name:"Cortina d'Ampezzo", region:"Veneto (Dolomiten)", lat:46.537, lon:12.136,
-    s:{w:4,wel:4,k:3,l:3,h:3,wi:3}, tags:["Olympia-Ort","Passstraßen","Ski"],
+    s:{w:3,wel:4,k:3,l:3,h:3,wi:2}, tags:["Olympia-Ort","Passstraßen","Ski"],
     why:"Mondäne Dolomitenstadt mit Rundum-Panorama, Olympia-Winter-Kulisse und sehr schönen Spaziergängen – aber teuer und stärker vom Winterwetter abhängig.",
     hikes:["Radweg/Fußweg Cortina–Fiames (Altes Bahntrassee)","Lago Ghedina","Weg nach Pocol (kurz, Aussicht)"],
     highlights:["Corso Italia Flanieren & Cafés","Passstraßen Falzarego/Giau: wetterabhängig (nur bei freien Straßen)","Museo Ladin"],
     dog:"Stadt mit Hund ok; Preise Hotelfrühstück/Parken hoch.",
-    risk:"Passstraßen können kurzfristig gesperrt sein; A 140 mit knapper Motorisierung → ruhig fahren, Ketten dabei." },
+    risk:"Nur Zufahrt über Hochpustertal/Cimabanche (ca. 1.530 m) ohne Ketten riskant; Passstraßen wetterabhängig. Mit Allwetterreifen ohne Ketten eher nicht empfohlen." },
   { id:"fiemme", name:"Val di Fiemme / Predazzo", region:"Trentino", lat:46.31, lon:11.6,
     s:{w:4,wel:3,k:3,l:4,h:4,wi:4}, tags:["Fleimstal","Wald","Langlauf","Ruhe"],
     why:"Weite Waldtäler, Langlaufloipen und ruhige Dörfer – günstiger als Gröden, gut für Lese-/Wanderpausen zwischen Südtirol und Veneto.",
@@ -217,39 +221,45 @@ const PLACES = [
 
 /* ---------- Routen-Presets ---------- */
 const PRESETS = [
-  { name:"A · Dolomiten-Kern", desc:"Meran → Bruneck → Cortina: Wandern vorn, Panorama hinten.",
-    stops:[["meran",3],["bruneck",3],["cortina",2]] },
-  { name:"B · Dolomiten + Veneto", desc:"Bozen → Bruneck → Cortina → Bassano: Berge zu Genuss.",
-    stops:[["bozen",2],["bruneck",2],["cortina",2],["bassano",2]] },
-  { name:"C · Slow & Cozy", desc:"Meran → Brixen/Villnöss → Bruneck: wenig Fahrerei, viel Wellness & Lesen.",
-    stops:[["meran",3],["brixen",2],["bruneck",3]] }
+  { name:"A · Täler-Klassiker (Empfehlung)", desc:"Bozen/Ritten → Brixen/Villnöss → Bruneck: nur Talstraßen, Brenner-Richtung bleibt für die Heimreise offen. 2 Nächte je Ort.",
+    stops:[["bozen",2],["brixen",2],["bruneck",2]] },
+  { name:"B · Sonnenseite & Waalwege", desc:"Meran → Bozen → Brixen: mildestes Klima, flache Promenaden, viele Märkte zum Kochen.",
+    stops:[["meran",2],["bozen",2],["brixen",2]] },
+  { name:"C · Dolomiten-Panorama", desc:"Brixen/Villnöss → Bruneck → Toblach/Pragser Tal: wenig Fahrerei, Postkartenmotive ohne hohe Pässe.",
+    stops:[["brixen",2],["bruneck",2],["hochpustertal",2]] },
+  { name:"D · Slow: 2 Basen", desc:"Brixen/Villnöss 3 Nächte → Bruneck 3 Nächte: maximale Ruhe, 50/50 Ausflug/Ferienwohnung.",
+    stops:[["brixen",3],["bruneck",3]] }
 ];
 
 /* ---------- Offene Fragen (Runde 2) ---------- */
 const QUESTIONS = [
-  { id:"startort", q:"Aus welcher Region fahrt ihr los (nur Region/Stadt)? Brenner (Meran/Bozen zuerst) oder Reschen/Fernpass (Meran zuerst)?", type:"text" },
-  { id:"anreise", q:"Anreise: Alles an einem Tag (29.11.) oder Zwischenübernachtung unterwegs?", type:"select", opts:["Alles an einem Tag","Zwischenstopp (z.B. Innsbruck/Brenner-Gegend)","Noch offen"] },
-  { id:"rueck", q:"Rückreise: gleicher Rückweg oder eine andere Strecke? Dann ist Hallstatt/Vicenza als Rückreise-Stopp realistisch.", type:"text" },
-  { id:"wellness", q:"Wellness: Reicht ein Spa-Tag mit Hund-Wechselbetrieb oder wollt ihr eine Ferienwohnung mit Sauna/Wanne?", type:"select", opts:["Spa-Tag mit Wechselbetrieb","Ferienwohnung mit Sauna/Whirlpool","Beides","Nur bei Gelegenheit"] },
-  { id:"kochen", q:"Kochen: Eher Selbstversorger-Küche (Märkte!) oder auch ein Kochkurs mit Einheimischen?", type:"select", opts:["Selbst kochen","Kochkurs buchen","Beides"] },
-  { id:"corgi", q:"Wie viele Kilometer/Höhenmeter schafft euer Corgi am Tag entspannt (z.B. 6 km / 200 Hm)? Hundetrage für Seilbahnen vorhanden?", type:"text" },
-  { id:"auto", q:"Auto: Welche Baureihe/Motorisierung hat der A 140 genau (Schaltgetriebe? Baujahr)? Winterreifen & Ketten vorhanden?", type:"text" },
-  { id:"tempo", q:"Tempo: Wie viele Tage maximal wollt ihr 'Highlights jagen' vs. bewusst Ruhetage?", type:"select", opts:["3 Highlight-Tage, Rest Ruhe","5 Highlight-Tage","Täglich etwas Kleines"] },
-  { id:"pass", q:"Fahrstil: Pässe/Serpentinen im Winter ok oder Talrouten bevorzugen?", type:"select", opts:["Nur Talrouten","Pässe nur bei freier Straße","Egal, solange Ketten dabei"] }
+  { id:"startort", q:"Startregion", type:"text", pre:"Bremen" },
+  { id:"rueck", q:"Rückreise (Strecke)", type:"text", pre:"egal" },
+  { id:"wellness", q:"Wellness", type:"text", pre:"Kein Wellness – stattdessen gemütliche Ferienwohnung" },
+  { id:"corgi", q:"Corgi (5 Jahre): Gassi-Radius", type:"text", pre:"1–2 h am Stück spazieren, Pausen werden eingelegt" },
+  { id:"auto", q:"Reifen/Ketten", type:"text", pre:"Allwetterreifen, bisher keine Schneeketten → Täler bevorzugen" },
+  { id:"tempo", q:"Tempo", type:"text", pre:"50/50 Highlights und Ruhe" },
+  { id:"zw_hin", q:"NEU: Zwischenübernachtung Hinreise (≈ 1.000 km ab Bremen): Raum München/Rosenheim/Kufstein oder lieber früher (z.B. Nürnberg/Regensburg) mit kürzerer Etappe am Folgetag?", type:"select", opts:["Raum München/Kufstein (ca. 8 h am ersten Tag)","Früher stoppen (ca. 6 h erster Tag)","Gar nicht – durchfahren (anstrengend, nicht empfohlen)"] },
+  { id:"zw_rueck", q:"NEU: Rückreise am 07.12. direkt (ca. 10 h) oder am 06.12. Zwischenübernachtung?", type:"select", opts:["Zwischenübernachtung am 06.12. (Empfehlung)","Direkt am 07.12. durchfahren"] },
+  { id:"fewo", q:"NEU: Was macht die Ferienwohnung 'gemütlich'? (Mehrfachnennung im Textfeld)", type:"textarea_hint", hint:"z.B. Kamin/Kachelofen, Badewanne, Balkon mit Blick, gut ausgestattete Küche, Leseecke, Garten/Hundezaun" },
+  { id:"kochen", q:"NEU: Wie koch-ambitioniert? Gibt es Lieblingsgerichte (Südtiroler Küche: Knödel, Schlutzkrapfen, Gulasch) oder ein Kochprojekt für die Reise?", type:"text" },
+  { id:"lesen", q:"NEU: Was sind eure Lesestoffe (Genre, kein Titelzwang)? Soll ich passende Café-/Lese-Orte pro Station vorschlagen?", type:"text" },
+  { id:"gassi", q:"NEU: Wie viele Gassi-Runden à 1–2 h pro Tag sind für euch ideal – eine 'große' Wanderung am Vormittag oder zwei kleinere?", type:"select", opts:["Eine Runde 1–2 h + kleine Abendrunde","Zwei Runden à 1–1,5 h","Nur 1 Runde, dafür ausgedehnt mit Café-Pause"] },
+  { id:"ketten", q:"NEU: Schneeketten kaufen/leihen für den A 140? (Reifengröße müsste ich kennen – aus dem Fahrzeugschein, ohne Kennzeichen)", type:"select", opts:["Ja, kaufen","Leihen/vor Ort besorgen","Nein – nur Talrouten bei sicherem Wetter"] }
 ];
 
 /* ---------- Checkliste (Faktenrahmen) ---------- */
 const CHECKLIST = [
-  "Winterreifen oder Schneeketten an Bord (Südtirol: 15.11.–15.04. Pflicht)",
-  "Italien: ZTL/Parkregeln in Städten beachten; Maut A22 (Brenner) einplanen",
-  "Österreich-Vignette/Streckenmaut je nach Anreise prüfen",
+  "Reifen: Allwetterreifen müssen Alpine-Symbol (3PMSF) bzw. M+S tragen und genug Profil haben; Pflichtregeln für Südtirol/Österreich vorab prüfen (Südtirol 15.11.–15.04.)",
+  "Schneeketten passend zur Reifengröße kaufen/leihen und zuhause einmal Probe montieren (Notfall-Sicherheit)",
+  "Hinreise ≈ 1.000 km: Zwischenübernachtung buchen (Raum München/Kufstein), Hund erlaubt prüfen",
+  "Österreich: Vignette/Brenner-Maut und Italien-Maut A22 einplanen",
   "Hundepass/EU-Heimtierausweis, Tollwutimpfung gültig, Chip vorhanden",
-  "Hund: Leinenpflicht & Wildschutz im Winter; Maulkorb-Regeln in Italien beachten",
-  "Hunde-Decke, Pfotenschutz/Handtuch (Streusalz), Reisefutter",
-  "Wanderung: Eisspikes/Grödel, Stirnlampe, Powerbank",
-  "Echtzeit-Check Passstraßen & Wetter am Vorabend (offizielle Verkehrs-Portale)",
-  "Ferienwohnungen: 'Hund erlaubt' + Heizung + Parkplatz + Küche prüfen",
-  "Märkte/Hütten/Museen: Öffnungstage 2026 kurz vorher prüfen"
+  "Hund (5 J.): Leine, Kotbeutel, Decke, Pfotenschutz/Handtuch (Streusalz), Reisefutter, Wasser für Pausen",
+  "Wanderungen: Eisspikes/Grödel, Stirnlampe, Powerbank, warme Hundejacke für Pausen",
+  "Echtzeit-Check Straßen & Wetter vorm Losfahren (offizielle Verkehrsportale)",
+  "Ferienwohnungen: Hund erlaubt + Heizung/Kamin + Parkplatz + vollständige Küche prüfen",
+  "Märkte/Museen/Cafés: Öffnungstage 2026 kurz vorher prüfen"
 ];
 
 /* =====================================================================
@@ -287,11 +297,12 @@ const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); r
 /* ---------- Zustand (localStorage) ---------- */
 const defaultState = () => ({
   tab: "rahmen",
-  weights: { w: 4, wel: 4, k: 3, l: 3, h: 5, wi: 5 },
+  weights: { w: 4, wel: 0, k: 4, l: 4, h: 5, wi: 5 },   // Wellness aus, Gemütlichkeit (Kochen/Lesen) an
   short: {},        // id -> true (Short-List)
   notes: {},        // id -> Text
   route: [],        // [{id, nights}]
-  answers: {},      // questionId -> Text
+  transit: { out: true, back: true },  // Zwischenübernachtung Hin-/Rückreise
+  answers: Object.fromEntries(QUESTIONS.filter(q => q.pre).map(q => [q.id, q.pre])),  // bisherige Antworten vorbelegt
   checks: {},       // Checklisten-Index -> true
   slide: 0
 });
@@ -317,6 +328,10 @@ function sanitize(raw) {
   if (Array.isArray(raw.route))
     s.route = raw.route.filter(r => r && known.has(r.id)).slice(0, 8)
       .map(r => ({ id: r.id, nights: Math.min(8, Math.max(1, Math.round(Number(r.nights)) || 1)) }));
+  if (raw.transit && typeof raw.transit === "object") {
+    s.transit.out = raw.transit.out !== false;
+    s.transit.back = raw.transit.back !== false;
+  }
   const qids = new Set(QUESTIONS.map(q => q.id));
   if (raw.answers && typeof raw.answers === "object")
     for (const id of Object.keys(raw.answers)) if (qids.has(id)) s.answers[id] = String(raw.answers[id]).slice(0, 1000);
@@ -347,6 +362,10 @@ function km(a, b) {
   return 2 * R * Math.asin(Math.sqrt(h));
 }
 function driveMin(a, b) { return Math.round(km(a, b) * 1.4 / 50 * 60 / 5) * 5; }
+/* Fahrzeit ab Bremen: Luftlinie × 1,22 (Autobahnfaktor) bei Ø 85 km/h inkl. Pausen. Nur Schätzung! */
+function homeMin(p) { return Math.round(km(HOME, p) * 1.22 / 85 * 60 / 15) * 15; }
+const availNights = () => TOTAL_NIGHTS - (state.transit.out ? 1 : 0) - (state.transit.back ? 1 : 0);
+const routeStart = () => addDays(START, state.transit.out ? 1 : 0);
 const fmtMin = m => `${Math.floor(m / 60)} h ${String(m % 60).padStart(2, "0")} min`;
 
 /* =====================================================================
@@ -367,7 +386,7 @@ function renderNav() {
   funnel.replaceChildren(
     el("div", {}, el("b", {}, PLACES.length), "Long-List"),
     el("div", {}, el("b", {}, nShort), "Short-List"),
-    el("div", {}, el("b", {}, `${state.route.length} Stationen`), `Route · ${nights}/${TOTAL_NIGHTS} Nächte`));
+    el("div", {}, el("b", {}, `${state.route.length} Stationen`), `Route · ${nights}/${availNights()} Nächte`));
 }
 function render() {
   renderNav();
@@ -384,10 +403,11 @@ function vRahmen() {
       el("b", {}, "Wintertermin = andere Dolomiten. "),
       "Hütten und viele Lifte sind noch zu, die Skisaison startet um den 5.–8. Dezember. Wandern funktioniert am besten auf Talwegen, Waalwegen und Uferpromenaden. Passstraßen (Falzarego, Pordoi, Sella, Gröden) sind wetterabhängig – Echtzeit-Portale vor jeder Fahrt prüfen."),
     el("div", { class: "grid" },
-      el("div", { class: "card" }, el("h3", {}, "🚗 Auto"), el("p", {}, "Mercedes A 140 (Benzin): wenig Leistung für lange Passfahrten. Winterreifen/Ketten Pflicht in Südtirol (15.11.–15.04.). Lieber Täler, ruhig fahren, Steigungen mit Reserve planen.")),
-      el("div", { class: "card" }, el("h3", {}, "🐕 Corgi"), el("p", {}, "Kurze Beine: gemütliche Wege (< 6 km, wenig Höhenmeter). Streusalz → Pfoten abwischen. Thermen/Saunen meist ohne Hund → Wechselbetrieb planen.")),
-      el("div", { class: "card" }, el("h3", {}, "🎄 Märkte"), el("p", {}, "Weihnachtsmärkte in Bozen, Meran, Brixen, Bruneck und Trient öffnen meist um den 27.–28.11. – Termine 2026 bitte vorab prüfen.")),
-      el("div", { class: "card" }, el("h3", {}, "🏠 Unterkunft"), el("p", {}, "Ferienwohnung bis ca. 120 €/Nacht, Hund erlaubt, Küche. Für 3–4 Stationen: nach Möglichkeit 2–3 Nächte pro Ort, damit Kochen und Lesen nicht zu kurz kommen."))));
+      el("div", { class: "card" }, el("h3", {}, "🧭 Anreise ab Bremen"), el("p", {}, "≈ 1.000 km, ca. 10 h reine Fahrzeit (Schätzung). Realistisch: 29.11. bis Raum München/Kufstein, 30.11. weiter über den Brenner. Rückreise genauso. Damit bleiben 6 Nächte vor Ort – ideal für 3 Stationen à 2 Nächte oder 2 à 3.")),
+      el("div", { class: "card" }, el("h3", {}, "🚗 Auto"), el("p", {}, "Mercedes A 140 mit Allwetterreifen, noch ohne Ketten. Darum: Talstraßen bevorzugen (Eisacktal, Pustertal, Etschtal), keine hohen Pässe. Ketten besorgen und Probe montieren; Allwetterreifen nur mit Alpine-Symbol (3PMSF) sinnvoll – Regeln prüfen.")),
+      el("div", { class: "card" }, el("h3", {}, "🐕 Corgi (5 J.)"), el("p", {}, "1–2 h spazieren am Stück, Pausen sind eingeplant → Touren ca. 4–7 km, flach, mit Café-/Bank-Stopps. Streusalz → Pfoten abwischen. Keine Wellness-Planung nötig.")),
+      el("div", { class: "card" }, el("h3", {}, "🎄 Märkte"), el("p", {}, "Weihnachtsmärkte in Bozen, Meran, Brixen und Bruneck öffnen meist um den 27.–28.11. – Termine 2026 bitte vorab prüfen.")),
+      el("div", { class: "card" }, el("h3", {}, "🏠 Ferienwohnung"), el("p", {}, "Bis ca. 120 €/Nacht, gemütlich (Kamin/Kachelofen, Küche, Leseecke), Hund erlaubt. 2–3 Nächte pro Ort: so bleibt Zeit zum Kochen, Lesen und Spazieren."))));
   box.append(el("h2", {}, "Checkliste vor der Abreise"));
   const list = el("div", { class: "card" });
   CHECKLIST.forEach((txt, i) => {
@@ -473,7 +493,7 @@ function placeCard(p) {
       el("button", { class: "btn small" + (sel ? " on" : ""), "aria-pressed": String(sel),
         onclick: () => { if (sel) delete state.short[p.id]; else state.short[p.id] = true; save(); render(); } },
         sel ? "♥ Short-List" : "♡ merken")),
-    el("div", { class: "muted" }, p.region + " · Passung ", el("b", {}, fit(p) + " %")),
+    el("div", { class: "muted" }, p.region + " · Passung ", el("b", {}, fit(p) + " %"), ` · ≈ ${fmtMin(homeMin(p))} ab ${HOME.name}`),
     el("div", { class: "chips" }, p.tags.map(t => el("span", { class: "chip" }, t))),
     el("p", {}, p.why));
   CRITERIA.forEach(c => card.append(bar(c.label.split(" ")[0], p.s[c.key])));
@@ -507,10 +527,17 @@ function vShort() {
     el("button", { class: "btn small", onclick: () => { state.route = pr.stops.map(([id, n]) => ({ id, nights: n })); pr.stops.forEach(([id]) => state.short[id] = true); save(); render(); } }, "Übernehmen")))));
 
   /* Routen-Builder */
-  box.append(el("h2", {}, "Eure Route (3–4 Stationen, 8 Nächte)"));
+  box.append(el("h2", {}, "Eure Route"));
+  const tcard = el("div", { class: "card" }, el("h3", {}, "Anreise & Rückreise ab Bremen (≈ 1.000 km)"),
+    el("div", { class: "row" },
+      el("label", {}, el("input", { type: "checkbox", checked: state.transit.out, onchange: e => { state.transit.out = e.target.checked; save(); render(); } }), " Zwischenübernachtung Hinreise (29.11., Raum München/Kufstein)"),
+      el("label", {}, el("input", { type: "checkbox", checked: state.transit.back, onchange: e => { state.transit.back = e.target.checked; save(); render(); } }), " Zwischenübernachtung Rückreise (06.12.)")),
+    el("p", { class: "muted" }, "Ohne Zwischenstopp bleiben mehr Nächte vor Ort, aber ca. 10 h Fahrt am Stück – für Fahrer und Hund anstrengend."));
+  box.append(tcard);
+  const avail = availNights();
   const sumN = state.route.reduce((a, r) => a + r.nights, 0);
-  const status = sumN === TOTAL_NIGHTS ? el("span", { class: "ok" }, "✓ 8 Nächte verplant")
-                                       : el("span", { class: "warn" }, `${sumN}/${TOTAL_NIGHTS} Nächte – ${sumN < TOTAL_NIGHTS ? "noch " + (TOTAL_NIGHTS - sumN) + " übrig" : (sumN - TOTAL_NIGHTS) + " zu viel"}`);
+  const status = sumN === avail ? el("span", { class: "ok" }, `✓ ${avail} Nächte vor Ort verplant`)
+                                : el("span", { class: "warn" }, `${sumN}/${avail} Nächte – ${sumN < avail ? "noch " + (avail - sumN) + " übrig" : (sumN - avail) + " zu viel"}`);
   box.append(el("p", {}, status));
   if (state.route.length < 3 || state.route.length > 4)
     box.append(el("p", { class: "warn" }, "Hinweis: Gewünscht sind 3–4 Stationen (aktuell " + state.route.length + ")."));
@@ -523,7 +550,8 @@ function vShort() {
     const mins = prev ? driveMin(prev, p) : 0;
     routeList.append(el("div", { class: "card" },
       el("h3", {}, `${i + 1}. ${p.name}`),
-      prev ? el("div", { class: mins > 180 ? "warn" : "muted" }, `≈ ${fmtMin(mins)} ab ${prev.name} (grobe Schätzung${mins > 180 ? " – lang!" : ""})`) : null,
+      prev ? el("div", { class: mins > 180 ? "warn" : "muted" }, `≈ ${fmtMin(mins)} ab ${prev.name} (grobe Schätzung${mins > 180 ? " – lang!" : ""})`)
+           : el("div", { class: "muted" }, `≈ ${fmtMin(homeMin(p))} ab ${HOME.name} (Schätzung, ohne Pausen)`),
       el("div", { class: "row", style: "margin-top:6px" },
         el("label", { for: "n" + i }, "Nächte:"),
         el("input", { type: "number", id: "n" + i, min: 1, max: 8, value: r.nights, onchange: e => { r.nights = Math.min(8, Math.max(1, Math.round(Number(e.target.value)) || 1)); save(); render(); } }),
@@ -536,7 +564,7 @@ function vShort() {
 
   const sel = el("select", { "aria-label": "Station hinzufügen" }, el("option", { value: "" }, "Station hinzufügen…"),
     ...PLACES.map(p => el("option", { value: p.id }, p.name)));
-  sel.addEventListener("change", () => { if (!sel.value) return; state.route.push({ id: sel.value, nights: Math.max(1, TOTAL_NIGHTS - sumN) }); save(); render(); });
+  sel.addEventListener("change", () => { if (!sel.value) return; state.route.push({ id: sel.value, nights: Math.max(1, avail - sumN) }); save(); render(); });
   rb.append(el("div", { style: "max-width:320px;margin-top:8px" }, sel));
   box.append(rb);
 
@@ -562,12 +590,15 @@ function routeMap() {
 }
 
 function vTimeline() {
-  let day = 0;
-  const rows = state.route.map((r, i) => {
+  let day = state.transit.out ? 1 : 0;
+  const rows = [];
+  if (state.transit.out) rows.push(el("tr", {}, el("td", {}, "→"), el("td", {}, "Anreise: Zwischenübernachtung (Raum München/Kufstein)"), el("td", {}, `${fmtDate(START)} → ${fmtDate(addDays(START, 1))}`), el("td", {}, 1)));
+  state.route.forEach((r, i) => {
     const p = byId(r.id), a = addDays(START, day), b = addDays(START, day + r.nights);
     day += r.nights;
-    return el("tr", {}, el("td", {}, i + 1), el("td", {}, p.name), el("td", {}, `${fmtDate(a)} → ${fmtDate(b)}`), el("td", {}, r.nights));
+    rows.push(el("tr", {}, el("td", {}, i + 1), el("td", {}, p.name), el("td", {}, `${fmtDate(a)} → ${fmtDate(b)}`), el("td", {}, r.nights)));
   });
+  if (state.transit.back) rows.push(el("tr", {}, el("td", {}, "←"), el("td", {}, "Rückreise: Zwischenübernachtung"), el("td", {}, `${fmtDate(addDays(START, 7))} → ${fmtDate(addDays(START, 8))}`), el("td", {}, 1)));
   return el("div", { class: "scroll", style: "margin-top:12px" }, el("table", {},
     el("thead", {}, el("tr", {}, el("th", {}, "#"), el("th", {}, "Station"), el("th", {}, "Zeitraum"), el("th", {}, "Nächte"))), el("tbody", {}, rows)));
 }
@@ -579,19 +610,19 @@ function vPresent() {
   const slides = [];
   /* Folie 1: Titel */
   slides.push(el("div", { class: "slide" },
-    el("h2", {}, "Dolomiten Winterreise"), el("div", { class: "big" }, "29.11. – 07.12.2026 · 8 Nächte"),
+    el("h2", {}, "Dolomiten Winterreise"), el("div", { class: "big" }, "29.11. – 07.12.2026 · 8 Nächte · ab Bremen"),
     el("div", {}, "2 Erwachsene · 1 Corgi · Mercedes A 140"), el("div", { class: "chips" }, ["Wandern", "Wellness", "Kochen", "Lesen"].map(t => el("span", { class: "chip" }, t)))));
   /* Folie 2: Überblick */
   slides.push(el("div", { class: "slide" }, el("h2", {}, "Die Route"), routeMap(), vTimeline()));
   /* Folien pro Station */
-  let day = 0;
+  let day = state.transit.out ? 1 : 0;
   state.route.forEach((r, i) => {
     const p = byId(r.id), prev = i > 0 ? byId(state.route[i - 1].id) : null;
     const a = addDays(START, day), b = addDays(START, day + r.nights); day += r.nights;
     slides.push(el("div", { class: "slide" },
       el("div", { class: "muted" }, `Station ${i + 1} von ${state.route.length} · ${fmtDate(a)} → ${fmtDate(b)} · ${r.nights} Nächte`),
       el("h2", {}, p.name), el("div", { class: "muted" }, p.region),
-      prev ? el("div", { class: "muted" }, `🚗 ≈ ${fmtMin(driveMin(prev, p))} ab ${prev.name} (Schätzung)`) : null,
+      prev ? el("div", { class: "muted" }, `🚗 ≈ ${fmtMin(driveMin(prev, p))} ab ${prev.name} (Schätzung)`) : el("div", { class: "muted" }, `🚗 ≈ ${fmtMin(homeMin(p))} ab ${HOME.name}${state.transit.out ? " (verteilt auf 2 Tage, 1 Zwischenübernachtung)" : ""}`),
       el("p", { class: "big" }, p.why),
       el("div", {}, el("b", {}, "🥾 Wandern"), el("ul", { class: "tight" }, p.hikes.map(x => el("li", {}, x)))),
       el("div", {}, el("b", {}, "✨ Highlights"), el("ul", { class: "tight" }, p.highlights.map(x => el("li", {}, x)))),
@@ -621,13 +652,13 @@ document.addEventListener("keydown", e => {
 
 /* ---------- 5 · Offene Fragen ---------- */
 function vFragen() {
-  const box = el("div", {}, el("h2", {}, "Offene Fragen für die nächste Runde"),
-    el("p", { class: "muted" }, "Eure Antworten schärfen die Short-List. Bitte keine Adressen, Namen oder Kontaktdaten eintragen."));
+  const box = el("div", {}, el("h2", {}, "Fragen & Antworten"),
+    el("p", { class: "muted" }, "Vorbelegt mit euren bisherigen Antworten. Neue Fragen sind mit NEU markiert. Bitte keine Adressen, Namen oder Kontaktdaten eintragen."));
   QUESTIONS.forEach(q => {
     const val = state.answers[q.id] || "";
     const input = q.type === "select"
       ? el("select", { "aria-label": q.q }, el("option", { value: "" }, "– wählen –"), ...q.opts.map(o => el("option", { value: o }, o)))
-      : el("textarea", { rows: 2, maxlength: 1000, "aria-label": q.q });
+      : el("textarea", { rows: 2, maxlength: 1000, "aria-label": q.q, placeholder: q.hint || "" });
     input.value = val;
     input.addEventListener("input", () => { state.answers[q.id] = input.value; save(); });
     box.append(el("div", { class: "card", style: "margin-bottom:10px" }, el("p", {}, el("b", {}, q.q)), input));
