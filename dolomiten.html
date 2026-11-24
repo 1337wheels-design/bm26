@@ -1,0 +1,641 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  SICHERHEITSHINWEIS (Content-Security-Policy):
+  Die App ist komplett offline lauffähig: keine CDN-Skripte, keine Kartenkacheln, keine externen
+  Requests. Die CSP unten erzwingt das technisch (Schutz gegen XSS und unbeabsichtigten Datenabfluss).
+-->
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'">
+<title>Dolomiten Winterreise 2026</title>
+<style>
+  /* ---------- Design-Tokens (hell/dunkel) ---------- */
+  :root{
+    --bg:#f6f4ef; --card:#ffffff; --ink:#1f2a2e; --muted:#5d6b70; --line:#dcd7cc;
+    --accent:#1f6f6b; --accent-ink:#ffffff; --warn:#b4540a; --ok:#2f7d3a; --bad:#a32a2a;
+    --chip:#e8efee; --shadow:0 1px 3px rgba(0,0,0,.08);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#14191b; --card:#1c2326; --ink:#e8eceb; --muted:#9aa8ac; --line:#2e393d;
+           --accent:#4fb3ad; --accent-ink:#0b1415; --warn:#e69a52; --ok:#6fcf7c; --bad:#e57373;
+           --chip:#26343a; --shadow:none; }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  header{padding:16px;max-width:1100px;margin:0 auto}
+  h1{margin:0 0 4px;font-size:1.5rem}
+  .sub{color:var(--muted);font-size:.9rem}
+  main{max-width:1100px;margin:0 auto;padding:0 16px 64px}
+  h2{margin:24px 0 8px;font-size:1.2rem}
+  h3{margin:0 0 4px;font-size:1.05rem}
+
+  /* Navigation */
+  nav{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+  nav button,.btn{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--ink);
+       padding:8px 14px;border-radius:999px;cursor:pointer}
+  nav button[aria-current="true"],.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+  .btn.small{padding:4px 10px;font-size:.85rem}
+  .btn.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+  button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+  /* Funnel (Long -> Short) */
+  .funnel{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  .funnel div{flex:1;min-width:120px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 12px}
+  .funnel b{font-size:1.4rem;display:block}
+
+  /* Karten */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:var(--shadow)}
+  .card.sel{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+  .card.faded{opacity:.6}
+  .chips{display:flex;gap:4px;flex-wrap:wrap;margin:6px 0}
+  .chip{background:var(--chip);border-radius:999px;padding:1px 9px;font-size:.78rem}
+  .warn{color:var(--warn)} .ok{color:var(--ok)} .bad{color:var(--bad)}
+  ul.tight{margin:4px 0;padding-left:18px}
+  .muted{color:var(--muted)}
+  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .bar{display:grid;grid-template-columns:70px 1fr;gap:6px;align-items:center;font-size:.8rem}
+  .bar i{display:block;height:6px;border-radius:3px;background:var(--accent)}
+  .bar span{background:var(--line);border-radius:3px;height:6px;display:block}
+  textarea,input[type=number],select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 8px;width:100%}
+  input[type=number]{width:70px}
+  table{border-collapse:collapse;width:100%;font-size:.88rem}
+  th,td{border-bottom:1px solid var(--line);padding:6px;text-align:left;vertical-align:top}
+  .scroll{overflow-x:auto}
+  .callout{border-left:4px solid var(--warn);background:var(--card);padding:10px 14px;border-radius:8px;margin:8px 0}
+  svg.map{width:100%;height:auto;background:var(--card);border:1px solid var(--line);border-radius:14px}
+  svg text{fill:var(--ink);font-size:11px}
+
+  /* Praesentation */
+  .slide{min-height:70vh;display:flex;flex-direction:column;justify-content:center;gap:12px;
+         background:var(--card);border:1px solid var(--line);border-radius:18px;padding:28px}
+  .slide h2{font-size:2rem;margin:0}
+  .slide .big{font-size:1.1rem}
+  .pager{display:flex;justify-content:space-between;align-items:center;margin-top:12px}
+  @media print{ nav,.pager,.funnel,header .sub{display:none} body{background:#fff;color:#000} }
+  @media (max-width:560px){ .slide{padding:18px} .slide h2{font-size:1.5rem} }
+</style>
+</head>
+<body>
+<header>
+  <h1>🏔️ Dolomiten Winterreise 2026</h1>
+  <div class="sub">29.11. – 07.12.2026 · 2 Erwachsene · 1 Corgi · Mercedes A 140 (Benzin) · Wandern · Wellness · Kochen · Lesen</div>
+  <div class="funnel" id="funnel" aria-live="polite"></div>
+  <nav id="nav" aria-label="Bereiche"></nav>
+</header>
+<main id="view"></main>
+
+<script>
+"use strict";
+/* =====================================================================
+   DOLOMITEN WINTERREISE – Single-Page-App (Vanilla JS, keine Abhängigkeiten)
+   Ablauf "Long to Short Discovery":
+     1. Rahmen   – Fakten & Checkliste für Ende November/Anfang Dezember
+     2. Long-List – alle Kandidaten, gewichtet nach euren Prioritäten
+     3. Short-List & Route – Favoriten auswählen, 3–4 Stationen mit Nächten planen
+     4. Präsentation – Vollbild-Story der gewählten Route
+     5. Fragen – offene Entscheidungen, Antworten werden gespeichert
+   Daten: nur im Browser (localStorage). Export/Import als JSON-Datei.
+   ===================================================================== */
+
+/* ---------- Konstanten ---------- */
+const START = new Date(2026, 10, 29);   // 29.11.2026 (Monat 0-basiert!)
+const TOTAL_NIGHTS = 8;                 // 29.11. -> 07.12.
+const STORE_KEY = "dolomiten-winter-2026-v1";
+
+/* ---------- Kriterien (Gewichtung per Slider) ---------- */
+const CRITERIA = [
+  { key: "w",  label: "Wandern (winterfest)" },
+  { key: "wel",label: "Wellness" },
+  { key: "k",  label: "Kochen / Genuss" },
+  { key: "l",  label: "Lesen / Ruhe" },
+  { key: "h",  label: "Hundetauglich" },
+  { key: "wi", label: "Wintersicher (Straße/Wege)" }
+];
+
+/* ---------- Kandidaten (Long-List) ----------
+   Skalen 1–5 sind SUBJEKTIVE Ersteinschätzungen für Ende Nov./Anfang Dez.
+   Öffnungszeiten, Märkte, Passsperren: IMMER kurz vor Reise bei offiziellen Quellen prüfen!
+   lat/lon dienen nur der groben Karte und Fahrzeit-Schätzung. */
+const PLACES = [
+  { id:"meran", name:"Meran & Umgebung", region:"Südtirol", lat:46.669, lon:11.159,
+    s:{w:5,wel:5,k:4,l:4,h:4,wi:5}, tags:["Waalwege","Therme","Weihnachtsmarkt","mild"],
+    why:"Mildestes Klima der Region – im Dezember oft noch schneefrei und sonnig. Ideal für gemütliche Wanderungen mit kurzen Beinen.",
+    hikes:["Tappeinerweg (ca. 4 km, flach, Promenade)","Algunder oder Marlinger Waalweg (flach, aussichtsreich)","Dorf Tirol – Schloss Tirol Spaziergang"],
+    highlights:["Therme Meran (Hunde im Spa nicht erlaubt → Wechselbetrieb)","Weihnachtsmarkt (Termine 2026 prüfen)","Passeiertal/Passer-Promenade","Gärten Trauttmansdorff im Winter geschlossen"],
+    dog:"Promenaden & Waalwege sind hundefreundlich (Leine). Thermen/Saunen: Hund nicht mitnehmen – einer wellnesst, einer geht Gassi.",
+    risk:"Beliebt zum Markt → Wochenenden voll; Parkplätze knapp." },
+  { id:"bozen", name:"Bozen & Ritten", region:"Südtirol", lat:46.498, lon:11.355,
+    s:{w:4,wel:3,k:5,l:3,h:4,wi:5}, tags:["Stadt","Markt","Ritten","Ötzi"],
+    why:"Südtirols Hauptstadt mit großem Christkindlmarkt, Obstmarkt zum Selbstkochen und Sonnenplateau Ritten direkt darüber.",
+    hikes:["Rittner Höhenweg Oberbozen–Klobenstein (flach, Dolomitenblick)","Erdpyramiden Ritten (kurz)","Talferpromenade Bozen"],
+    highlights:["Christkindlmarkt (Start meist Ende Nov. – prüfen)","Ötzi-Museum","Obstplatz & Markthalle zum Einkaufen fürs Kochen","Rittner Seilbahn (Hundebeförderung vorab klären)"],
+    dog:"Altstadt mit Hund machbar, Markt abends sehr voll – Hund besser nur tagsüber mitnehmen.",
+    risk:"Stadtverkehr, ZTL/Parkgebühren – Parkhaus einplanen." },
+  { id:"brixen", name:"Brixen, Eisacktal & Villnöss", region:"Südtirol", lat:46.716, lon:11.656,
+    s:{w:4,wel:4,k:4,l:5,h:4,wi:4}, tags:["Villnöss","Kloster","Ruhe","Aquarena"],
+    why:"Kleine Bischofsstadt mit Markt und Spa-Bad, dazu das ruhige Villnöss mit Geislerspitzen – super für Lese- und Kochtage.",
+    hikes:["Villnösser Tal: Ranui-Kirchlein / St. Magdalena Spaziergang (flach)","Kloster Neustift – Weinberge Rundweg","Klausen – Säben Aufstieg (kurz, steil)"],
+    highlights:["Aquarena Brixen (Hund nicht im Bad)","Kloster Neustift","Weihnachtsmarkt Brixen (Termine prüfen)","Gute Bäckereien/Metzger fürs Kochen"],
+    dog:"Villnöss: breite Talwege, Hund meist ok an der Leine; Almgebiete im Winter teils Wildschutz beachten.",
+    risk:"Villnöss bei Neuschnee morgens glatt – Winterreifen!" },
+  { id:"groeden", name:"Gröden & Seiser Alm", region:"Südtirol", lat:46.574, lon:11.671,
+    s:{w:4,wel:3,k:3,l:3,h:2,wi:3}, tags:["Skistart","Winterwanderwege","Seilbahn"],
+    why:"Dolomiten-Kulisse wie aus dem Bilderbuch; im Winter präparierte Wege, aber Skibetrieb, Preise und Verkehr steigen Anfang Dezember.",
+    hikes:["Seiser Alm: präparierte Winterwanderwege (Seilbahn nötig)","St. Ulrich/Ortisei Promenade"],
+    highlights:["Seiser-Alm-Bahn ab Seis/Kastelruth","Panorama Langkofel/Schlern"],
+    dog:"Seilbahn mit Hund: Bedingungen vorab prüfen; Winterwege sind oft Rodelbahnen/Skipisten-Nähe.",
+    risk:"Teuer, Ferienwohnung unter 120 € schwer; Straßenverkehr bei Skistart." },
+  { id:"bruneck", name:"Bruneck & Kronplatz", region:"Südtirol (Pustertal)", lat:46.796, lon:11.936,
+    s:{w:4,wel:4,k:4,l:4,h:4,wi:4}, tags:["Pustertal","Markt","Burg","Kronplatz"],
+    why:"Lebendige Altstadt mit Markt, Messner-Museum Ethnologie am Schloss Bruneck, zentrale Lage für Pragser Tal und Cortina.",
+    hikes:["Stegener Markt – Aue Spaziergang","Pragser Wildsee Rundweg (ca. 3,5 km, flach)","Tauferer Ahrntal Talweg"],
+    highlights:["Weihnachtsmarkt Bruneck (Termine prüfen)","Schloss Bruneck / Messner Mountain Museum (Wintertermine prüfen)","Ferienwohnungen im Pustertal oft günstiger als Gröden"],
+    dog:"Talwege & Stadt gut mit Hund. Pragser Wildsee: Straße im Winter ggf. geräumt/gesperrt → prüfen.",
+    risk:"Pustertal kann kalt/schattig sein; Frostgefahr auf Wegen." },
+  { id:"hochpustertal", name:"Toblach, Drei Zinnen & Pragser Tal", region:"Südtirol (Hochpustertal)", lat:46.733, lon:12.222,
+    s:{w:5,wel:3,k:3,l:4,h:3,wi:3}, tags:["Drei Zinnen","Seen","Radweg"],
+    why:"Die großen Dolomiten-Motive: Pragser Wildsee, Toblacher See, Panorama Richtung Drei Zinnen. Im Winter stiller, aber wetterabhängig.",
+    hikes:["Pragser Wildsee Rundweg","Toblacher See Rundweg & Radweg nach Cortina (Altes Bahntrassee, flach)","Dürrensee mit Blick zur Drei-Zinnen (kurz)"],
+    highlights:["Toblach: Gustav-Mahler-Komponierhäuschen (Öffnung prüfen)","Dürrensee-Panorama"],
+    dog:"Flache Winterwege ideal für Corgi – Pfoten bei Streusalz abwischen.",
+    risk:"Hohe Lagen: Schnee/Eis wahrscheinlich; Hütten zu." },
+  { id:"cortina", name:"Cortina d'Ampezzo", region:"Veneto (Dolomiten)", lat:46.537, lon:12.136,
+    s:{w:4,wel:4,k:3,l:3,h:3,wi:3}, tags:["Olympia-Ort","Passstraßen","Ski"],
+    why:"Mondäne Dolomitenstadt mit Rundum-Panorama, Olympia-Winter-Kulisse und sehr schönen Spaziergängen – aber teuer und stärker vom Winterwetter abhängig.",
+    hikes:["Radweg/Fußweg Cortina–Fiames (Altes Bahntrassee)","Lago Ghedina","Weg nach Pocol (kurz, Aussicht)"],
+    highlights:["Corso Italia Flanieren & Cafés","Passstraßen Falzarego/Giau: wetterabhängig (nur bei freien Straßen)","Museo Ladin"],
+    dog:"Stadt mit Hund ok; Preise Hotelfrühstück/Parken hoch.",
+    risk:"Passstraßen können kurzfristig gesperrt sein; A 140 mit knapper Motorisierung → ruhig fahren, Ketten dabei." },
+  { id:"fiemme", name:"Val di Fiemme / Predazzo", region:"Trentino", lat:46.31, lon:11.6,
+    s:{w:4,wel:3,k:3,l:4,h:4,wi:4}, tags:["Fleimstal","Wald","Langlauf","Ruhe"],
+    why:"Weite Waldtäler, Langlaufloipen und ruhige Dörfer – günstiger als Gröden, gut für Lese-/Wanderpausen zwischen Südtirol und Veneto.",
+    hikes:["Waldwege Predazzo – Bellamonte","Paneveggio Naturpark (Winterwege, vorher prüfen)"],
+    highlights:["Fleimstaler Holz & Geigen (Stradivari-Tradition)","Ruhige Ferienwohnungen im Trentino"],
+    dog:"Naturpark-Regeln beachten (Leinenpflicht).",
+    risk:"Hohe Pässe Richtung Süden (Rolle, Costalunga) im Winter wetterabhängig." },
+  { id:"trient", name:"Trient (Trento)", region:"Trentino", lat:46.067, lon:11.121,
+    s:{w:3,wel:3,k:5,l:3,h:4,wi:5}, tags:["Stadt","Weihnachtsmarkt","MUSE","Kochen"],
+    why:"Große Stadt mit berühmtem Weihnachtsmarkt, MUSE-Museum, guten Märkten und Weinen. Sehr gut als wetterfeste Station.",
+    hikes:["Doss Trento (kurz)","Etschtal-Radweg Spaziergang","Monte Bondone (Winter: Schnee prüfen)"],
+    highlights:["Mercatini di Natale Trento (Termine prüfen)","MUSE Wissenschaftsmuseum","Kochen mit Trentiner Produkten (Polenta, Käse, Teroldego)"],
+    dog:"Hundefreundliche Stadt; Märkte abends sehr voll.",
+    risk:"Wenig 'Dolomiten-Gefühl', mehr Stadt." },
+  { id:"levico", name:"Levico/Valsugana (Seen & Terme)", region:"Trentino", lat:46.012, lon:11.304,
+    s:{w:3,wel:5,k:3,l:5,h:3,wi:5}, tags:["Thermen","Seen","Ruhe","Lesen"],
+    why:"Ruhiger Kurort am Kalterer-ähnlichen Seenhügelland – Terme Levico/Roncegno und Seeuferwege. Gut für Lese- und Wellnesstage.",
+    hikes:["Lago di Caldonazzo/Levico Uferwege (flach)","Castel Selva Spaziergang"],
+    highlights:["Terme di Levico (Hunderegeln vorab klären)","Kleine Märkte, Trattorien"],
+    dog:"Uferwege flach & hundefreundlich.",
+    risk:"Weit weg von den Hochgebirgs-Highlights." },
+  { id:"bassano", name:"Bassano del Grappa", region:"Veneto", lat:45.766, lon:11.735,
+    s:{w:3,wel:3,k:5,l:3,h:4,wi:5}, tags:["Grappa","Brenta","Ponte Vecchio","Kochen"],
+    why:"Holzbrücke Ponte Vecchio, Grappa-Tradition, Brenta-Fluss, Monte Grappa im Hintergrund – schöner Veneto-Kontrast zu den Bergen.",
+    hikes:["Brenta-Uferweg","Monte-Grappa-Zufahrt/Panoramastraße (Wetter prüfen)","Altstadtrunde (flach)"],
+    highlights:["Ponte degli Alpini","Nardini-Grappa-Verkostung","Weißer Spargel (Saison Frühling – nicht Dez.)","Kochen: Baccalà, Risotto, lokale Märkte"],
+    dog:"Altstadt hundefreundlich.",
+    risk:"Sehr lange Fahrt ab Norden; Nebel/Feuchte im Dezember." },
+  { id:"vicenza", name:"Vicenza", region:"Veneto", lat:45.545, lon:11.535,
+    s:{w:2,wel:3,k:5,l:4,h:4,wi:5}, tags:["Palladio","UNESCO","Kochen","Stadt"],
+    why:"UNESCO-Stadt der Palladio-Bauten: Basilica Palladiana, Teatro Olimpico, Monte Berico. Ideal als Genuss-/Kulturstation am Ende der Reise.",
+    hikes:["Monte Berico Aufstieg (Arkadenweg)","Parco Querini"],
+    highlights:["Teatro Olimpico","Basilica Palladiana","Villa Rotonda (Außenbesichtigung)","Baccalà alla vicentina, Kochkurs"],
+    dog:"Stadt mit Hund ok; Innenräume meist ohne Hund.",
+    risk:"Wenig Wandern; Nebel im Winter." },
+  { id:"hallstatt", name:"Hallstatt (Salzkammergut)", region:"Österreich", lat:47.562, lon:13.649,
+    s:{w:3,wel:3,k:3,l:4,h:3,wi:3}, tags:["Detour","Seen","Fotomotiv"],
+    why:"Weltberühmtes Seedorf – aber geografisch ein eigener Ort ~300 km östlich der Dolomiten. Nur sinnvoll als Zwischenstopp auf der Heimreise (je nach Wohnort/Route).",
+    hikes:["Seeuferweg","Echerntal (kurz)"],
+    highlights:["Weihnachtsstimmung am See","Salzwelten (Wintertermine prüfen)"],
+    dog:"Altstadt sehr eng, im Winter ruhiger.",
+    risk:"Passt nicht in einen Dolomiten-Rundkurs → in der App als 'Detour' markiert." }
+];
+
+/* ---------- Routen-Presets ---------- */
+const PRESETS = [
+  { name:"A · Dolomiten-Kern", desc:"Meran → Bruneck → Cortina: Wandern vorn, Panorama hinten.",
+    stops:[["meran",3],["bruneck",3],["cortina",2]] },
+  { name:"B · Dolomiten + Veneto", desc:"Bozen → Bruneck → Cortina → Bassano: Berge zu Genuss.",
+    stops:[["bozen",2],["bruneck",2],["cortina",2],["bassano",2]] },
+  { name:"C · Slow & Cozy", desc:"Meran → Brixen/Villnöss → Bruneck: wenig Fahrerei, viel Wellness & Lesen.",
+    stops:[["meran",3],["brixen",2],["bruneck",3]] }
+];
+
+/* ---------- Offene Fragen (Runde 2) ---------- */
+const QUESTIONS = [
+  { id:"startort", q:"Aus welcher Region fahrt ihr los (nur Region/Stadt)? Brenner (Meran/Bozen zuerst) oder Reschen/Fernpass (Meran zuerst)?", type:"text" },
+  { id:"anreise", q:"Anreise: Alles an einem Tag (29.11.) oder Zwischenübernachtung unterwegs?", type:"select", opts:["Alles an einem Tag","Zwischenstopp (z.B. Innsbruck/Brenner-Gegend)","Noch offen"] },
+  { id:"rueck", q:"Rückreise: gleicher Rückweg oder eine andere Strecke? Dann ist Hallstatt/Vicenza als Rückreise-Stopp realistisch.", type:"text" },
+  { id:"wellness", q:"Wellness: Reicht ein Spa-Tag mit Hund-Wechselbetrieb oder wollt ihr eine Ferienwohnung mit Sauna/Wanne?", type:"select", opts:["Spa-Tag mit Wechselbetrieb","Ferienwohnung mit Sauna/Whirlpool","Beides","Nur bei Gelegenheit"] },
+  { id:"kochen", q:"Kochen: Eher Selbstversorger-Küche (Märkte!) oder auch ein Kochkurs mit Einheimischen?", type:"select", opts:["Selbst kochen","Kochkurs buchen","Beides"] },
+  { id:"corgi", q:"Wie viele Kilometer/Höhenmeter schafft euer Corgi am Tag entspannt (z.B. 6 km / 200 Hm)? Hundetrage für Seilbahnen vorhanden?", type:"text" },
+  { id:"auto", q:"Auto: Welche Baureihe/Motorisierung hat der A 140 genau (Schaltgetriebe? Baujahr)? Winterreifen & Ketten vorhanden?", type:"text" },
+  { id:"tempo", q:"Tempo: Wie viele Tage maximal wollt ihr 'Highlights jagen' vs. bewusst Ruhetage?", type:"select", opts:["3 Highlight-Tage, Rest Ruhe","5 Highlight-Tage","Täglich etwas Kleines"] },
+  { id:"pass", q:"Fahrstil: Pässe/Serpentinen im Winter ok oder Talrouten bevorzugen?", type:"select", opts:["Nur Talrouten","Pässe nur bei freier Straße","Egal, solange Ketten dabei"] }
+];
+
+/* ---------- Checkliste (Faktenrahmen) ---------- */
+const CHECKLIST = [
+  "Winterreifen oder Schneeketten an Bord (Südtirol: 15.11.–15.04. Pflicht)",
+  "Italien: ZTL/Parkregeln in Städten beachten; Maut A22 (Brenner) einplanen",
+  "Österreich-Vignette/Streckenmaut je nach Anreise prüfen",
+  "Hundepass/EU-Heimtierausweis, Tollwutimpfung gültig, Chip vorhanden",
+  "Hund: Leinenpflicht & Wildschutz im Winter; Maulkorb-Regeln in Italien beachten",
+  "Hunde-Decke, Pfotenschutz/Handtuch (Streusalz), Reisefutter",
+  "Wanderung: Eisspikes/Grödel, Stirnlampe, Powerbank",
+  "Echtzeit-Check Passstraßen & Wetter am Vorabend (offizielle Verkehrs-Portale)",
+  "Ferienwohnungen: 'Hund erlaubt' + Heizung + Parkplatz + Küche prüfen",
+  "Märkte/Hütten/Museen: Öffnungstage 2026 kurz vorher prüfen"
+];
+
+/* =====================================================================
+   Hilfsfunktionen
+   ===================================================================== */
+
+/* DOM-Helfer: erzeugt Elemente ausschließlich über textContent/Attribute.
+   SICHERHEIT: Es wird nirgends innerHTML mit Nutzerdaten verwendet → kein XSS
+   durch Notizen oder importierte JSON-Dateien. */
+function el(tag, props = {}, ...kids) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(props)) {
+    if (k === "class") e.className = v;
+    else if (k.startsWith("on")) e.addEventListener(k.slice(2), v);
+    else if (v === true) e.setAttribute(k, "");
+    else if (v !== false && v != null) e.setAttribute(k, String(v));
+  }
+  kids.flat().forEach(c => {
+    if (c == null || c === false) return;
+    e.append(c.nodeType ? c : document.createTextNode(String(c)));
+  });
+  return e;
+}
+const SVGNS = "http://www.w3.org/2000/svg";
+function svg(tag, attrs = {}, text) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, String(v));
+  if (text != null) e.textContent = text;
+  return e;
+}
+const byId = id => PLACES.find(p => p.id === id);
+const fmtDate = d => d.toLocaleDateString("de-DE", { weekday: "short", day: "2-digit", month: "2-digit" });
+const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+
+/* ---------- Zustand (localStorage) ---------- */
+const defaultState = () => ({
+  tab: "rahmen",
+  weights: { w: 4, wel: 4, k: 3, l: 3, h: 5, wi: 5 },
+  short: {},        // id -> true (Short-List)
+  notes: {},        // id -> Text
+  route: [],        // [{id, nights}]
+  answers: {},      // questionId -> Text
+  checks: {},       // Checklisten-Index -> true
+  slide: 0
+});
+let state = load();
+
+/* SICHERHEIT (Eingabevalidierung): Daten aus localStorage/Import werden nie blind übernommen,
+   sondern gegen eine Whitelist (bekannte IDs, Zahlenbereiche, Textlängen) geprüft. */
+function sanitize(raw) {
+  const s = defaultState();
+  if (!raw || typeof raw !== "object") return s;
+  const tabs = ["rahmen", "long", "short", "present", "fragen"];
+  if (tabs.includes(raw.tab)) s.tab = raw.tab;
+  if (raw.weights && typeof raw.weights === "object")
+    for (const c of CRITERIA) {
+      const n = Number(raw.weights[c.key]);
+      if (Number.isFinite(n)) s.weights[c.key] = Math.min(5, Math.max(0, Math.round(n)));
+    }
+  const known = new Set(PLACES.map(p => p.id));
+  if (raw.short && typeof raw.short === "object")
+    for (const id of Object.keys(raw.short)) if (known.has(id) && raw.short[id] === true) s.short[id] = true;
+  if (raw.notes && typeof raw.notes === "object")
+    for (const id of Object.keys(raw.notes)) if (known.has(id)) s.notes[id] = String(raw.notes[id]).slice(0, 1000);
+  if (Array.isArray(raw.route))
+    s.route = raw.route.filter(r => r && known.has(r.id)).slice(0, 8)
+      .map(r => ({ id: r.id, nights: Math.min(8, Math.max(1, Math.round(Number(r.nights)) || 1)) }));
+  const qids = new Set(QUESTIONS.map(q => q.id));
+  if (raw.answers && typeof raw.answers === "object")
+    for (const id of Object.keys(raw.answers)) if (qids.has(id)) s.answers[id] = String(raw.answers[id]).slice(0, 1000);
+  if (raw.checks && typeof raw.checks === "object")
+    for (const i of Object.keys(raw.checks)) if (Number(i) >= 0 && Number(i) < CHECKLIST.length && raw.checks[i] === true) s.checks[i] = true;
+  return s;
+}
+function load() {
+  try { return sanitize(JSON.parse(localStorage.getItem(STORE_KEY))); }
+  catch (e) { return defaultState(); }          // Storage kann blockiert/leer sein → Defaults
+}
+function save() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* ignorieren */ }
+}
+
+/* ---------- Bewertung & Fahrzeit ---------- */
+/* Passung 0–100: gewichteter Mittelwert der Kriterien-Scores (1–5). */
+function fit(p) {
+  let sum = 0, wsum = 0;
+  for (const c of CRITERIA) { const w = state.weights[c.key]; sum += w * p.s[c.key]; wsum += w; }
+  return wsum === 0 ? 0 : Math.round((sum / (wsum * 5)) * 100);
+}
+/* Grobe Fahrzeit: Luftlinie × 1,4 (Serpentinen) bei Ø 50 km/h. Nur zur Orientierung! */
+function km(a, b) {
+  const R = 6371, rad = x => x * Math.PI / 180;
+  const dLat = rad(b.lat - a.lat), dLon = rad(b.lon - a.lon);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLon / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+function driveMin(a, b) { return Math.round(km(a, b) * 1.4 / 50 * 60 / 5) * 5; }
+const fmtMin = m => `${Math.floor(m / 60)} h ${String(m % 60).padStart(2, "0")} min`;
+
+/* =====================================================================
+   Rendering
+   ===================================================================== */
+const view = document.getElementById("view");
+const TABS = [["rahmen", "1 · Rahmen"], ["long", "2 · Long-List"], ["short", "3 · Short-List & Route"],
+              ["present", "4 · Präsentation"], ["fragen", "5 · Offene Fragen"]];
+
+function setTab(t) { state.tab = t; save(); render(); window.scrollTo(0, 0); }
+function renderNav() {
+  const nav = document.getElementById("nav");
+  nav.replaceChildren(...TABS.map(([id, label]) =>
+    el("button", { "aria-current": String(state.tab === id), onclick: () => setTab(id) }, label)));
+  const funnel = document.getElementById("funnel");
+  const nShort = Object.keys(state.short).length;
+  const nights = state.route.reduce((a, r) => a + r.nights, 0);
+  funnel.replaceChildren(
+    el("div", {}, el("b", {}, PLACES.length), "Long-List"),
+    el("div", {}, el("b", {}, nShort), "Short-List"),
+    el("div", {}, el("b", {}, `${state.route.length} Stationen`), `Route · ${nights}/${TOTAL_NIGHTS} Nächte`));
+}
+function render() {
+  renderNav();
+  const fn = { rahmen: vRahmen, long: vLong, short: vShort, present: vPresent, fragen: vFragen }[state.tab];
+  view.replaceChildren(fn());
+}
+
+/* ---------- 1 · Rahmen ---------- */
+function vRahmen() {
+  const box = el("div");
+  box.append(
+    el("h2", {}, "Das Rahmenwerk: 29.11. – 07.12.2026 (8 Nächte)"),
+    el("div", { class: "callout" },
+      el("b", {}, "Wintertermin = andere Dolomiten. "),
+      "Hütten und viele Lifte sind noch zu, die Skisaison startet um den 5.–8. Dezember. Wandern funktioniert am besten auf Talwegen, Waalwegen und Uferpromenaden. Passstraßen (Falzarego, Pordoi, Sella, Gröden) sind wetterabhängig – Echtzeit-Portale vor jeder Fahrt prüfen."),
+    el("div", { class: "grid" },
+      el("div", { class: "card" }, el("h3", {}, "🚗 Auto"), el("p", {}, "Mercedes A 140 (Benzin): wenig Leistung für lange Passfahrten. Winterreifen/Ketten Pflicht in Südtirol (15.11.–15.04.). Lieber Täler, ruhig fahren, Steigungen mit Reserve planen.")),
+      el("div", { class: "card" }, el("h3", {}, "🐕 Corgi"), el("p", {}, "Kurze Beine: gemütliche Wege (< 6 km, wenig Höhenmeter). Streusalz → Pfoten abwischen. Thermen/Saunen meist ohne Hund → Wechselbetrieb planen.")),
+      el("div", { class: "card" }, el("h3", {}, "🎄 Märkte"), el("p", {}, "Weihnachtsmärkte in Bozen, Meran, Brixen, Bruneck und Trient öffnen meist um den 27.–28.11. – Termine 2026 bitte vorab prüfen.")),
+      el("div", { class: "card" }, el("h3", {}, "🏠 Unterkunft"), el("p", {}, "Ferienwohnung bis ca. 120 €/Nacht, Hund erlaubt, Küche. Für 3–4 Stationen: nach Möglichkeit 2–3 Nächte pro Ort, damit Kochen und Lesen nicht zu kurz kommen."))));
+  box.append(el("h2", {}, "Checkliste vor der Abreise"));
+  const list = el("div", { class: "card" });
+  CHECKLIST.forEach((txt, i) => {
+    const id = "chk" + i;
+    list.append(el("div", { class: "row" },
+      el("input", { type: "checkbox", id, checked: !!state.checks[i], onchange: e => { if (e.target.checked) state.checks[i] = true; else delete state.checks[i]; save(); } }),
+      el("label", { for: id }, txt)));
+  });
+  box.append(list);
+  box.append(el("div", { class: "callout" }, el("b", {}, "Sicherheitsrelevant: "), "Wintertauglichkeit des Fahrzeugs, Wetter-/Lawinenlage, Leinenpflicht und Datenschutz bei Buchungen (keine Ausweis-/Zahlungsdaten in Notizen der App speichern)."));
+  box.append(vDataTools());
+  return box;
+}
+
+/* Export/Import: Datei-Download lokal (kein Netzwerk). */
+function vDataTools() {
+  const wrap = el("div", { class: "card", style: "margin-top:16px" }, el("h3", {}, "Daten sichern / teilen"));
+  wrap.append(el("p", { class: "muted" }, "Alles bleibt lokal im Browser. Export als JSON-Datei, Import mit Validierung."));
+  const imp = el("input", { type: "file", accept: "application/json", style: "display:none", onchange: ev => {
+    const f = ev.target.files[0]; if (!f) return;
+    if (f.size > 200000) { alert("Datei zu groß."); return; }       // Größenlimit als Schutz
+    const r = new FileReader();
+    r.onload = () => { try { state = sanitize(JSON.parse(r.result)); save(); render(); } catch (e) { alert("Ungültige Datei."); } };
+    r.readAsText(f);
+  }});
+  wrap.append(el("div", { class: "row" },
+    el("button", { class: "btn", onclick: () => {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+      const a = el("a", { href: URL.createObjectURL(blob), download: "dolomiten-winter-2026.json" });
+      a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }}, "Export (JSON)"),
+    el("button", { class: "btn", onclick: () => imp.click() }, "Import"),
+    el("button", { class: "btn", onclick: () => { if (confirm("Alles zurücksetzen?")) { state = defaultState(); save(); render(); } } }, "Zurücksetzen"),
+    imp));
+  return wrap;
+}
+
+/* ---------- 2 · Long-List ---------- */
+let filters = { dogOk: false, winterOk: false, sort: "fit" };
+function vLong() {
+  const box = el("div");
+  box.append(el("h2", {}, "Long-List: alle Kandidaten"),
+    el("p", { class: "muted" }, "Stellt links eure Prioritäten ein (0 = egal, 5 = sehr wichtig). Die Passung sortiert die Liste. Mit ♥ übernehmt ihr Orte in die Short-List."));
+
+  /* Gewichtungs-Slider */
+  const wbox = el("div", { class: "card" }, el("h3", {}, "Eure Prioritäten"));
+  const grid = el("div", { class: "grid" });
+  for (const c of CRITERIA) {
+    const out = el("b", {}, state.weights[c.key]);
+    grid.append(el("div", {},
+      el("label", { for: "w" + c.key }, c.label + ": ", out),
+      el("input", { type: "range", id: "w" + c.key, min: 0, max: 5, step: 1, value: state.weights[c.key], style: "width:100%",
+        oninput: e => { state.weights[c.key] = Number(e.target.value); out.textContent = e.target.value; save(); renderCards(); } })));
+  }
+  wbox.append(grid);
+  wbox.append(el("div", { class: "row", style: "margin-top:8px" },
+    el("label", {}, el("input", { type: "checkbox", checked: filters.dogOk, onchange: e => { filters.dogOk = e.target.checked; renderCards(); } }), " nur hundetauglich (≥ 4)"),
+    el("label", {}, el("input", { type: "checkbox", checked: filters.winterOk, onchange: e => { filters.winterOk = e.target.checked; renderCards(); } }), " nur wintersicher (≥ 4)")));
+  box.append(wbox);
+
+  const cards = el("div", { class: "grid", style: "margin-top:12px" });
+  box.append(cards);
+
+  function renderCards() {
+    const list = PLACES.filter(p => (!filters.dogOk || p.s.h >= 4) && (!filters.winterOk || p.s.wi >= 4))
+      .sort((a, b) => fit(b) - fit(a));
+    cards.replaceChildren(...list.map(placeCard));
+    renderNav();
+  }
+  renderCards();
+  return box;
+}
+
+function bar(label, v) {
+  return el("div", { class: "bar" }, el("span", {}, label), el("span", {}, el("i", { style: `width:${v * 20}%` })));
+}
+function placeCard(p) {
+  const sel = !!state.short[p.id];
+  const card = el("div", { class: "card" + (sel ? " sel" : "") + (p.id === "hallstatt" ? " faded" : "") });
+  card.append(
+    el("div", { class: "row", style: "justify-content:space-between" },
+      el("h3", {}, p.name),
+      el("button", { class: "btn small" + (sel ? " on" : ""), "aria-pressed": String(sel),
+        onclick: () => { if (sel) delete state.short[p.id]; else state.short[p.id] = true; save(); render(); } },
+        sel ? "♥ Short-List" : "♡ merken")),
+    el("div", { class: "muted" }, p.region + " · Passung ", el("b", {}, fit(p) + " %")),
+    el("div", { class: "chips" }, p.tags.map(t => el("span", { class: "chip" }, t))),
+    el("p", {}, p.why));
+  CRITERIA.forEach(c => card.append(bar(c.label.split(" ")[0], p.s[c.key])));
+  card.append(el("details", {}, el("summary", {}, "Wandern, Highlights, Hund & Risiko"),
+    el("b", {}, "Wanderungen"), el("ul", { class: "tight" }, p.hikes.map(x => el("li", {}, x))),
+    el("b", {}, "Highlights"), el("ul", { class: "tight" }, p.highlights.map(x => el("li", {}, x))),
+    el("p", {}, "🐕 ", p.dog), el("p", { class: "warn" }, "⚠ ", p.risk)));
+  card.append(el("textarea", { rows: 2, maxlength: 1000, placeholder: "Eure Notiz (keine persönlichen Daten)…", "aria-label": "Notiz zu " + p.name,
+    oninput: e => { state.notes[p.id] = e.target.value; save(); } }));
+  card.querySelector("textarea").value = state.notes[p.id] || "";
+  return card;
+}
+
+/* ---------- 3 · Short-List & Route ---------- */
+function vShort() {
+  const box = el("div");
+  const ids = Object.keys(state.short);
+  box.append(el("h2", {}, "Short-List"));
+  if (!ids.length) box.append(el("p", { class: "muted" }, "Noch leer – merkt euch in der Long-List Orte mit ♡, oder startet unten mit einem Preset."));
+  else {
+    const rows = ids.map(byId).sort((a, b) => fit(b) - fit(a));
+    box.append(el("div", { class: "scroll" }, el("table", {},
+      el("thead", {}, el("tr", {}, el("th", {}, "Ort"), el("th", {}, "Passung"), ...CRITERIA.map(c => el("th", {}, c.label.split(" ")[0])))),
+      el("tbody", {}, rows.map(p => el("tr", {}, el("td", {}, p.name), el("td", {}, fit(p) + " %"), ...CRITERIA.map(c => el("td", {}, p.s[c.key]))))))));
+  }
+
+  /* Presets */
+  box.append(el("h2", {}, "Routen-Vorschläge"));
+  box.append(el("div", { class: "grid" }, PRESETS.map(pr => el("div", { class: "card" },
+    el("h3", {}, pr.name), el("p", {}, pr.desc),
+    el("button", { class: "btn small", onclick: () => { state.route = pr.stops.map(([id, n]) => ({ id, nights: n })); pr.stops.forEach(([id]) => state.short[id] = true); save(); render(); } }, "Übernehmen")))));
+
+  /* Routen-Builder */
+  box.append(el("h2", {}, "Eure Route (3–4 Stationen, 8 Nächte)"));
+  const sumN = state.route.reduce((a, r) => a + r.nights, 0);
+  const status = sumN === TOTAL_NIGHTS ? el("span", { class: "ok" }, "✓ 8 Nächte verplant")
+                                       : el("span", { class: "warn" }, `${sumN}/${TOTAL_NIGHTS} Nächte – ${sumN < TOTAL_NIGHTS ? "noch " + (TOTAL_NIGHTS - sumN) + " übrig" : (sumN - TOTAL_NIGHTS) + " zu viel"}`);
+  box.append(el("p", {}, status));
+  if (state.route.length < 3 || state.route.length > 4)
+    box.append(el("p", { class: "warn" }, "Hinweis: Gewünscht sind 3–4 Stationen (aktuell " + state.route.length + ")."));
+
+  const rb = el("div");
+  const routeList = el("div", { class: "grid" });
+  state.route.forEach((r, i) => {
+    const p = byId(r.id);
+    const prev = i > 0 ? byId(state.route[i - 1].id) : null;
+    const mins = prev ? driveMin(prev, p) : 0;
+    routeList.append(el("div", { class: "card" },
+      el("h3", {}, `${i + 1}. ${p.name}`),
+      prev ? el("div", { class: mins > 180 ? "warn" : "muted" }, `≈ ${fmtMin(mins)} ab ${prev.name} (grobe Schätzung${mins > 180 ? " – lang!" : ""})`) : null,
+      el("div", { class: "row", style: "margin-top:6px" },
+        el("label", { for: "n" + i }, "Nächte:"),
+        el("input", { type: "number", id: "n" + i, min: 1, max: 8, value: r.nights, onchange: e => { r.nights = Math.min(8, Math.max(1, Math.round(Number(e.target.value)) || 1)); save(); render(); } }),
+        el("button", { class: "btn small", "aria-label": "nach oben", onclick: () => move(i, -1) }, "↑"),
+        el("button", { class: "btn small", "aria-label": "nach unten", onclick: () => move(i, 1) }, "↓"),
+        el("button", { class: "btn small", onclick: () => { state.route.splice(i, 1); save(); render(); } }, "Entfernen"))));
+  });
+  rb.append(routeList);
+  function move(i, d) { const j = i + d; if (j < 0 || j >= state.route.length) return; [state.route[i], state.route[j]] = [state.route[j], state.route[i]]; save(); render(); }
+
+  const sel = el("select", { "aria-label": "Station hinzufügen" }, el("option", { value: "" }, "Station hinzufügen…"),
+    ...PLACES.map(p => el("option", { value: p.id }, p.name)));
+  sel.addEventListener("change", () => { if (!sel.value) return; state.route.push({ id: sel.value, nights: Math.max(1, TOTAL_NIGHTS - sumN) }); save(); render(); });
+  rb.append(el("div", { style: "max-width:320px;margin-top:8px" }, sel));
+  box.append(rb);
+
+  if (state.route.length) { box.append(el("h2", {}, "Karte (schematisch)"), routeMap(), vTimeline()); }
+  return box;
+}
+
+/* Schematische Karte: einfache lineare Projektion der lat/lon-Werte, nur inline-SVG. */
+function routeMap() {
+  const W = 800, H = 480, pad = 50;
+  const pts = PLACES.filter(p => p.id !== "hallstatt");
+  const lats = pts.map(p => p.lat), lons = pts.map(p => p.lon);
+  const minLat = Math.min(...lats), maxLat = Math.max(...lats), minLon = Math.min(...lons), maxLon = Math.max(...lons);
+  const X = p => pad + (p.lon - minLon) / (maxLon - minLon) * (W - 2 * pad);
+  const Y = p => H - pad - (p.lat - minLat) / (maxLat - minLat) * (H - 2 * pad);
+  const s = svg("svg", { class: "map", viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Schematische Routenkarte" });
+  pts.forEach(p => { s.append(svg("circle", { cx: X(p), cy: Y(p), r: 4, fill: "#9aa8ac" }), svg("text", { x: X(p) + 7, y: Y(p) + 4, "fill-opacity": .6 }, p.name.split(" ")[0])); });
+  const route = state.route.map(r => byId(r.id)).filter(p => p.id !== "hallstatt");
+  for (let i = 1; i < route.length; i++)
+    s.append(svg("line", { x1: X(route[i - 1]), y1: Y(route[i - 1]), x2: X(route[i]), y2: Y(route[i]), stroke: "#1f6f6b", "stroke-width": 3, "stroke-dasharray": "6 4" }));
+  route.forEach((p, i) => s.append(svg("circle", { cx: X(p), cy: Y(p), r: 11, fill: "#1f6f6b" }), svg("text", { x: X(p), y: Y(p) + 4, "text-anchor": "middle", style: "fill:#fff;font-weight:bold" }, i + 1)));
+  return s;
+}
+
+function vTimeline() {
+  let day = 0;
+  const rows = state.route.map((r, i) => {
+    const p = byId(r.id), a = addDays(START, day), b = addDays(START, day + r.nights);
+    day += r.nights;
+    return el("tr", {}, el("td", {}, i + 1), el("td", {}, p.name), el("td", {}, `${fmtDate(a)} → ${fmtDate(b)}`), el("td", {}, r.nights));
+  });
+  return el("div", { class: "scroll", style: "margin-top:12px" }, el("table", {},
+    el("thead", {}, el("tr", {}, el("th", {}, "#"), el("th", {}, "Station"), el("th", {}, "Zeitraum"), el("th", {}, "Nächte"))), el("tbody", {}, rows)));
+}
+
+/* ---------- 4 · Präsentation ---------- */
+function vPresent() {
+  const box = el("div");
+  if (!state.route.length) { box.append(el("h2", {}, "Präsentation"), el("p", { class: "muted" }, "Erst eine Route in Schritt 3 anlegen.")); return box; }
+  const slides = [];
+  /* Folie 1: Titel */
+  slides.push(el("div", { class: "slide" },
+    el("h2", {}, "Dolomiten Winterreise"), el("div", { class: "big" }, "29.11. – 07.12.2026 · 8 Nächte"),
+    el("div", {}, "2 Erwachsene · 1 Corgi · Mercedes A 140"), el("div", { class: "chips" }, ["Wandern", "Wellness", "Kochen", "Lesen"].map(t => el("span", { class: "chip" }, t)))));
+  /* Folie 2: Überblick */
+  slides.push(el("div", { class: "slide" }, el("h2", {}, "Die Route"), routeMap(), vTimeline()));
+  /* Folien pro Station */
+  let day = 0;
+  state.route.forEach((r, i) => {
+    const p = byId(r.id), prev = i > 0 ? byId(state.route[i - 1].id) : null;
+    const a = addDays(START, day), b = addDays(START, day + r.nights); day += r.nights;
+    slides.push(el("div", { class: "slide" },
+      el("div", { class: "muted" }, `Station ${i + 1} von ${state.route.length} · ${fmtDate(a)} → ${fmtDate(b)} · ${r.nights} Nächte`),
+      el("h2", {}, p.name), el("div", { class: "muted" }, p.region),
+      prev ? el("div", { class: "muted" }, `🚗 ≈ ${fmtMin(driveMin(prev, p))} ab ${prev.name} (Schätzung)`) : null,
+      el("p", { class: "big" }, p.why),
+      el("div", {}, el("b", {}, "🥾 Wandern"), el("ul", { class: "tight" }, p.hikes.map(x => el("li", {}, x)))),
+      el("div", {}, el("b", {}, "✨ Highlights"), el("ul", { class: "tight" }, p.highlights.map(x => el("li", {}, x)))),
+      el("div", {}, "🐕 ", p.dog), el("div", { class: "warn" }, "⚠ ", p.risk),
+      state.notes[p.id] ? el("div", { class: "callout" }, "📝 ", state.notes[p.id]) : null));
+  });
+  /* Schlussfolie */
+  slides.push(el("div", { class: "slide" }, el("h2", {}, "Vor der Abfahrt"),
+    el("ul", { class: "tight" }, CHECKLIST.map(t => el("li", {}, t)))));
+
+  state.slide = Math.min(state.slide, slides.length - 1);
+  const holder = el("div"); holder.append(slides[state.slide]);
+  const info = el("span", { class: "muted" });
+  const go = d => { state.slide = Math.min(slides.length - 1, Math.max(0, state.slide + d)); save(); holder.replaceChildren(slides[state.slide]); info.textContent = `${state.slide + 1} / ${slides.length}`; };
+  info.textContent = `${state.slide + 1} / ${slides.length}`;
+  box.append(el("h2", {}, "Präsentation"), holder,
+    el("div", { class: "pager" }, el("button", { class: "btn", onclick: () => go(-1) }, "← zurück"), info, el("button", { class: "btn primary", onclick: () => go(1) }, "weiter →")),
+    el("p", { class: "muted" }, "Tipp: Pfeiltasten ← → blättern. Drucken (Strg+P) gibt alle Inhalte als PDF aus."));
+  window._go = go;
+  return box;
+}
+document.addEventListener("keydown", e => {
+  if (state.tab !== "present" || !window._go || /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) return;
+  if (e.key === "ArrowRight") window._go(1);
+  if (e.key === "ArrowLeft") window._go(-1);
+});
+
+/* ---------- 5 · Offene Fragen ---------- */
+function vFragen() {
+  const box = el("div", {}, el("h2", {}, "Offene Fragen für die nächste Runde"),
+    el("p", { class: "muted" }, "Eure Antworten schärfen die Short-List. Bitte keine Adressen, Namen oder Kontaktdaten eintragen."));
+  QUESTIONS.forEach(q => {
+    const val = state.answers[q.id] || "";
+    const input = q.type === "select"
+      ? el("select", { "aria-label": q.q }, el("option", { value: "" }, "– wählen –"), ...q.opts.map(o => el("option", { value: o }, o)))
+      : el("textarea", { rows: 2, maxlength: 1000, "aria-label": q.q });
+    input.value = val;
+    input.addEventListener("input", () => { state.answers[q.id] = input.value; save(); });
+    box.append(el("div", { class: "card", style: "margin-bottom:10px" }, el("p", {}, el("b", {}, q.q)), input));
+  });
+  return box;
+}
+
+render();
+</script>
+</body>
+</html>
