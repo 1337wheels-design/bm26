@@ -67,8 +67,17 @@
   th,td{border-bottom:1px solid var(--line);padding:6px;text-align:left;vertical-align:top}
   .scroll{overflow-x:auto}
   .callout{border-left:4px solid var(--warn);background:var(--card);padding:10px 14px;border-radius:8px;margin:8px 0}
-  svg.map{width:100%;height:auto;background:var(--card);border:1px solid var(--line);border-radius:14px}
+  .map-shell{position:relative;margin:14px 0}
+  svg.map{width:100%;height:auto;display:block;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);background:#dce8e4}
+  svg.map .map-pin{cursor:pointer;outline:none}
+  svg.map .map-pin:focus-visible circle{stroke:var(--accent);stroke-width:3}
+  svg.map .map-pin:hover circle{filter:brightness(1.08)}
   svg text{fill:var(--ink);font-size:11px}
+  svg .map-label{text-shadow:0 0 3px var(--card),0 0 3px var(--card);font-size:9px;pointer-events:none}
+  .map-popup{margin-top:10px;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+  .map-popup .row{flex-wrap:wrap;gap:6px}
+  .map-legend{font-size:.72rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+  .map-legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:middle;border:1px solid #333}
 
   /* Praesentation */
   .slide{min-height:70vh;display:flex;flex-direction:column;justify-content:center;gap:12px;
@@ -329,6 +338,50 @@ const PRESETS = [
     stops:[["bruneck",2],["cortina",2],["treviso",2]] }
 ];
 
+/* Relief-Karte (Wikimedia „Northern Italy relief“) — georeferenziert für Orte-Pins */
+const MAP_IMG = { src: "images/region-map.jpg", w: 636, h: 371 };
+const MAP_GEO = { top: 47.0813889, bottom: 43.4055556, left: 9.6977778, right: 13.8472222 };
+
+function mapXY(p) {
+  const x = (p.lon - MAP_GEO.left) / (MAP_GEO.right - MAP_GEO.left) * MAP_IMG.w;
+  const y = (MAP_GEO.top - p.lat) / (MAP_GEO.top - MAP_GEO.bottom) * MAP_IMG.h;
+  return { x, y };
+}
+function placeLabel(p) {
+  return p.name.split(/[\s&,/–-]/)[0];
+}
+function presetsForPlace(id) {
+  return PRESETS.filter(pr => pr.stops.some(([pid]) => pid === id));
+}
+function bundleIdsForPlace(id) {
+  const hits = presetsForPlace(id);
+  if (hits.length) return hits[0].stops.map(([pid]) => pid);
+  return [id];
+}
+function applyPreset(pr) {
+  state.route = pr.stops.map(([id, n]) => ({ id, nights: n }));
+  pr.stops.forEach(([id]) => { state.short[id] = true; });
+  state.mapFocus = null;
+  state.tab = "short";
+  save();
+  render();
+}
+function applyStadtBundle(p) {
+  const ids = bundleIdsForPlace(p.id);
+  ids.forEach(id => { state.short[id] = true; });
+  const main = presetsForPlace(p.id)[0];
+  if (main) state.route = main.stops.map(([id, n]) => ({ id, nights: n }));
+  state.mapFocus = p.id;
+  state.tab = "short";
+  save();
+  render();
+}
+function toggleMapFocus(id) {
+  state.mapFocus = state.mapFocus === id ? null : id;
+  save();
+  render();
+}
+
 /* ---------- Offene Fragen (Runde 2) ---------- */
 const QUESTIONS = [
   { id:"startort", q:"Startregion", type:"text", pre:"Bremen" },
@@ -484,7 +537,8 @@ const defaultState = () => ({
   transit: { out: true, back: true },  // Zwischenübernachtung Hin-/Rückreise
   answers: Object.fromEntries(QUESTIONS.filter(q => q.pre).map(q => [q.id, q.pre])),  // bisherige Antworten vorbelegt
   checks: {},       // Checklisten-Index -> true
-  slide: 0
+  slide: 0,
+  mapFocus: null    // geöffnetes Stadt-Popup auf der Karte
 });
 let state = load();
 
@@ -516,6 +570,8 @@ function sanitize(raw) {
     for (const id of Object.keys(raw.answers)) if (qids.has(id)) s.answers[id] = String(raw.answers[id]).slice(0, 1000);
   if (raw.checks && typeof raw.checks === "object")
     for (const i of Object.keys(raw.checks)) if (Number(i) >= 0 && Number(i) < CHECKLIST.length && raw.checks[i] === true) s.checks[i] = true;
+  if (raw.mapFocus && known.has(raw.mapFocus)) s.mapFocus = raw.mapFocus;
+  else s.mapFocus = null;
   return s;
 }
 function load() {
@@ -631,6 +687,9 @@ function vLong() {
   const box = el("div");
   box.append(el("h2", {}, "Long-List: alle Kandidaten"),
     el("p", { class: "muted" }, "Stellt links eure Prioritäten ein (0 = egal, 5 = sehr wichtig). Die Passung sortiert die Liste. Mit ♥ übernehmt ihr Orte in die Short-List."));
+  box.append(el("h3", {}, "Orientierung: Reliefkarte"),
+    el("p", { class: "muted" }, "Stadt anklicken → Städtebündel (Short-List + Routen-Preset) oder Einzelaktionen. Grün = eure Route, Gold = Short-List."),
+    travelMap({ interactive: true }));
 
   /* Gewichtungs-Slider */
   const wbox = el("div", { class: "card" }, el("h3", {}, "Eure Prioritäten"));
@@ -717,10 +776,20 @@ function vShort() {
   }
 
   /* Presets */
+  box.append(el("h2", {}, "Orientierung & Städtebündel"),
+    el("p", { class: "muted" }, "Reliefkarte mit Klick: wählt das passende Routen-Bündel (Presets A–G) ab der angeklickten Stadt."),
+    travelMap({ interactive: true }));
   box.append(el("h2", {}, "Routen-Vorschläge"));
-  box.append(el("div", { class: "grid" }, PRESETS.map(pr => el("div", { class: "card" },
-    el("h3", {}, pr.name), el("p", {}, pr.desc),
-    el("button", { class: "btn small", onclick: () => { state.route = pr.stops.map(([id, n]) => ({ id, nights: n })); pr.stops.forEach(([id]) => state.short[id] = true); save(); render(); } }, "Übernehmen")))));
+  box.append(el("div", { class: "grid" }, PRESETS.map(pr => {
+    const active = state.route.length && pr.stops.length === state.route.length
+      && pr.stops.every(([id, n], i) => state.route[i]?.id === id && state.route[i]?.nights === n);
+    return el("div", { class: "card" + (active ? " sel" : "") },
+      el("h3", {}, pr.name), el("p", {}, pr.desc),
+      el("button", { class: "btn small primary", onclick: () => applyPreset(pr) }, active ? "Aktiv" : "Übernehmen"),
+      el("button", { class: "btn small", style: "margin-left:6px", onclick: () => {
+        state.mapFocus = pr.stops[0][0]; state.tab = "short"; save(); render();
+      } }, "Auf Karte zeigen"));
+  })));
 
   /* Routen-Builder */
   box.append(el("h2", {}, "Eure Route"));
@@ -768,25 +837,117 @@ function vShort() {
   rb.append(el("div", { style: "max-width:320px;margin-top:8px" }, sel));
   box.append(rb);
 
-  if (state.route.length) { box.append(el("h2", {}, "Karte (schematisch)"), routeMap(), vTimeline(), el("h2", {}, "Tagesplan (Entwurf)"), el("p", { class: "muted" }, "Rhythmus: früh los, nachmittags zurück in die Ferienwohnung; 50/50 Highlight- und Ruhetage."), vDayPlan()); }
+  if (state.route.length) {
+    box.append(el("h2", {}, "Eure Route auf der Karte"), travelMap({ interactive: true }), vTimeline(),
+      el("h2", {}, "Tagesplan (Entwurf)"), el("p", { class: "muted" }, "Rhythmus: früh los, nachmittags zurück in die Ferienwohnung; 50/50 Highlight- und Ruhetage."), vDayPlan());
+  }
   return box;
 }
 
-/* Schematische Karte: einfache lineare Projektion der lat/lon-Werte, nur inline-SVG. */
-function routeMap() {
-  const W = 800, H = 480, pad = 50;
-  const pts = PLACES.filter(p => p.id !== "hallstatt");
-  const lats = pts.map(p => p.lat), lons = pts.map(p => p.lon);
-  const minLat = Math.min(...lats), maxLat = Math.max(...lats), minLon = Math.min(...lons), maxLon = Math.max(...lons);
-  const X = p => pad + (p.lon - minLon) / (maxLon - minLon) * (W - 2 * pad);
-  const Y = p => H - pad - (p.lat - minLat) / (maxLat - minLat) * (H - 2 * pad);
-  const s = svg("svg", { class: "map", viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Schematische Routenkarte" });
-  pts.forEach(p => { s.append(svg("circle", { cx: X(p), cy: Y(p), r: 4, fill: "#9aa8ac" }), svg("text", { x: X(p) + 7, y: Y(p) + 4, "fill-opacity": .6 }, p.name.split(" ")[0])); });
-  const route = state.route.map(r => byId(r.id)).filter(p => p.id !== "hallstatt");
-  for (let i = 1; i < route.length; i++)
-    s.append(svg("line", { x1: X(route[i - 1]), y1: Y(route[i - 1]), x2: X(route[i]), y2: Y(route[i]), stroke: "#1f6f6b", "stroke-width": 3, "stroke-dasharray": "6 4" }));
-  route.forEach((p, i) => s.append(svg("circle", { cx: X(p), cy: Y(p), r: 11, fill: "#1f6f6b" }), svg("text", { x: X(p), y: Y(p) + 4, "text-anchor": "middle", style: "fill:#fff;font-weight:bold" }, i + 1)));
-  return s;
+function mapBundlePanel(p) {
+  const presets = presetsForPlace(p.id);
+  const bundle = bundleIdsForPlace(p.id);
+  const panel = el("div", { class: "map-popup" },
+    el("h3", { style: "margin:0 0 6px" }, p.name),
+    el("p", { class: "muted", style: "margin:0 0 8px" }, p.region + (p.id === "hallstatt" ? " · Detour / Heimweg" : "")));
+  panel.append(el("p", {}, "Städtebündel: ", el("b", {}, bundle.map(id => placeLabel(byId(id))).join(" → "))));
+  const actions = el("div", { class: "row", style: "margin-top:10px" });
+  actions.append(el("button", { class: "btn small primary", onclick: () => applyStadtBundle(p) }, "Bündel übernehmen (Route + Short-List)"));
+  presets.forEach((pr, idx) => {
+    if (idx === 0) return;
+    actions.append(el("button", { class: "btn small", onclick: () => applyPreset(pr) }, pr.name.split("·")[0].trim()));
+  });
+  actions.append(el("button", { class: "btn small", onclick: () => {
+    if (state.short[p.id]) delete state.short[p.id]; else state.short[p.id] = true;
+    save(); render();
+  } }, state.short[p.id] ? "♥ Short-List" : "♡ merken"));
+  actions.append(el("button", { class: "btn small", onclick: () => {
+    state.route.push({ id: p.id, nights: Math.max(1, availNights() - state.route.reduce((a, r) => a + r.nights, 0)) });
+    state.mapFocus = null; save(); render();
+  } }, "+ Station"));
+  actions.append(el("button", { class: "btn small", onclick: () => { state.mapFocus = null; save(); render(); } }, "Schließen"));
+  panel.append(actions);
+  return panel;
+}
+
+/* Reliefkarte + Klick-Städte (Presets / Short-List / Route) — nur lokale Bilder & inline-SVG. */
+function travelMap({ interactive = true } = {}) {
+  const wrap = el("div", { class: "map-shell" });
+  const { w, h, src } = MAP_IMG;
+  const s = svg("svg", {
+    class: "map",
+    viewBox: `0 0 ${w} ${h}`,
+    role: "img",
+    "aria-label": "Reliefkarte Norditalien mit Planungsorten"
+  });
+  s.append(svg("image", { href: src, x: 0, y: 0, width: w, height: h, preserveAspectRatio: "xMidYMid meet" }));
+
+  const routeOrder = new Map(state.route.map((r, i) => [r.id, i + 1]));
+  const routePts = state.route.map(r => byId(r.id)).filter(Boolean);
+  if (routePts.length > 1) {
+    s.append(svg("polyline", {
+      points: routePts.map(p => { const { x, y } = mapXY(p); return `${x},${y}`; }).join(" "),
+      fill: "none", stroke: "#1f6f6b", "stroke-width": 4, "stroke-linecap": "round",
+      "stroke-linejoin": "round", opacity: 0.85, "stroke-dasharray": "10 6"
+    }));
+  }
+
+  const onKeyPin = (id) => e => {
+    if (!interactive) return;
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleMapFocus(id); }
+  };
+
+  for (const p of PLACES) {
+    const { x, y } = mapXY(p);
+    if (x < -20 || x > w + 20 || y < -20 || y > h + 20) continue;
+    const onRoute = routeOrder.has(p.id);
+    const routeN = routeOrder.get(p.id);
+    const onShort = !!state.short[p.id];
+    const focused = state.mapFocus === p.id;
+    const fill = onRoute ? "#1f6f6b" : onShort ? "#c9a227" : focused ? "#e8f0ef" : "#ffffff";
+    const stroke = p.id === "hallstatt" ? "#a32a2a" : "#1f2a2e";
+    const r = onRoute ? 13 : focused ? 12 : 9;
+    const g = svg("g", {
+      class: "map-pin",
+      role: interactive ? "button" : null,
+      tabindex: interactive ? "0" : null,
+      "aria-pressed": String(focused),
+      "aria-label": p.name + (onRoute ? `, Station ${routeN}` : ""),
+      onclick: interactive ? () => toggleMapFocus(p.id) : null,
+      onkeydown: interactive ? onKeyPin(p.id) : null
+    });
+    g.append(svg("circle", { cx: x, cy: y, r, fill, stroke, "stroke-width": focused ? 3 : 2, opacity: p.id === "hallstatt" ? 0.92 : 1 }));
+    if (onRoute)
+      g.append(svg("text", { x, y: y + 4, "text-anchor": "middle", "font-size": 11, style: "fill:#fff;font-weight:bold", "pointer-events": "none" }, String(routeN)));
+    else
+      g.append(svg("text", { class: "map-label", x, y: y - r - 4, "text-anchor": "middle" }, placeLabel(p)));
+    s.append(g);
+  }
+
+  const nx = w - 42, ny = 36;
+  const north = svg("g", { "aria-hidden": "true" });
+  north.append(svg("path", { d: `M${nx} ${ny + 18} L${nx} ${ny} L${nx + 8} ${ny + 10} Z`, fill: "#1f2a2e" }));
+  north.append(svg("text", { x: nx + 4, y: ny + 30, "font-size": 10, "text-anchor": "middle" }, "N"));
+  s.append(north);
+
+  const barW = 72;
+  const barY = h - 22, barX = 16;
+  const scale = svg("g", { "aria-hidden": "true" });
+  scale.append(svg("rect", { x: barX, y: barY, width: barW, height: 4, fill: "#1f2a2e" }));
+  scale.append(svg("rect", { x: barX, y: barY - 3, width: 2, height: 10, fill: "#1f2a2e" }));
+  scale.append(svg("rect", { x: barX + barW, y: barY - 3, width: 2, height: 10, fill: "#1f2a2e" }));
+  scale.append(svg("text", { x: barX + barW / 2, y: barY + 14, "font-size": 9, "text-anchor": "middle" }, "≈ 50 km"));
+  s.append(scale);
+
+  wrap.append(s);
+  wrap.append(el("div", { class: "map-legend" },
+    el("span", {}, el("i", { style: "background:#1f6f6b" }), "Route"),
+    el("span", {}, el("i", { style: "background:#c9a227" }), "Short-List"),
+    el("span", {}, el("i", { style: "background:#fff" }), "Kandidat"),
+    el("span", {}, "Klick = Städtebündel")));
+  if (interactive && state.mapFocus && byId(state.mapFocus))
+    wrap.append(mapBundlePanel(byId(state.mapFocus)));
+  return wrap;
 }
 
 /* ---------- Tagesplan-Entwurf ----------
@@ -856,7 +1017,7 @@ function vPresent() {
     el("h2", {}, "Dolomiten Winterreise"), el("div", { class: "big" }, "30.11. – 07.12.2026 · 7 Nächte · ab Bremen"),
     el("div", {}, "2 Erwachsene · 1 Corgi · Mercedes A 140"), el("div", { class: "chips" }, ["Wandern", "Wellness", "Kochen", "Lesen"].map(t => el("span", { class: "chip" }, t)))));
   /* Folie 2: Überblick */
-  slides.push(el("div", { class: "slide" }, el("h2", {}, "Die Route"), routeMap(), vTimeline()));
+  slides.push(el("div", { class: "slide" }, el("h2", {}, "Die Route"), travelMap({ interactive: false }), vTimeline()));
   /* Folien pro Station */
   let day = 0;
   state.route.forEach((r, i) => {
