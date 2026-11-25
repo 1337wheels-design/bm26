@@ -85,6 +85,16 @@
   .media-item img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
   .media-item figcaption{font-size:.75rem;color:var(--muted);margin-top:4px;line-height:1.3}
   .img-credit{font-size:.72rem;color:var(--muted);margin-top:6px}
+  .score-bars{display:grid;gap:8px;margin:10px 0 0}
+  .section-impressions{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);clear:both}
+  .section-impressions h4{margin:0 0 10px;font-size:.95rem;font-weight:600}
+  @media (max-width:560px){
+    .score-bars{margin-bottom:4px}
+    .bar{grid-template-columns:6.5rem minmax(0,1fr);font-size:.78rem;gap:8px}
+    .section-impressions{margin-top:18px;padding-top:14px}
+    .media-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0}
+    .media-item figcaption{font-size:.7rem}
+  }
 </style>
 </head>
 <body>
@@ -409,8 +419,11 @@ const fmtDate = d => d.toLocaleDateString("de-DE", { weekday: "short", day: "2-d
 const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
 
 /* ---------- Zustand (localStorage) ---------- */
+const VISIBLE_TABS = new Set(["long", "short", "present"]);
+const normalizeTab = t => (VISIBLE_TABS.has(t) ? t : "long");
+
 const defaultState = () => ({
-  tab: "rahmen",
+  tab: "long",
   weights: { w: 4, wel: 0, k: 4, l: 4, h: 5, wi: 5 },   // Wellness aus, Gemütlichkeit (Kochen/Lesen) an
   short: {},        // id -> true (Short-List)
   notes: {},        // id -> Text
@@ -427,8 +440,7 @@ let state = load();
 function sanitize(raw) {
   const s = defaultState();
   if (!raw || typeof raw !== "object") return s;
-  const tabs = ["rahmen", "long", "short", "present", "fragen"];
-  if (tabs.includes(raw.tab)) s.tab = raw.tab;
+  if (raw.tab) s.tab = normalizeTab(raw.tab);
   if (raw.weights && typeof raw.weights === "object")
     for (const c of CRITERIA) {
       const n = Number(raw.weights[c.key]);
@@ -486,10 +498,9 @@ const fmtMin = m => `${Math.floor(m / 60)} h ${String(m % 60).padStart(2, "0")} 
    Rendering
    ===================================================================== */
 const view = document.getElementById("view");
-const TABS = [["rahmen", "1 · Rahmen"], ["long", "2 · Long-List"], ["short", "3 · Short-List & Route"],
-              ["present", "4 · Präsentation"], ["fragen", "5 · Offene Fragen"]];
+const TABS = [["long", "2 · Long-List"], ["short", "3 · Short-List & Route"], ["present", "4 · Präsentation"]];
 
-function setTab(t) { state.tab = t; save(); render(); window.scrollTo(0, 0); }
+function setTab(t) { state.tab = normalizeTab(t); save(); render(); window.scrollTo(0, 0); }
 function renderNav() {
   const nav = document.getElementById("nav");
   nav.replaceChildren(...TABS.map(([id, label]) =>
@@ -615,9 +626,15 @@ function placeCard(p) {
     el("div", { class: "muted" }, p.region + " · Passung ", el("b", {}, fit(p) + " %"), ` · ≈ ${fmtMin(homeMin(p))} ab ${HOME.name}`),
     el("div", { class: "chips" }, p.tags.map(t => el("span", { class: "chip" }, t))),
     el("p", {}, p.why));
-  CRITERIA.forEach(c => card.append(bar(c.label.split(" ")[0], p.s[c.key])));
+  const scores = el("div", { class: "score-bars" });
+  CRITERIA.forEach(c => scores.append(bar(c.label.split(" ")[0], p.s[c.key])));
+  card.append(scores);
   const actGrid = mediaGrid(p.media);
-  if (actGrid) card.append(el("h4", { style: "margin:8px 0 4px;font-size:.9rem" }, "Geplante Eindrücke"), actGrid);
+  if (actGrid) {
+    card.append(el("div", { class: "section-impressions" },
+      el("h4", {}, "Geplante Eindrücke"),
+      actGrid));
+  }
   card.append(el("details", {}, el("summary", {}, "Wandern, Highlights, Hund & Risiko"),
     el("b", {}, "Wanderungen"), el("ul", { class: "tight" }, p.hikes.map(x => el("li", {}, x))),
     el("b", {}, "Highlights"), el("ul", { class: "tight" }, p.highlights.map(x => el("li", {}, x))),
