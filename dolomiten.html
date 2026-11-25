@@ -100,7 +100,7 @@
 <body>
 <header>
   <h1>🏔️ Dolomiten Winterreise 2026</h1>
-  <div class="sub">29.11. – 07.12.2026 · Start Bremen · 2 Erwachsene · 1 Corgi · Mercedes A 140 (Benzin) · Wandern · Wellness · Kochen · Lesen</div>
+  <div class="sub">30.11. – 07.12.2026 · Start Bremen · 2 Erwachsene · 1 Corgi · Mercedes A 140 (Benzin) · Wandern · Wellness · Kochen · Lesen</div>
   <div class="funnel" id="funnel" aria-live="polite"></div>
   <nav id="nav" aria-label="Bereiche"></nav>
 </header>
@@ -120,8 +120,8 @@
    ===================================================================== */
 
 /* ---------- Konstanten ---------- */
-const START = new Date(2026, 10, 29);   // 29.11.2026 (Monat 0-basiert!)
-const TOTAL_NIGHTS = 8;                 // 29.11. -> 07.12.
+const START = new Date(2026, 10, 30);   // 30.11.2026 (erste Nacht am Ziel; Monat 0-basiert!)
+const TOTAL_NIGHTS = 7;                 // 30.11. -> 07.12.
 const STORE_KEY = "dolomiten-winter-2026-v2";
 /* Startregion: Bremen (nur grobe Koordinate der Stadt, keine Adresse). Dient der Fahrzeit-Schätzung. */
 const HOME = { name: "Bremen", lat: 53.08, lon: 8.80 };
@@ -491,7 +491,7 @@ function driveMin(a, b) { return Math.round(km(a, b) * 1.4 / 50 * 60 / 5) * 5; }
 /* Fahrzeit ab Bremen: Luftlinie × 1,22 (Autobahnfaktor) bei Ø 85 km/h inkl. Pausen. Nur Schätzung! */
 function homeMin(p) { return Math.round(km(HOME, p) * 1.22 / 85 * 60 / 15) * 15; }
 const availNights = () => TOTAL_NIGHTS - (state.transit.out ? 1 : 0) - (state.transit.back ? 1 : 0);
-const routeStart = () => addDays(START, state.transit.out ? 1 : 0);
+const routeStart = () => START;
 const fmtMin = m => `${Math.floor(m / 60)} h ${String(m % 60).padStart(2, "0")} min`;
 
 /* =====================================================================
@@ -523,12 +523,12 @@ function render() {
 function vRahmen() {
   const box = el("div");
   box.append(
-    el("h2", {}, "Das Rahmenwerk: 29.11. – 07.12.2026 (8 Nächte)"),
+    el("h2", {}, "Das Rahmenwerk: 30.11. – 07.12.2026 (7 Nächte)"),
     el("div", { class: "callout" },
       el("b", {}, "Wintertermin = andere Dolomiten. "),
       "Hütten und viele Lifte sind noch zu, die Skisaison startet um den 5.–8. Dezember. Wandern funktioniert am besten auf Talwegen, Waalwegen und Uferpromenaden. Passstraßen (Falzarego, Pordoi, Sella, Gröden) sind wetterabhängig – Echtzeit-Portale vor jeder Fahrt prüfen."),
     el("div", { class: "grid" },
-      el("div", { class: "card" }, el("h3", {}, "🧭 Anreise ab Bremen"), el("p", {}, "≈ 1.000 km, ca. 10 h reine Fahrzeit (Schätzung). Euer Plan: erster Stopp München am 29.11. (1. Advent), 30.11. weiter über den Brenner (München → Bozen ≈ 3,5 h). Rückreise genauso. Damit bleiben 6 Nächte vor Ort – ideal für 3 Stationen à 2 Nächte oder 2 à 3.")),
+      el("div", { class: "card" }, el("h3", {}, "🧭 Anreise ab Bremen"), el("p", {}, "≈ 1.000 km, ca. 10 h reine Fahrzeit (Schätzung). Reisezeitraum ab 30.11. Optional Zwischenstopp München am 29.11. (1. Advent), am 30.11. weiter über den Brenner (München → Bozen ≈ 3,5 h). Rückreise genauso. Damit bleiben bis zu 6 Nächte vor Ort – ideal für 3 Stationen à 2 Nächte oder 2 à 3.")),
       el("div", { class: "card" }, el("h3", {}, "🚗 Auto"), el("p", {}, "Mercedes A 140 mit Allwetterreifen, noch ohne Ketten. Darum: Talstraßen bevorzugen (Eisacktal, Pustertal, Etschtal), keine hohen Pässe. Ketten besorgen und Probe montieren; Allwetterreifen nur mit Alpine-Symbol (3PMSF) sinnvoll – Regeln prüfen.")),
       el("div", { class: "card" }, el("h3", {}, "🐕 Corgi (5 J.)"), el("p", {}, "1–2 h spazieren am Stück, Pausen sind eingeplant → Touren ca. 4–7 km, flach, mit Café-/Bank-Stopps. Streusalz → Pfoten abwischen. Keine Wellness-Planung nötig.")),
       el("div", { class: "card" }, el("h3", {}, "🎄 Märkte"), el("p", {}, "Weihnachtsmärkte in Bozen, Meran, Brixen und Bruneck öffnen meist um den 27.–28.11. – Termine 2026 bitte vorab prüfen.")),
@@ -743,9 +743,10 @@ function leg(a, b) {
 }
 function buildDays() {
   const days = []; let d = 0;
-  const push = (title, items) => days.push({ date: addDays(START, d++), title, items });
+  const pushAt = (date, title, items) => days.push({ date, title, items });
+  const push = (title, items) => pushAt(addDays(START, d++), title, items);
   if (state.transit.out)
-    push("Anreise → München", ["Früh starten, alle ~2 h Pause für den Corgi (Wiese/Raststätte)", "Übernachtung in München (Hund erlaubt prüfen)", "1. Advent: Christkindlmarkt/Altstadt nur kurz, Hundeeinschränkungen prüfen"]);
+    pushAt(addDays(START, -1), "Anreise → München", ["Früh starten, alle ~2 h Pause für den Corgi (Wiese/Raststätte)", "Übernachtung in München (Hund erlaubt prüfen)", "1. Advent: Christkindlmarkt/Altstadt nur kurz, Hundeeinschränkungen prüfen"]);
   state.route.forEach((r, i) => {
     const p = byId(r.id), f = FOOD[p.id] || {};
     const prev = i === 0 ? (state.transit.out ? MUC : HOME) : byId(state.route[i - 1].id);
@@ -774,15 +775,15 @@ function vDayPlan() {
 }
 
 function vTimeline() {
-  let day = state.transit.out ? 1 : 0;
+  let day = 0;
   const rows = [];
-  if (state.transit.out) rows.push(el("tr", {}, el("td", {}, "→"), el("td", {}, "Anreise: Zwischenübernachtung (München)"), el("td", {}, `${fmtDate(START)} → ${fmtDate(addDays(START, 1))}`), el("td", {}, 1)));
+  if (state.transit.out) rows.push(el("tr", {}, el("td", {}, "→"), el("td", {}, "Anreise: Zwischenübernachtung (München)"), el("td", {}, `${fmtDate(addDays(START, -1))} → ${fmtDate(START)}`), el("td", {}, 1)));
   state.route.forEach((r, i) => {
     const p = byId(r.id), a = addDays(START, day), b = addDays(START, day + r.nights);
     day += r.nights;
     rows.push(el("tr", {}, el("td", {}, i + 1), el("td", {}, p.name), el("td", {}, `${fmtDate(a)} → ${fmtDate(b)}`), el("td", {}, r.nights)));
   });
-  if (state.transit.back) rows.push(el("tr", {}, el("td", {}, "←"), el("td", {}, "Rückreise: Zwischenübernachtung"), el("td", {}, `${fmtDate(addDays(START, 7))} → ${fmtDate(addDays(START, 8))}`), el("td", {}, 1)));
+  if (state.transit.back) rows.push(el("tr", {}, el("td", {}, "←"), el("td", {}, "Rückreise: Zwischenübernachtung"), el("td", {}, `${fmtDate(addDays(START, day))} → ${fmtDate(addDays(START, day + 1))}`), el("td", {}, 1)));
   return el("div", { class: "scroll", style: "margin-top:12px" }, el("table", {},
     el("thead", {}, el("tr", {}, el("th", {}, "#"), el("th", {}, "Station"), el("th", {}, "Zeitraum"), el("th", {}, "Nächte"))), el("tbody", {}, rows)));
 }
@@ -794,12 +795,12 @@ function vPresent() {
   const slides = [];
   /* Folie 1: Titel */
   slides.push(el("div", { class: "slide" },
-    el("h2", {}, "Dolomiten Winterreise"), el("div", { class: "big" }, "29.11. – 07.12.2026 · 8 Nächte · ab Bremen"),
+    el("h2", {}, "Dolomiten Winterreise"), el("div", { class: "big" }, "30.11. – 07.12.2026 · 7 Nächte · ab Bremen"),
     el("div", {}, "2 Erwachsene · 1 Corgi · Mercedes A 140"), el("div", { class: "chips" }, ["Wandern", "Wellness", "Kochen", "Lesen"].map(t => el("span", { class: "chip" }, t)))));
   /* Folie 2: Überblick */
   slides.push(el("div", { class: "slide" }, el("h2", {}, "Die Route"), routeMap(), vTimeline()));
   /* Folien pro Station */
-  let day = state.transit.out ? 1 : 0;
+  let day = 0;
   state.route.forEach((r, i) => {
     const p = byId(r.id), prev = i > 0 ? byId(state.route[i - 1].id) : null;
     const a = addDays(START, day), b = addDays(START, day + r.nights); day += r.nights;
