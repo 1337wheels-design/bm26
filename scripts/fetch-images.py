@@ -13,18 +13,27 @@ import urllib.request
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 UA = "bm26-dolomiten-planner/2.0 (contact: github.com/1337wheels-design/bm26)"
 CURATED = ROOT / "images" / "curated.json"
-API_GAP_S = 1.2
-DOWNLOAD_GAP_S = 4.0
+API_GAP_S = 2.5
+DOWNLOAD_GAP_S = 5.0
 
 
 def api(params: dict) -> dict:
     q = urllib.parse.urlencode({**params, "format": "json"})
     url = f"https://commons.wikimedia.org/w/api.php?{q}"
     req = urllib.request.Request(url, headers={"User-Agent": UA})
-    with urllib.request.urlopen(req, timeout=60) as r:
-        data = json.load(r)
-    time.sleep(API_GAP_S)
-    return data
+    for attempt in range(6):
+        try:
+            with urllib.request.urlopen(req, timeout=90) as r:
+                data = json.load(r)
+            time.sleep(API_GAP_S)
+            return data
+        except urllib.error.HTTPError as e:
+            if e.code == 429 and attempt < 5:
+                wait = 45 * (attempt + 1)
+                print(f"  API 429 — warte {wait}s …", flush=True)
+                time.sleep(wait)
+                continue
+            raise
 
 
 def thumb_from_file(file_title: str, width: int) -> str | None:
@@ -127,6 +136,11 @@ def main() -> None:
         rel = f"images/places/{pid}.jpg"
         dest = ROOT / rel
         print(f"place {pid} …", flush=True)
+        if dest.exists() and dest.stat().st_size > 8000:
+            src = spec.get("file") or spec.get("search") or "cached"
+            place_map[pid] = {"img": rel, "imgSource": src}
+            print(f"KEEP {rel}")
+            continue
         url, src = resolve(spec.get("file"), spec.get("search"), width)
         if url and curl_download(url, dest):
             place_map[pid] = {"img": rel, "imgSource": src}
@@ -138,19 +152,32 @@ def main() -> None:
             print(f"MISS place {pid}")
 
     for row in cfg["activities"]:
-        pid, slug, kind, label, file_title = row[0], row[1], row[2], row[3], row[4]
+        pid, slug, kind, label = row[0], row[1], row[2], row[3]
+        file_title = row[4] if len(row) > 4 else None
+        extra = row[5] if len(row) > 5 else None
+        match = None
+        search = label
+        if file_title:
+            if extra and not str(extra).startswith("File:"):
+                match = extra
+        else:
+            if extra:
+                search = extra
         rel = f"images/activities/{slug}.jpg"
         dest = ROOT / rel
         print(f"activity {slug} …", flush=True)
-        url, src = resolve(file_title, label, width)
-        item = {"src": rel, "title": label, "kind": kind, "imgSource": src}
+        item = {"src": rel, "title": label, "kind": kind, "imgSource": file_title or search}
+        if match:
+            item["match"] = match
+        if dest.exists() and dest.stat().st_size > 8000:
+            act_map.setdefault(pid, []).append(item)
+            print(f"KEEP {rel}")
+            continue
+        url, src = resolve(file_title, search, width)
+        item["imgSource"] = src
         if url and curl_download(url, dest):
             act_map.setdefault(pid, []).append(item)
             print(f"OK {rel}")
-        elif dest.exists() and dest.stat().st_size > 8000:
-            item["imgSource"] = src or "cached"
-            act_map.setdefault(pid, []).append(item)
-            print(f"KEEP {rel}")
         else:
             print(f"MISS activity {slug}")
 

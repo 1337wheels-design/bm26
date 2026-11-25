@@ -84,6 +84,11 @@
   .media-item{margin:0}
   .media-item img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
   .media-item figcaption{font-size:.75rem;color:var(--muted);margin-top:4px;line-height:1.3}
+  .media-links{display:block;margin-top:4px}
+  .media-links a{font-size:.7rem;margin-right:8px;color:var(--accent)}
+  .activity-line{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start;margin:6px 0}
+  .activity-line .hike-thumb{width:72px;aspect-ratio:4/3;object-fit:cover;border-radius:6px;border:1px solid var(--line);flex-shrink:0}
+  .activity-text{flex:1;min-width:12rem}
   .img-credit{font-size:.72rem;color:var(--muted);margin-top:6px}
   .score-bars{display:grid;gap:8px;margin:10px 0 0}
   .section-impressions{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);clear:both}
@@ -393,14 +398,62 @@ function imgEl(src, alt, className) {
   return el("img", { class: className, src, alt: alt || "", loading: "lazy", decoding: "async",
     onerror: e => { e.target.hidden = true; } });
 }
-function mediaGrid(items) {
+/** Outbound-Suche (kein Embedding fremder Bilder — TripAdvisor/Komoot nur als Links). */
+function activityLinks(place, label, kind) {
+  const placeShort = place.name.split(/[,&]/)[0].trim();
+  const q = encodeURIComponent(`${label} ${placeShort}`);
+  const links = {
+    tripadvisor: `https://www.tripadvisor.de/Search?q=${q}`,
+    maps: `https://www.google.com/maps/search/?api=1&query=${q}`
+  };
+  if (kind === "hike") links.komoot = `https://www.komoot.com/de/search?q=${q}`;
+  return links;
+}
+function linkRow(links, kind) {
+  const parts = [];
+  if (kind === "hike" && links.komoot)
+    parts.push(el("a", { href: links.komoot, target: "_blank", rel: "noopener noreferrer" }, "Komoot"));
+  parts.push(el("a", { href: links.tripadvisor, target: "_blank", rel: "noopener noreferrer" }, "Tripadvisor"));
+  parts.push(el("a", { href: links.maps, target: "_blank", rel: "noopener noreferrer" }, "Maps"));
+  return el("span", { class: "media-links" }, ...parts);
+}
+function activityKeywords(s) {
+  return String(s).toLowerCase()
+    .replace(/[^a-zäöüß0-9]+/gi, " ")
+    .split(/\s+/)
+    .filter(w => w.length > 3 && !["ca.", "flach", "kurz", "winter"].includes(w));
+}
+function pickMediaForText(text, media, kind) {
+  if (!media?.length) return null;
+  const pool = kind ? media.filter(m => m.kind === kind) : media;
+  const words = activityKeywords(text);
+  let best = null, bestScore = 0;
+  for (const m of pool) {
+    const hay = (m.title + " " + (m.match || "")).toLowerCase();
+    const keys = activityKeywords(m.match || m.title);
+    let score = keys.filter(w => text.toLowerCase().includes(w)).length;
+    score += words.filter(w => hay.includes(w)).length;
+    if (score > bestScore) { bestScore = score; best = m; }
+  }
+  return bestScore > 0 ? best : null;
+}
+function activityLine(place, text, media, kind) {
+  const m = pickMediaForText(text, media, kind);
+  const thumb = m?.src ? imgEl(m.src, m.title, "hike-thumb") : null;
+  const links = linkRow(activityLinks(place, text.split("(")[0].trim(), kind), kind);
+  return el("li", { class: "activity-line" },
+  thumb,
+    el("div", { class: "activity-text" }, el("span", {}, text), links));
+}
+function mediaGrid(items, place) {
   if (!items?.length) return null;
   return el("div", { class: "media-grid" },
     ...items.map(m => {
       const cap = (m.kind === "hike" ? "🥾 " : m.kind === "highlight" ? "✨ " : "") + m.title;
+      const links = place ? linkRow(activityLinks(place, m.title, m.kind), m.kind) : null;
       return el("figure", { class: "media-item" },
         imgEl(m.src, m.title, "") || el("span", {}, ""),
-        el("figcaption", {}, cap));
+        el("figcaption", {}, cap, links));
     }));
 }
 const isItalien = p => p.tags.includes("Italien") || /Italien/.test(p.region);
@@ -545,7 +598,7 @@ function vRahmen() {
   box.append(list);
   box.append(el("div", { class: "callout" }, el("b", {}, "Sicherheitsrelevant: "), "Wintertauglichkeit des Fahrzeugs, Wetter-/Lawinenlage, Leinenpflicht und Datenschutz bei Buchungen (keine Ausweis-/Zahlungsdaten in Notizen der App speichern)."));
   box.append(vDataTools());
-  box.append(el("p", { class: "img-credit" }, "Fotos: Wikimedia Commons (siehe ATTRIBUTION.md im Repository)."));
+  box.append(el("p", { class: "img-credit" }, "Fotos: Wikimedia Commons (siehe ATTRIBUTION.md). Wanderungen & Highlights: Links zu Komoot, TripAdvisor und Google Maps (extern, ohne Einbettung)."));
   return box;
 }
 
@@ -629,15 +682,20 @@ function placeCard(p) {
   const scores = el("div", { class: "score-bars" });
   CRITERIA.forEach(c => scores.append(bar(c.label.split(" ")[0], p.s[c.key])));
   card.append(scores);
-  const actGrid = mediaGrid(p.media);
+  const hikeMedia = (p.media || []).filter(m => m.kind === "hike");
+  const hlMedia = (p.media || []).filter(m => m.kind === "highlight");
+  const actGrid = mediaGrid(hikeMedia.length ? hikeMedia : p.media, p);
   if (actGrid) {
     card.append(el("div", { class: "section-impressions" },
-      el("h4", {}, "Geplante Eindrücke"),
+      el("h4", {}, hikeMedia.length ? "Wanderrouten (Fotos & Links)" : "Geplante Eindrücke"),
       actGrid));
   }
+  const hlGrid = hikeMedia.length && hlMedia.length ? mediaGrid(hlMedia, p) : null;
+  if (hlGrid) card.append(el("div", { class: "section-impressions", style: "margin-top:10px;padding-top:10px" },
+    el("h4", {}, "Highlights (Fotos & Links)"), hlGrid));
   card.append(el("details", {}, el("summary", {}, "Wandern, Highlights, Hund & Risiko"),
-    el("b", {}, "Wanderungen"), el("ul", { class: "tight" }, p.hikes.map(x => el("li", {}, x))),
-    el("b", {}, "Highlights"), el("ul", { class: "tight" }, p.highlights.map(x => el("li", {}, x))),
+    el("b", {}, "Wanderungen"), el("ul", { class: "tight", style: "list-style:none;padding:0" }, p.hikes.map(x => activityLine(p, x, p.media, "hike"))),
+    el("b", {}, "Highlights"), el("ul", { class: "tight", style: "list-style:none;padding:0" }, p.highlights.map(x => activityLine(p, x, p.media, "highlight"))),
     el("p", {}, "🐕 ", p.dog), el("p", { class: "warn" }, "⚠ ", p.risk)));
   card.append(el("textarea", { rows: 2, maxlength: 1000, placeholder: "Eure Notiz (keine persönlichen Daten)…", "aria-label": "Notiz zu " + p.name,
     oninput: e => { state.notes[p.id] = e.target.value; save(); } }));
@@ -807,7 +865,7 @@ function vPresent() {
     const slide = el("div", { class: "slide" });
     const slideImg = imgEl(p.img, p.name, "place-photo hero");
     if (slideImg) slide.append(slideImg);
-    if (p.media?.length) slide.append(mediaGrid(p.media));
+    if (p.media?.length) slide.append(mediaGrid(p.media, p));
     slide.append(
       el("div", { class: "muted" }, `Station ${i + 1} von ${state.route.length} · ${fmtDate(a)} → ${fmtDate(b)} · ${r.nights} Nächte`),
       el("h2", {}, p.name), el("div", { class: "muted" }, p.region),
