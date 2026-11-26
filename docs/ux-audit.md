@@ -30,6 +30,14 @@ Stand: 26.11.2026 (nach Umsetzung der Quick Wins)
 | Navigation scrollt weg | Mittel | Sticky Header |
 | Wochentage in UI uneinheitlich | Niedrig | `fmtDate` / `fmtDateLong` überall |
 
+## Mobile (Stand 26.11. – nachgebessert)
+
+- Kompakter **Sticky-Header** (kleinere Titelzeile, Meta gekürzt).
+- **Funnel** + **Tab-Leiste** horizontal wischbar, kurze Tab-Labels („Route“, „Folien“).
+- **Short-List-Tabelle**: mobil nur Ort + Passung; Kriterien ab Tablet/desktop oder Querformat.
+- Reliefkarte auf Mobile **eingeklappt** (Standard).
+- Preset-Buttons enger („Karte“ statt „Auf Karte zeigen“).
+
 ## Offen / nächste Iteration
 
 1. **Short-List-Tab Reihenfolge**: Route-Builder vor Presets platzieren (aktuell Presets zuerst) — bei Bedarf tauschen.
