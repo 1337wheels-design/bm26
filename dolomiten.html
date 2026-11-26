@@ -879,7 +879,7 @@ function vShort() {
         el("button", { class: "btn small primary", onclick: () => applyPreset(pr) }, active ? "Aktiv" : "Übernehmen"),
         el("button", { class: "btn small", onclick: () => {
           state.mapFocus = pr.stops[0][0]; save(); render();
-        } }, "Karte")),
+        } }, "Karte")));
   })));
 
   /* Routen-Builder */
