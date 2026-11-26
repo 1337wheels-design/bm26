@@ -1,0 +1,1214 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  SICHERHEITSHINWEIS (Content-Security-Policy):
+  Keine CDN-Skripte, keine Kartenkacheln, keine externen Laufzeit-Requests (außer optional
+  images/manifest.json vom gleichen Host, z. B. GitHub Pages). Bilder nur 'self' + data: URLs.
+-->
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'none'">
+<title>Dolomiten Winterreise 2026</title>
+<style>
+  /* ---------- Design-Tokens (hell/dunkel) ---------- */
+  :root{
+    --bg:#f6f4ef; --card:#ffffff; --ink:#1f2a2e; --muted:#5d6b70; --line:#dcd7cc;
+    --accent:#1f6f6b; --accent-ink:#ffffff; --warn:#b4540a; --ok:#2f7d3a; --bad:#a32a2a;
+    --chip:#e8efee; --shadow:0 1px 3px rgba(0,0,0,.08);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#14191b; --card:#1c2326; --ink:#e8eceb; --muted:#9aa8ac; --line:#2e393d;
+           --accent:#4fb3ad; --accent-ink:#0b1415; --warn:#e69a52; --ok:#6fcf7c; --bad:#e57373;
+           --chip:#26343a; --shadow:none; }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  header{padding:16px;max-width:1100px;margin:0 auto}
+  h1{margin:0 0 4px;font-size:1.5rem}
+  .sub{color:var(--muted);font-size:.9rem}
+  main{max-width:1100px;margin:0 auto;padding:0 16px 64px}
+  h2{margin:24px 0 8px;font-size:1.2rem}
+  h3{margin:0 0 4px;font-size:1.05rem}
+
+  /* Navigation */
+  nav{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+  nav button,.btn{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--ink);
+       padding:8px 14px;border-radius:999px;cursor:pointer;white-space:nowrap}
+  .nav-label--short{display:none}
+  nav button[aria-current="true"],.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+  .btn.small{padding:4px 10px;font-size:.85rem}
+  .btn.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+  button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+  /* Funnel (Long -> Short) */
+  .funnel{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+  .funnel-stat{flex:1;min-width:5.5rem;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 12px}
+  .funnel-stat b{font-size:1.35rem;line-height:1.1}
+  .funnel-label{display:block;font-size:.78rem;color:var(--muted);margin-top:2px}
+  .scroll-hint{display:none;font-size:.75rem;margin:4px 0 0}
+
+  /* Karten */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:var(--shadow)}
+  .card.sel{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+  .card.faded{opacity:.6}
+  .chips{display:flex;gap:4px;flex-wrap:wrap;margin:6px 0}
+  .chip{background:var(--chip);border-radius:999px;padding:1px 9px;font-size:.78rem}
+  .warn{color:var(--warn)} .ok{color:var(--ok)} .bad{color:var(--bad)}
+  ul.tight{margin:4px 0;padding-left:18px}
+  .muted{color:var(--muted)}
+  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .bar{display:grid;grid-template-columns:70px 1fr;gap:6px;align-items:center;font-size:.8rem}
+  .bar i{display:block;height:6px;border-radius:3px;background:var(--accent)}
+  .bar span{background:var(--line);border-radius:3px;height:6px;display:block}
+  textarea,input[type=number],select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 8px;width:100%}
+  input[type=number]{width:70px}
+  table{border-collapse:collapse;width:100%;font-size:.88rem}
+  th,td{border-bottom:1px solid var(--line);padding:6px;text-align:left;vertical-align:top}
+  .scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  .scroll table{min-width:min(100%,520px)}
+  .callout{border-left:4px solid var(--warn);background:var(--card);padding:10px 14px;border-radius:8px;margin:8px 0}
+  .map-shell{position:relative;margin:14px 0}
+  svg.map{width:100%;height:auto;display:block;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);background:#dce8e4}
+  svg.map .map-pin{cursor:pointer;outline:none}
+  svg.map .map-pin:focus-visible circle{stroke:var(--accent);stroke-width:3}
+  svg.map .map-pin:hover circle{filter:brightness(1.08)}
+  svg text{fill:var(--ink);font-size:11px}
+  svg .map-label{text-shadow:0 0 3px var(--card),0 0 3px var(--card);font-size:9px;pointer-events:none}
+  .map-popup{margin-top:10px;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+  .map-popup .row{flex-wrap:wrap;gap:6px}
+  .map-legend{font-size:.72rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+  .map-legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:middle;border:1px solid #333}
+
+  /* Praesentation */
+  .slide{min-height:70vh;display:flex;flex-direction:column;justify-content:center;gap:12px;
+         background:var(--card);border:1px solid var(--line);border-radius:18px;padding:28px}
+  .slide h2{font-size:2rem;margin:0}
+  .slide .big{font-size:1.1rem}
+  .pager{display:flex;justify-content:space-between;align-items:center;margin-top:12px}
+  @media print{ nav,.pager,.funnel,header .sub{display:none} body{background:#fff;color:#000} }
+  @media (max-width:560px){ .slide{padding:18px} .slide h2{font-size:1.5rem} }
+  .place-photo{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:10px;margin:0 0 10px;border:1px solid var(--line)}
+  .place-photo.hero{aspect-ratio:21/9;max-height:320px}
+  .media-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin:10px 0 4px}
+  .media-item{margin:0}
+  .media-item img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
+  .media-item figcaption{font-size:.75rem;color:var(--muted);margin-top:4px;line-height:1.3}
+  .media-links{display:block;margin-top:4px}
+  .media-links a{font-size:.7rem;margin-right:8px;color:var(--accent)}
+  .activity-line{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start;margin:6px 0}
+  .activity-line .hike-thumb{width:72px;aspect-ratio:4/3;object-fit:cover;border-radius:6px;border:1px solid var(--line);flex-shrink:0}
+  .activity-text{flex:1;min-width:12rem}
+  .img-credit{font-size:.72rem;color:var(--muted);margin-top:6px}
+  .score-bars{display:grid;gap:8px;margin:10px 0 0}
+  .section-impressions{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);clear:both}
+  .section-impressions h4{margin:0 0 10px;font-size:.95rem;font-weight:600}
+  a.skip{position:absolute;left:-9999px;top:auto}
+  a.skip:focus{left:16px;top:12px;z-index:99;background:var(--card);padding:8px 12px;border-radius:8px;border:1px solid var(--line)}
+  header.sticky-head{position:sticky;top:0;z-index:8;background:var(--bg);border-bottom:1px solid var(--line);padding-bottom:10px}
+  details.section-fold,details.day-fold{border:1px solid var(--line);border-radius:12px;padding:0 12px 10px;margin:8px 0;background:var(--card)}
+  details.section-fold>summary,details.day-fold>summary{cursor:pointer;padding:10px 4px;font-weight:600;list-style-position:outside}
+  details.day-fold>summary{font-weight:500;font-size:.92rem;display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline}
+  .day-sum-date{min-width:6.5rem;color:var(--accent);font-weight:600}
+  .day-sum-prev{font-size:.8rem;flex:1 1 12rem}
+  .section-fold-h{font-size:1.05rem}
+  @media (max-width:560px){
+    header.sticky-head{padding:8px 12px 6px}
+    header h1{font-size:1.12rem;line-height:1.25;margin-bottom:2px}
+    .sub{font-size:.78rem;line-height:1.35}
+    .sub-detail{display:none}
+    main{padding:0 12px 40px}
+    h2{margin:14px 0 6px;font-size:1.05rem}
+    h3{font-size:.98rem}
+    .card{padding:11px 12px;border-radius:12px}
+    .grid{grid-template-columns:minmax(0,1fr);gap:10px}
+    .callout{padding:8px 10px;font-size:.88rem}
+    .chips{gap:3px}
+    .chip{font-size:.72rem;padding:1px 7px}
+    nav{
+      flex-wrap:nowrap;overflow-x:auto;gap:6px;margin:6px -12px 0;padding:2px 12px 6px;
+      -webkit-overflow-scrolling:touch;scrollbar-width:none
+    }
+    nav::-webkit-scrollbar{display:none}
+    nav button{flex:0 0 auto;min-height:40px;padding:8px 12px;font-size:.82rem}
+    .nav-label--full{display:none}
+    .nav-label--short{display:inline}
+    .funnel{
+      flex-wrap:nowrap;overflow-x:auto;gap:6px;margin-top:6px;padding-bottom:2px;
+      -webkit-overflow-scrolling:touch;scrollbar-width:none
+    }
+    .funnel::-webkit-scrollbar{display:none}
+    .funnel-stat{flex:0 0 auto;min-width:0;padding:6px 10px;display:flex;align-items:baseline;gap:6px}
+    .funnel-stat b{font-size:1.05rem}
+    .funnel-label{display:inline;margin:0;font-size:.75rem}
+    .funnel-stat--route{max-width:9.5rem}
+    .funnel-stat--route .funnel-label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .scroll-hint{display:block}
+    .map-popup .row .btn{flex:1 1 calc(50% - 4px);justify-content:center;text-align:center}
+    .map-legend{gap:6px}
+    .place-card-actions .btn{width:100%}
+    nav button,.btn{min-height:44px}
+    .btn.small{min-height:40px;padding:6px 10px}
+    .score-bars{margin-bottom:4px}
+    .bar{grid-template-columns:5.5rem minmax(0,1fr);font-size:.75rem;gap:6px}
+    .section-impressions{margin-top:12px;padding-top:10px}
+    .media-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0}
+    .media-item figcaption{font-size:.7rem}
+    .activity-line .hike-thumb{width:56px}
+    .activity-text{min-width:8rem}
+    details.section-fold,details.day-fold{margin:6px 0;padding:0 10px 8px}
+    details.section-fold>summary,details.day-fold>summary{padding:8px 2px}
+    .day-sum-date{min-width:5.2rem;font-size:.85rem}
+    .pager{flex-wrap:wrap;gap:8px;justify-content:center}
+    .pager .btn{flex:1 1 auto}
+    table{font-size:.8rem}
+    th,td{padding:5px 4px}
+    textarea{min-height:4.5rem}
+    .slide{min-height:auto;padding:16px}
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#view">Zum Inhalt</a>
+<header class="sticky-head">
+  <h1>🏔️ Dolomiten Winterreise 2026</h1>
+  <div class="sub" id="trip-range">
+    <span class="sub-primary">Mo 30.11. – So 07.12. · Start ab Bremen</span>
+    <span class="sub-detail"> · 2 Erwachsene · Corgi · A 140</span>
+  </div>
+  <div class="funnel" id="funnel" aria-live="polite"></div>
+  <nav id="nav" aria-label="Bereiche"></nav>
+</header>
+<main id="view"></main>
+
+<script>
+"use strict";
+/* =====================================================================
+   DOLOMITEN WINTERREISE – Single-Page-App (Vanilla JS, keine Abhängigkeiten)
+   Ablauf "Long to Short Discovery":
+     1. Rahmen   – Fakten & Checkliste für Ende November/Anfang Dezember
+     2. Long-List – alle Kandidaten, gewichtet nach euren Prioritäten
+     3. Short-List & Route – Favoriten auswählen, 3–4 Stationen mit Nächten planen
+     4. Präsentation – Vollbild-Story der gewählten Route
+     5. Fragen – offene Entscheidungen, Antworten werden gespeichert
+   Daten: nur im Browser (localStorage). Export/Import als JSON-Datei.
+   ===================================================================== */
+
+/* ---------- Konstanten ---------- */
+const START = new Date(2026, 10, 30);   // Mo 30.11.2026 – erster Reisetag / erste Nacht Südtirol (Monat 0-basiert)
+const TOTAL_NIGHTS = 7;                 // bis Abreise So 07.12. (7 Übernachtungen)
+const TRIP_END = () => addDays(START, TOTAL_NIGHTS);
+const STORE_KEY = "dolomiten-winter-2026-v2";
+/* Startregion: Bremen (nur grobe Koordinate der Stadt, keine Adresse). Dient der Fahrzeit-Schätzung. */
+const HOME = { name: "Bremen", lat: 53.08, lon: 8.80 };
+/* Hin-/Rückreise: ca. 1.000 km. Realistisch ist je eine Zwischenübernachtung (Raum München/Rosenheim/Kufstein/Innsbruck).
+   Beide lassen sich in Schritt 3 an-/abschalten; sie reduzieren die Nächte vor Ort. */
+
+/* ---------- Kriterien (Gewichtung per Slider) ---------- */
+const CRITERIA = [
+  { key: "w",  label: "Wandern (winterfest)" },
+  { key: "wel",label: "Wellness (derzeit aus)" },
+  { key: "k",  label: "Kochen / Genuss" },
+  { key: "l",  label: "Lesen / Ruhe" },
+  { key: "h",  label: "Hundetauglich" },
+  { key: "wi", label: "Wintersicher (Straße/Wege)" }
+];
+
+/* ---------- Kandidaten (Long-List) ----------
+   Skalen 1–5 sind SUBJEKTIVE Ersteinschätzungen für Ende Nov./Anfang Dez.
+   Öffnungszeiten, Märkte, Passsperren: IMMER kurz vor Reise bei offiziellen Quellen prüfen!
+   lat/lon dienen nur der groben Karte und Fahrzeit-Schätzung. */
+/* Bilder: images/manifest.json (Wikimedia Commons, siehe ATTRIBUTION.md) */
+let IMAGE_MANIFEST = { places: {}, activities: {} };
+
+const PLACES = [
+  { id:"meran", name:"Meran & Umgebung", region:"Südtirol", lat:46.669, lon:11.159,
+    s:{w:5,wel:5,k:4,l:4,h:4,wi:5}, tags:["Waalwege","Therme","Weihnachtsmarkt","mild"],
+    why:"Mildestes Klima der Region – im Dezember oft noch schneefrei und sonnig. Ideal für gemütliche Wanderungen mit kurzen Beinen.",
+    hikes:["Tappeinerweg (ca. 4 km, flach, Promenade)","Algunder oder Marlinger Waalweg (flach, aussichtsreich)","Dorf Tirol – Schloss Tirol Spaziergang"],
+    highlights:["Therme Meran (Hunde im Spa nicht erlaubt → Wechselbetrieb)","Weihnachtsmarkt (Termine 2026 prüfen)","Passeiertal/Passer-Promenade","Gärten Trauttmansdorff im Winter geschlossen"],
+    dog:"Promenaden & Waalwege sind hundefreundlich (Leine). Thermen/Saunen: Hund nicht mitnehmen – einer wellnesst, einer geht Gassi.",
+    risk:"Beliebt zum Markt → Wochenenden voll; Parkplätze knapp." },
+  { id:"bozen", name:"Bozen & Ritten", region:"Südtirol", lat:46.498, lon:11.355,
+    s:{w:4,wel:3,k:5,l:3,h:4,wi:5}, tags:["Stadt","Markt","Ritten","Ötzi"],
+    why:"Südtirols Hauptstadt mit großem Christkindlmarkt, Obstmarkt zum Selbstkochen und Sonnenplateau Ritten direkt darüber.",
+    hikes:["Rittner Höhenweg Oberbozen–Klobenstein (flach, Dolomitenblick)","Erdpyramiden Ritten (kurz)","Talferpromenade Bozen"],
+    highlights:["Christkindlmarkt (Start meist Ende Nov. – prüfen)","Ötzi-Museum","Obstplatz & Markthalle zum Einkaufen fürs Kochen","Rittner Seilbahn (Hundebeförderung vorab klären)"],
+    dog:"Altstadt mit Hund machbar, Markt abends sehr voll – Hund besser nur tagsüber mitnehmen.",
+    risk:"Stadtverkehr, ZTL/Parkgebühren – Parkhaus einplanen." },
+  { id:"brixen", name:"Brixen, Eisacktal & Villnöss", region:"Südtirol", lat:46.716, lon:11.656,
+    s:{w:4,wel:4,k:4,l:5,h:4,wi:4}, tags:["Villnöss","Kloster","Ruhe","Aquarena"],
+    why:"Kleine Bischofsstadt mit Markt und Spa-Bad, dazu das ruhige Villnöss mit Geislerspitzen – super für Lese- und Kochtage.",
+    hikes:["Villnösser Tal: Ranui-Kirchlein / St. Magdalena Spaziergang (flach)","Kloster Neustift – Weinberge Rundweg","Klausen – Säben Aufstieg (kurz, steil)"],
+    highlights:["Aquarena Brixen (Hund nicht im Bad)","Kloster Neustift","Weihnachtsmarkt Brixen (Termine prüfen)","Gute Bäckereien/Metzger fürs Kochen"],
+    dog:"Villnöss: breite Talwege, Hund meist ok an der Leine; Almgebiete im Winter teils Wildschutz beachten.",
+    risk:"Villnöss bei Neuschnee morgens glatt – Winterreifen!" },
+  { id:"groeden", name:"Gröden & Seiser Alm", region:"Südtirol", lat:46.574, lon:11.671,
+    s:{w:4,wel:3,k:3,l:3,h:2,wi:3}, tags:["Skistart","Winterwanderwege","Seilbahn"],
+    why:"Dolomiten-Kulisse wie aus dem Bilderbuch; im Winter präparierte Wege, aber Skibetrieb, Preise und Verkehr steigen Anfang Dezember.",
+    hikes:["Seiser Alm: präparierte Winterwanderwege (Seilbahn nötig)","St. Ulrich/Ortisei Promenade"],
+    highlights:["Seiser-Alm-Bahn ab Seis/Kastelruth","Panorama Langkofel/Schlern"],
+    dog:"Seilbahn mit Hund: Bedingungen vorab prüfen; Winterwege sind oft Rodelbahnen/Skipisten-Nähe.",
+    risk:"Teuer, Ferienwohnung unter 120 € schwer; Straßenverkehr bei Skistart." },
+  { id:"bruneck", name:"Bruneck & Kronplatz", region:"Südtirol (Pustertal)", lat:46.796, lon:11.936,
+    s:{w:4,wel:4,k:4,l:4,h:4,wi:4}, tags:["Pustertal","Markt","Burg","Kronplatz"],
+    why:"Lebendige Altstadt mit Markt, Messner-Museum Ethnologie am Schloss Bruneck, zentrale Lage für Pragser Tal und Cortina.",
+    hikes:["Stegener Markt – Aue Spaziergang","Pragser Wildsee Rundweg (ca. 3,5 km, flach)","Tauferer Ahrntal Talweg"],
+    highlights:["Weihnachtsmarkt Bruneck (Termine prüfen)","Schloss Bruneck / Messner Mountain Museum (Wintertermine prüfen)","Ferienwohnungen im Pustertal oft günstiger als Gröden"],
+    dog:"Talwege & Stadt gut mit Hund. Pragser Wildsee: Straße im Winter ggf. geräumt/gesperrt → prüfen.",
+    risk:"Pustertal kann kalt/schattig sein; Frostgefahr auf Wegen." },
+  { id:"hochpustertal", name:"Toblach, Drei Zinnen & Pragser Tal", region:"Südtirol (Hochpustertal)", lat:46.733, lon:12.222,
+    s:{w:5,wel:3,k:3,l:4,h:3,wi:3}, tags:["Drei Zinnen","Seen","Radweg"],
+    why:"Die großen Dolomiten-Motive: Pragser Wildsee, Toblacher See, Panorama Richtung Drei Zinnen. Im Winter stiller, aber wetterabhängig.",
+    hikes:["Pragser Wildsee Rundweg","Toblacher See Rundweg & Radweg nach Cortina (Altes Bahntrassee, flach)","Dürrensee mit Blick zur Drei-Zinnen (kurz)"],
+    highlights:["Toblach: Gustav-Mahler-Komponierhäuschen (Öffnung prüfen)","Dürrensee-Panorama"],
+    dog:"Flache Winterwege ideal für Corgi – Pfoten bei Streusalz abwischen.",
+    risk:"Hohe Lagen: Schnee/Eis wahrscheinlich; Hütten zu." },
+  { id:"cortina", name:"Cortina d'Ampezzo", region:"Veneto / Dolomiten (Italien)", lat:46.537, lon:12.136,
+    s:{w:3,wel:4,k:3,l:3,h:3,wi:2}, tags:["Italien","Olympia-Ort","Passstraßen","Ski"],
+    why:"Mondäne Dolomitenstadt mit Rundum-Panorama, Olympia-Winter-Kulisse und sehr schönen Spaziergängen – aber teuer und stärker vom Winterwetter abhängig.",
+    hikes:["Radweg/Fußweg Cortina–Fiames (Altes Bahntrassee)","Lago Ghedina","Weg nach Pocol (kurz, Aussicht)"],
+    highlights:["Corso Italia Flanieren & Cafés","Passstraßen Falzarego/Giau: wetterabhängig (nur bei freien Straßen)","Museo Ladin"],
+    dog:"Stadt mit Hund ok; Preise Hotelfrühstück/Parken hoch.",
+    risk:"Nur Zufahrt über Hochpustertal/Cimabanche (ca. 1.530 m) ohne Ketten riskant; Passstraßen wetterabhängig. Mit Allwetterreifen ohne Ketten eher nicht empfohlen." },
+  { id:"fiemme", name:"Val di Fiemme / Predazzo", region:"Trentino (Italien)", lat:46.31, lon:11.6,
+    s:{w:4,wel:3,k:3,l:4,h:4,wi:4}, tags:["Italien","Fleimstal","Wald","Langlauf","Ruhe"],
+    why:"Weite Waldtäler, Langlaufloipen und ruhige Dörfer – günstiger als Gröden, gut für Lese-/Wanderpausen zwischen Südtirol und Veneto.",
+    hikes:["Waldwege Predazzo – Bellamonte","Paneveggio Naturpark (Winterwege, vorher prüfen)"],
+    highlights:["Fleimstaler Holz & Geigen (Stradivari-Tradition)","Ruhige Ferienwohnungen im Trentino"],
+    dog:"Naturpark-Regeln beachten (Leinenpflicht).",
+    risk:"Hohe Pässe Richtung Süden (Rolle, Costalunga) im Winter wetterabhängig." },
+  { id:"trient", name:"Trient (Trento)", region:"Trentino (Italien)", lat:46.067, lon:11.121,
+    s:{w:3,wel:3,k:5,l:3,h:4,wi:5}, tags:["Italien","Stadt","Weihnachtsmarkt","MUSE","Kochen"],
+    why:"Große Stadt mit berühmtem Weihnachtsmarkt, MUSE-Museum, guten Märkten und Weinen. Sehr gut als wetterfeste Station.",
+    hikes:["Doss Trento (kurz)","Etschtal-Radweg Spaziergang","Monte Bondone (Winter: Schnee prüfen)"],
+    highlights:["Mercatini di Natale Trento (Termine prüfen)","MUSE Wissenschaftsmuseum","Kochen mit Trentiner Produkten (Polenta, Käse, Teroldego)"],
+    dog:"Hundefreundliche Stadt; Märkte abends sehr voll.",
+    risk:"Wenig 'Dolomiten-Gefühl', mehr Stadt." },
+  { id:"levico", name:"Levico/Valsugana (Seen & Terme)", region:"Trentino (Italien)", lat:46.012, lon:11.304,
+    s:{w:3,wel:5,k:3,l:5,h:3,wi:5}, tags:["Italien","Thermen","Seen","Ruhe","Lesen"],
+    why:"Ruhiger Kurort am Kalterer-ähnlichen Seenhügelland – Terme Levico/Roncegno und Seeuferwege. Gut für Lese- und Wellnesstage.",
+    hikes:["Lago di Caldonazzo/Levico Uferwege (flach)","Castel Selva Spaziergang"],
+    highlights:["Terme di Levico (Hunderegeln vorab klären)","Kleine Märkte, Trattorien"],
+    dog:"Uferwege flach & hundefreundlich.",
+    risk:"Weit weg von den Hochgebirgs-Highlights." },
+  { id:"bassano", name:"Bassano del Grappa", region:"Veneto (Italien)", lat:45.766, lon:11.735,
+    s:{w:3,wel:3,k:5,l:3,h:4,wi:5}, tags:["Italien","Grappa","Brenta","Ponte Vecchio","Kochen"],
+    why:"Holzbrücke Ponte Vecchio, Grappa-Tradition, Brenta-Fluss, Monte Grappa im Hintergrund – schöner Veneto-Kontrast zu den Bergen.",
+    hikes:["Brenta-Uferweg","Monte-Grappa-Zufahrt/Panoramastraße (Wetter prüfen)","Altstadtrunde (flach)"],
+    highlights:["Ponte degli Alpini","Nardini-Grappa-Verkostung","Weißer Spargel (Saison Frühling – nicht Dez.)","Kochen: Baccalà, Risotto, lokale Märkte"],
+    dog:"Altstadt hundefreundlich.",
+    risk:"Sehr lange Fahrt ab Norden; Nebel/Feuchte im Dezember." },
+  { id:"verona", name:"Verona", region:"Veneto (Italien)", lat:45.438, lon:10.991,
+    s:{w:3,wel:3,k:5,l:3,h:4,wi:5}, tags:["Italien","Arena","Weihnachtsmarkt","Risotto"],
+    why:"Shakespeare-Stadt mit Arena, Adige-Promenaden und starkem Food-Fokus – im Advent einer der schönsten norditalienischen Märkte.",
+    hikes:["Adige-Ufer & Giardino Giusti (flach)","Castel San Pietro Aussicht (kurz, steiler)","Porta Borsari – Altstadt-Runde"],
+    highlights:["Arena di Verona (Außenbereich)","Casa di Giulietta (sehr voll)","Mercatini / Weihnachtsmarkt (Termine 2026 prüfen)","Risotto all'Amarone, Pastissada"],
+    dog:"Altstadt mit Hund gut möglich; Arena-Innenbereich ohne Hund.",
+    risk:"Stadtverkehr, ZTL – Parkhaus einplanen; Wochenenden voll." },
+  { id:"padova", name:"Padova (Padua)", region:"Veneto (Italien)", lat:45.406, lon:11.877,
+    s:{w:3,wel:3,k:5,l:4,h:4,wi:5}, tags:["Italien","Universität","Märkte","Caffè"],
+    why:"Prato della Valle, Basilica di Sant'Antonio und lebendige Trattoria-Kultur – perfekt für Genuss- und Kochtage.",
+    hikes:["Prato della Valle Runde (flach)","Botanischer Garten Spaziergang","Brentakanal / Portici Altstadt"],
+    highlights:["Caffè Pedrocchi","Mercato Coperto","Basilica di Sant'Antonio","Bigoli in salsa, polenta"],
+    dog:"Innenhöfe & Promenaden meist mit Hund an der Leine.",
+    risk:"Eher Stadt als Berg – weniger Dolomiten-Feeling." },
+  { id:"riva_garda", name:"Riva del Garda & Limone", region:"Gardasee (Italien)", lat:45.886, lon:10.841,
+    s:{w:4,wel:3,k:4,l:4,h:4,wi:5}, tags:["Italien","See","Mild","Promenade"],
+    why:"Nordufer des Gardasees: im Dezember oft milder als in den Hochtälern, flache Uferwege und italienische See-Küche.",
+    hikes:["Lungolago Riva (flach)","Sentiero del Ponale ab Limone (nur trocken/winteroffen prüfen)","Bastione (kurzer Aufstieg)"],
+    highlights:["Limone sul Garda – Zitronenhäuser","Olive & Zitrone auf dem Markt","Torbole kurzer Ausflug"],
+    dog:"Lungolago ideal für Corgi-Pausen.",
+    risk:"Enger Seeverkehr im Sommer; im Dez. ruhiger, aber Regen/Nebel möglich." },
+  { id:"belluno", name:"Belluno (Dolomiten-Vorland)", region:"Veneto (Italien)", lat:46.138, lon:12.217,
+    s:{w:4,wel:2,k:3,l:4,h:4,wi:4}, tags:["Italien","Dolomiti","Tor","Ruhe"],
+    why:"Historische Provinzhauptstadt am Fuß der Belluneser Dolomiten – guter Ausgangspunkt Richtung Cortina, ohne Skipreise-Chaos.",
+    hikes:["Piazza Duomo – Altstadt","Rifugio-Täler nur wetterabhängig","Piave-Uferwege"],
+    highlights:["Palazzo dei Rettori","Coscioni & Schiadones (lokale Küche)","Blick Richtung Schiara"],
+    dog:"Stadt & Talwege hundefreundlich (Leine).",
+    risk:"Hohe Ausflüge im Winter oft gesperrt – Fokus auf Stadt & untere Täler." },
+  { id:"treviso", name:"Treviso", region:"Veneto (Italien)", lat:45.666, lon:12.243,
+    s:{w:3,wel:3,k:5,l:4,h:4,wi:5}, tags:["Italien","Prosecco","Canali","Radicchio"],
+    why:"Kleine Lagunenstadt mit Kanälen, Markt und Nähe zur Prosecco-Region – ideal als italienischer Ausklang.",
+    hikes:["Canali di Buranelli & Centro storico","Murazzi & Sile-Ufer (flach)","Monte di Conegliano nur bei gutem Wetter"],
+    highlights:["Piazza dei Signori","Prosecco (Conegliano-Valdobbiadene – Fahrttag)","Radicchio risotto, tiramisu-Ursprungsnähe"],
+    dog:"Altstadt mit Hund gut; viele Cafés mit Außenbereich.",
+    risk:"Regen/Nebel im Winter; Prosecco-Tour mit Auto: kein Prosecco fürs Fahren." },
+  { id:"asolo", name:"Asolo & Colli Asolani", region:"Veneto (Italien)", lat:45.801, lon:11.914,
+    s:{w:3,wel:3,k:4,l:5,h:4,wi:5}, tags:["Italien","Prosecco","Borgo","Lesen"],
+    why:"„Stadt der hundert Horizonte“ – malerisches Hügelland, Prosecco und ruhige Lese-/Spazier-Tage südlich von Bassano.",
+    hikes:["Rocca di Asolo (kurz)","Ringweg Colli Asolani (flach/teilweise)","Villa Freya / Borgo Gassen"],
+    highlights:["Prosecco Colli Asolani","Antico Refettorio","Gemütliche Osterie"],
+    dog:"Hügelwege kurz und mit Pausen machbar.",
+    risk:"Serpentinen, Nebel – langsam fahren." },
+  { id:"vicenza", name:"Vicenza", region:"Veneto (Italien)", lat:45.545, lon:11.535,
+    s:{w:2,wel:3,k:5,l:4,h:4,wi:5}, tags:["Italien","Palladio","UNESCO","Kochen"],
+    why:"UNESCO-Stadt der Palladio-Bauten: Basilica Palladiana, Teatro Olimpico, Monte Berico. Ideal als Genuss-/Kulturstation am Ende der Reise.",
+    hikes:["Monte Berico Aufstieg (Arkadenweg)","Parco Querini"],
+    highlights:["Teatro Olimpico","Basilica Palladiana","Villa Rotonda (Außenbesichtigung)","Baccalà alla vicentina, Kochkurs"],
+    dog:"Stadt mit Hund ok; Innenräume meist ohne Hund.",
+    risk:"Wenig Wandern; Nebel im Winter." },
+  { id:"hallstatt", name:"Hallstatt (Salzkammergut)", region:"Österreich", lat:47.562, lon:13.649,
+    s:{w:3,wel:3,k:3,l:4,h:3,wi:3}, tags:["Detour","Seen","Fotomotiv"],
+    why:"Weltberühmtes Seedorf – aber geografisch ein eigener Ort ~300 km östlich der Dolomiten. Nur sinnvoll als Zwischenstopp auf der Heimreise (je nach Wohnort/Route).",
+    hikes:["Seeuferweg","Echerntal (kurz)"],
+    highlights:["Weihnachtsstimmung am See","Salzwelten (Wintertermine prüfen)"],
+    dog:"Altstadt sehr eng, im Winter ruhiger.",
+    risk:"Passt nicht in einen Dolomiten-Rundkurs → in der App als 'Detour' markiert." }
+];
+
+/* ---------- Café-, Koch- und Einkaufstipps je Station ----------
+   Bewusst ohne konkrete Betriebe (Öffnungszeiten/Qualität ändern sich) – nur Kategorien und
+   typische Spezialitäten. Vor Ort suchen und prüfen. */
+const FOOD = {
+  meran:  { cafe:"Konditorei/Café unter den Lauben: Apfelstrudel & Kaffee nach dem Tappeinerweg", kochen:"Marktprodukte aus dem Passeiertal; Speck, Käse, Äpfel", asia:"Größere Asia-Auswahl eher in Bozen – vorher einkaufen" },
+  bozen:  { cafe:"Traditions-Kaffeehaus in der Altstadt oder Café am Obstplatz", kochen:"Obstplatz & Markthalle: Gemüse, Pilze, Fisch", asia:"Beste Chance auf Asia-Läden der Region (vor Ort prüfen) – hier für alle Stationen bevorraten" },
+  brixen: { cafe:"Café in der Altstadt (Laubengasse) oder Bäckerei in Villnöss mit Kuchen", kochen:"Metzger/Bäcker: Knödel, Schlutzkrapfen als Gegengewicht zum Wok", asia:"Kleine Märkte – Basics (Reis, Sojasauce) mitbringen" },
+  groeden:{ cafe:"Panorama-Café an der Promenade", kochen:"Berghof-Produkte", asia:"Wenig Auswahl – Vorrat mitbringen" },
+  bruneck:{ cafe:"Café an der Stadtgasse nach dem Spaziergang", kochen:"Pustertaler Käse/Speck/Wild; Marktstände", asia:"Basics im Supermarkt; Spezielles vorher einkaufen" },
+  hochpustertal:{ cafe:"Café am Toblacher See / Gasthaus mit Panorama", kochen:"Regionale Zutaten + Reisgerichte aus mitgebrachtem Vorrat", asia:"Vorrat mitbringen" },
+  cortina:{ cafe:"Café am Corso Italia (Espresso & Pasticceria)", kochen:"Italienische Zutaten für Wok-Fusion", asia:"Wenig Auswahl – Vorrat mitbringen" },
+  fiemme: { cafe:"Dorf-Café in Predazzo", kochen:"Käse, Pilze, Polenta", asia:"Wenig Auswahl – Vorrat mitbringen" },
+  trient: { cafe:"Café in der Altstadt, Pasticceria", kochen:"Großer Markt, Trentiner Produkte; Asia-Läden eher vorhanden (prüfen)", asia:"In größeren Städten wahrscheinlich besser sortiert" },
+  levico: { cafe:"Café am See", kochen:"Seefisch, Gemüse", asia:"Vorrat mitbringen" },
+  bassano:{ cafe:"Café an der Ponte Vecchio / Osteria", kochen:"Baccalà, Risotto-Zutaten", asia:"Größere Märkte; teils Asia-Läden (prüfen)" },
+  vicenza:{ cafe:"Historisches Café um die Piazza dei Signori", kochen:"Baccalà alla vicentina, Markthalle", asia:"Als Stadt vermutlich Asia-Läden vorhanden (prüfen)" },
+  verona: { cafe:"Caffè in der Altstadt (Verona)", kochen:"Risotto, Amarone, Markt in Pescheria", asia:"Asia-Läden in der Stadt prüfen" },
+  padova: { cafe:"Caffè Pedrocchi / Piazza", kochen:"Bigoli, Markt Padova", asia:"Basics + Treviso/Verona einkaufen" },
+  riva_garda:{ cafe:"Gelateria am Lungolago", kochen:"Zitrone, Olive, See-Fisch", asia:"Vorrat mitbringen" },
+  belluno:{ cafe:"Caffè Piazza Duomo", kochen:"Polenta, Formaggi Bellunesi", asia:"Vorrat mitbringen" },
+  treviso: { cafe:"Caffè Prosecco-Region / Centro", kochen:"Radicchio, Prosecco (zum Essen)", asia:"Treviso Märkte prüfen" },
+  asolo:  { cafe:"Bar in Piazza Garibaldi", kochen:"Prosecco Colli Asolani, lokale Salumi", asia:"Vorrat mitbringen" },
+  hallstatt:{ cafe:"Café am See", kochen:"Fisch (Reinanke)", asia:"Vorrat mitbringen" }
+};
+
+/* ---------- Routen-Presets ---------- */
+const PRESETS = [
+  { name:"A · Täler-Klassiker (Empfehlung)", desc:"Bozen/Ritten → Brixen/Villnöss → Bruneck: nur Talstraßen, Brenner-Richtung bleibt für die Heimreise offen. 2 Nächte je Ort.",
+    stops:[["bozen",2],["brixen",2],["bruneck",2]] },
+  { name:"B · Sonnenseite & Waalwege", desc:"Meran → Bozen → Brixen: mildestes Klima, flache Promenaden, viele Märkte zum Kochen.",
+    stops:[["meran",2],["bozen",2],["brixen",2]] },
+  { name:"C · Dolomiten-Panorama", desc:"Brixen/Villnöss → Bruneck → Toblach/Pragser Tal: wenig Fahrerei, Postkartenmotive ohne hohe Pässe.",
+    stops:[["brixen",2],["bruneck",2],["hochpustertal",2]] },
+  { name:"D · Slow: 2 Basen", desc:"Brixen/Villnöss 3 Nächte → Bruneck 3 Nächte: maximale Ruhe, 50/50 Ausflug/Ferienwohnung.",
+    stops:[["brixen",3],["bruneck",3]] },
+  { name:"E · Veneto-Städte (mehr Italien)", desc:"Verona → Vicenza → Bassano: flache City-Walks, Märkte, Risotto & Grappa – gut kombinierbar mit eurer Short-List.",
+    stops:[["verona",2],["vicenza",2],["bassano",2]] },
+  { name:"F · Gardasee & Trentino", desc:"Riva/Limone → Trient → Levico: mild am Wasser, Weihnachtsmärkte, viel Kochen.",
+    stops:[["riva_garda",2],["trient",2],["levico",2]] },
+  { name:"G · Dolomiten → Prosecco", desc:"Bruneck → Cortina → Treviso: Postkarten-Berge, danach Kanäle & Prosecco-Ausklang.",
+    stops:[["bruneck",2],["cortina",2],["treviso",2]] }
+];
+
+/* Relief-Karte (Wikimedia „Northern Italy relief“) — georeferenziert für Orte-Pins */
+const MAP_IMG = { src: "images/region-map.jpg", w: 636, h: 371 };
+const MAP_GEO = { top: 47.0813889, bottom: 43.4055556, left: 9.6977778, right: 13.8472222 };
+
+function mapXY(p) {
+  const x = (p.lon - MAP_GEO.left) / (MAP_GEO.right - MAP_GEO.left) * MAP_IMG.w;
+  const y = (MAP_GEO.top - p.lat) / (MAP_GEO.top - MAP_GEO.bottom) * MAP_IMG.h;
+  return { x, y };
+}
+function placeLabel(p) {
+  return p.name.split(/[\s&,/–-]/)[0];
+}
+function presetsForPlace(id) {
+  return PRESETS.filter(pr => pr.stops.some(([pid]) => pid === id));
+}
+function bundleIdsForPlace(id) {
+  const hits = presetsForPlace(id);
+  if (hits.length) return hits[0].stops.map(([pid]) => pid);
+  return [id];
+}
+function applyPreset(pr) {
+  state.route = pr.stops.map(([id, n]) => ({ id, nights: n }));
+  pr.stops.forEach(([id]) => { state.short[id] = true; });
+  state.mapFocus = null;
+  state.tab = "short";
+  save();
+  render();
+}
+function applyStadtBundle(p) {
+  const ids = bundleIdsForPlace(p.id);
+  ids.forEach(id => { state.short[id] = true; });
+  const main = presetsForPlace(p.id)[0];
+  if (main) state.route = main.stops.map(([id, n]) => ({ id, nights: n }));
+  state.mapFocus = p.id;
+  state.tab = "short";
+  save();
+  render();
+}
+function toggleMapFocus(id) {
+  state.mapFocus = state.mapFocus === id ? null : id;
+  save();
+  render();
+}
+
+/* ---------- Offene Fragen (Runde 2) ---------- */
+const QUESTIONS = [
+  { id:"startort", q:"Startregion", type:"text", pre:"Bremen" },
+  { id:"rueck", q:"Rückreise (Strecke)", type:"text", pre:"egal" },
+  { id:"wellness", q:"Wellness", type:"text", pre:"Kein Wellness – stattdessen gemütliche Ferienwohnung" },
+  { id:"corgi", q:"Corgi (5 Jahre): Gassi-Radius", type:"text", pre:"1–2 h am Stück spazieren, Pausen werden eingelegt" },
+  { id:"auto", q:"Reifen/Ketten", type:"text", pre:"Allwetterreifen, bisher keine Schneeketten → Täler bevorzugen" },
+  { id:"tempo", q:"Tempo", type:"text", pre:"50/50 Highlights und Ruhe" },
+  { id:"zw_hin", q:"Zwischenübernachtung Hinreise", type:"text", pre:"Optional So 29.11. München – sonst Abfahrt Mo 30.11. aus Bremen" },
+  { id:"zw_rueck", q:"Zwischenübernachtung Rückreise", type:"text", pre:"Vielleicht (in der App an-/abschaltbar)" },
+  { id:"fewo", q:"Gemütliche Ferienwohnung", type:"text", pre:"Kamin, Küche, Leseecke" },
+  { id:"kochen", q:"Kochen & Essen", type:"text", pre:"Asiatisch kochen; zusätzlich Cafés und Restaurants einplanen" },
+  { id:"gassi", q:"Tagesrhythmus", type:"text", pre:"Früh los, nachmittags zurück in die Ferienwohnung" },
+  { id:"route_wahl", q:"NEU: Welche Route (A–G) gefällt euch am meisten, oder was würdet ihr ändern?", type:"text", pre:"E · Veneto-Städte (mehr Italien) oder Kombi mit Meran–Bozen–Brixen" },
+  { id:"asia", q:"NEU: Welche asiatische Küche kocht ihr am liebsten (z.B. Thai, Japanisch, Koreanisch, Sichuan)? Dann plane ich Einkauf, Utensilien (Wok/Reiskocher) und passende Rezepte.", type:"text" },
+  { id:"lesen", q:"Lesen (noch offen): Welche Genres? Soll ich pro Station Café-Leseorte vorschlagen?", type:"text" },
+  { id:"ketten", q:"Schneeketten (noch offen): kaufen, leihen oder nur bei sicherem Wetter fahren? Reifengröße steht im Fahrzeugschein (ohne Kennzeichen).", type:"select", opts:["Ja, kaufen","Leihen/vor Ort besorgen","Nein – nur Talrouten bei sicherem Wetter"] },
+  { id:"restaurant", q:"NEU: Restaurants/Cafés: Hund darf mit rein? Budget pro Essen? (Reiner Tipp: in Italien oft erlaubt, immer vorher fragen.)", type:"text" }
+];
+
+/* ---------- Checkliste (Faktenrahmen) ---------- */
+const CHECKLIST = [
+  "Reifen: Allwetterreifen müssen Alpine-Symbol (3PMSF) bzw. M+S tragen und genug Profil haben; Pflichtregeln für Südtirol/Österreich vorab prüfen (Südtirol 15.11.–15.04.)",
+  "Schneeketten passend zur Reifengröße kaufen/leihen und zuhause einmal Probe montieren (Notfall-Sicherheit)",
+  "Hinreise ≈ 1.000 km: Zwischenübernachtung buchen (München), Hund erlaubt prüfen",
+  "Österreich: Vignette/Brenner-Maut und Italien-Maut A22 einplanen",
+  "Hundepass/EU-Heimtierausweis, Tollwutimpfung gültig, Chip vorhanden",
+  "Hund (5 J.): Leine, Kotbeutel, Decke, Pfotenschutz/Handtuch (Streusalz), Reisefutter, Wasser für Pausen",
+  "Wanderungen: Eisspikes/Grödel, Stirnlampe, Powerbank, warme Hundejacke für Pausen",
+  "Asiatisch kochen: Wok/Pfanne, Reiskocher, Basis-Gewürze mitnehmen; Gas/Induktion der Ferienwohnung prüfen; Einkauf größerer Asia-Zutaten in Bozen oder München",
+  "Echtzeit-Check Straßen & Wetter vorm Losfahren (offizielle Verkehrsportale)",
+  "Ferienwohnungen: Hund erlaubt + Heizung/Kamin + Parkplatz + vollständige Küche prüfen",
+  "Märkte/Museen/Cafés: Öffnungstage 2026 kurz vorher prüfen"
+];
+
+/* =====================================================================
+   Hilfsfunktionen
+   ===================================================================== */
+
+/* DOM-Helfer: erzeugt Elemente ausschließlich über textContent/Attribute.
+   SICHERHEIT: Es wird nirgends innerHTML mit Nutzerdaten verwendet → kein XSS
+   durch Notizen oder importierte JSON-Dateien. */
+function el(tag, props = {}, ...kids) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(props)) {
+    if (k === "class") e.className = v;
+    else if (k.startsWith("on")) e.addEventListener(k.slice(2), v);
+    else if (v === true) e.setAttribute(k, "");
+    else if (v !== false && v != null) e.setAttribute(k, String(v));
+  }
+  kids.flat().forEach(c => {
+    if (c == null || c === false) return;
+    e.append(c.nodeType ? c : document.createTextNode(String(c)));
+  });
+  return e;
+}
+const SVGNS = "http://www.w3.org/2000/svg";
+function svg(tag, attrs = {}, text) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, String(v));
+  if (text != null) e.textContent = text;
+  return e;
+}
+const byId = id => PLACES.find(p => p.id === id);
+function imgEl(src, alt, className) {
+  if (!src) return null;
+  return el("img", { class: className, src, alt: alt || "", loading: "lazy", decoding: "async",
+    onerror: e => { e.target.hidden = true; } });
+}
+/** Outbound-Suche (kein Embedding fremder Bilder — TripAdvisor/Komoot nur als Links). */
+function activityLinks(place, label, kind) {
+  const placeShort = place.name.split(/[,&]/)[0].trim();
+  const q = encodeURIComponent(`${label} ${placeShort}`);
+  const links = {
+    tripadvisor: `https://www.tripadvisor.de/Search?q=${q}`,
+    maps: `https://www.google.com/maps/search/?api=1&query=${q}`
+  };
+  if (kind === "hike") links.komoot = `https://www.komoot.com/de/search?q=${q}`;
+  return links;
+}
+function linkRow(links, kind) {
+  const parts = [];
+  if (kind === "hike" && links.komoot)
+    parts.push(el("a", { href: links.komoot, target: "_blank", rel: "noopener noreferrer" }, "Komoot"));
+  parts.push(el("a", { href: links.tripadvisor, target: "_blank", rel: "noopener noreferrer" }, "Tripadvisor"));
+  parts.push(el("a", { href: links.maps, target: "_blank", rel: "noopener noreferrer" }, "Maps"));
+  return el("span", { class: "media-links" }, ...parts);
+}
+function activityKeywords(s) {
+  return String(s).toLowerCase()
+    .replace(/[^a-zäöüß0-9]+/gi, " ")
+    .split(/\s+/)
+    .filter(w => w.length > 3 && !["ca.", "flach", "kurz", "winter"].includes(w));
+}
+function pickMediaForText(text, media, kind) {
+  if (!media?.length) return null;
+  const pool = kind ? media.filter(m => m.kind === kind) : media;
+  const words = activityKeywords(text);
+  let best = null, bestScore = 0;
+  for (const m of pool) {
+    const hay = (m.title + " " + (m.match || "")).toLowerCase();
+    const keys = activityKeywords(m.match || m.title);
+    let score = keys.filter(w => text.toLowerCase().includes(w)).length;
+    score += words.filter(w => hay.includes(w)).length;
+    if (score > bestScore) { bestScore = score; best = m; }
+  }
+  return bestScore > 0 ? best : null;
+}
+function activityLine(place, text, media, kind) {
+  const m = pickMediaForText(text, media, kind);
+  const thumb = m?.src ? imgEl(m.src, m.title, "hike-thumb") : null;
+  const links = linkRow(activityLinks(place, text.split("(")[0].trim(), kind), kind);
+  return el("li", { class: "activity-line" },
+  thumb,
+    el("div", { class: "activity-text" }, el("span", {}, text), links));
+}
+function mediaGrid(items, place) {
+  if (!items?.length) return null;
+  return el("div", { class: "media-grid" },
+    ...items.map(m => {
+      const cap = (m.kind === "hike" ? "🥾 " : m.kind === "highlight" ? "✨ " : "") + m.title;
+      const links = place ? linkRow(activityLinks(place, m.title, m.kind), m.kind) : null;
+      return el("figure", { class: "media-item" },
+        imgEl(m.src, m.title, "") || el("span", {}, ""),
+        el("figcaption", {}, cap, links));
+    }));
+}
+const isItalien = p => p.tags.includes("Italien") || /Italien/.test(p.region);
+async function applyImageManifest() {
+  try {
+    const r = await fetch("images/manifest.json", { cache: "no-cache" });
+    if (r.ok) IMAGE_MANIFEST = await r.json();
+  } catch (e) { /* offline / file:// ohne Bilderordner */ }
+  for (const p of PLACES) {
+    const meta = IMAGE_MANIFEST.places[p.id];
+    if (meta?.img) p.img = meta.img;
+    p.media = IMAGE_MANIFEST.activities[p.id] || [];
+  }
+}
+const fmtDate = d => d.toLocaleDateString("de-DE", { weekday: "short", day: "2-digit", month: "2-digit" });
+const fmtDateLong = d => d.toLocaleDateString("de-DE", { weekday: "long", day: "2-digit", month: "2-digit", year: "numeric" });
+const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+const transitOutDate = () => addDays(START, -1);
+const tripRangeLabel = () => `${fmtDate(START)} – ${fmtDate(TRIP_END())}`;
+
+/* ---------- Zustand (localStorage) ---------- */
+const VISIBLE_TABS = new Set(["long", "short", "present"]);
+const normalizeTab = t => (VISIBLE_TABS.has(t) ? t : "long");
+
+const defaultState = () => ({
+  tab: "long",
+  weights: { w: 4, wel: 0, k: 4, l: 4, h: 5, wi: 5 },   // Wellness aus, Gemütlichkeit (Kochen/Lesen) an
+  short: {},        // id -> true (Short-List)
+  notes: {},        // id -> Text
+  route: [],        // [{id, nights}]
+  transit: { out: false, back: true }, // Standard: Abfahrt Mo 30.11.; München So 29.11. optional
+  dayPlanOpen: false,
+  answers: Object.fromEntries(QUESTIONS.filter(q => q.pre).map(q => [q.id, q.pre])),  // bisherige Antworten vorbelegt
+  checks: {},       // Checklisten-Index -> true
+  slide: 0,
+  mapFocus: null    // geöffnetes Stadt-Popup auf der Karte
+});
+let state = load();
+
+/* SICHERHEIT (Eingabevalidierung): Daten aus localStorage/Import werden nie blind übernommen,
+   sondern gegen eine Whitelist (bekannte IDs, Zahlenbereiche, Textlängen) geprüft. */
+function sanitize(raw) {
+  const s = defaultState();
+  if (!raw || typeof raw !== "object") return s;
+  if (raw.tab) s.tab = normalizeTab(raw.tab);
+  if (raw.weights && typeof raw.weights === "object")
+    for (const c of CRITERIA) {
+      const n = Number(raw.weights[c.key]);
+      if (Number.isFinite(n)) s.weights[c.key] = Math.min(5, Math.max(0, Math.round(n)));
+    }
+  const known = new Set(PLACES.map(p => p.id));
+  if (raw.short && typeof raw.short === "object")
+    for (const id of Object.keys(raw.short)) if (known.has(id) && raw.short[id] === true) s.short[id] = true;
+  if (raw.notes && typeof raw.notes === "object")
+    for (const id of Object.keys(raw.notes)) if (known.has(id)) s.notes[id] = String(raw.notes[id]).slice(0, 1000);
+  if (Array.isArray(raw.route))
+    s.route = raw.route.filter(r => r && known.has(r.id)).slice(0, 8)
+      .map(r => ({ id: r.id, nights: Math.min(8, Math.max(1, Math.round(Number(r.nights)) || 1)) }));
+  if (raw.transit && typeof raw.transit === "object") {
+    s.transit.out = raw.transit.out === true;
+    s.transit.back = raw.transit.back !== false;
+  }
+  if (raw.dayPlanOpen === true) s.dayPlanOpen = true;
+  const qids = new Set(QUESTIONS.map(q => q.id));
+  if (raw.answers && typeof raw.answers === "object")
+    for (const id of Object.keys(raw.answers)) if (qids.has(id)) s.answers[id] = String(raw.answers[id]).slice(0, 1000);
+  if (raw.checks && typeof raw.checks === "object")
+    for (const i of Object.keys(raw.checks)) if (Number(i) >= 0 && Number(i) < CHECKLIST.length && raw.checks[i] === true) s.checks[i] = true;
+  if (raw.mapFocus && known.has(raw.mapFocus)) s.mapFocus = raw.mapFocus;
+  else s.mapFocus = null;
+  return s;
+}
+function load() {
+  try { return sanitize(JSON.parse(localStorage.getItem(STORE_KEY))); }
+  catch (e) { return defaultState(); }          // Storage kann blockiert/leer sein → Defaults
+}
+function save() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* ignorieren */ }
+}
+
+/* ---------- Bewertung & Fahrzeit ---------- */
+/* Passung 0–100: gewichteter Mittelwert der Kriterien-Scores (1–5). */
+function fit(p) {
+  let sum = 0, wsum = 0;
+  for (const c of CRITERIA) { const w = state.weights[c.key]; sum += w * p.s[c.key]; wsum += w; }
+  return wsum === 0 ? 0 : Math.round((sum / (wsum * 5)) * 100);
+}
+/* Grobe Fahrzeit: Luftlinie × 1,4 (Serpentinen) bei Ø 50 km/h. Nur zur Orientierung! */
+function km(a, b) {
+  const R = 6371, rad = x => x * Math.PI / 180;
+  const dLat = rad(b.lat - a.lat), dLon = rad(b.lon - a.lon);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLon / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+function driveMin(a, b) { return Math.round(km(a, b) * 1.4 / 50 * 60 / 5) * 5; }
+/* Fahrzeit ab Bremen: Luftlinie × 1,22 (Autobahnfaktor) bei Ø 85 km/h inkl. Pausen. Nur Schätzung! */
+function homeMin(p) { return Math.round(km(HOME, p) * 1.22 / 85 * 60 / 15) * 15; }
+const availNights = () => TOTAL_NIGHTS - (state.transit.out ? 1 : 0) - (state.transit.back ? 1 : 0);
+const routeStart = () => START;
+const fmtMin = m => `${Math.floor(m / 60)} h ${String(m % 60).padStart(2, "0")} min`;
+
+/* =====================================================================
+   Rendering
+   ===================================================================== */
+const view = document.getElementById("view");
+const TABS = [
+  ["long", "2 · Long-List", "Long-List"],
+  ["short", "3 · Short-List & Route", "Route"],
+  ["present", "4 · Präsentation", "Folien"]
+];
+
+function setTab(t) { state.tab = normalizeTab(t); save(); render(); window.scrollTo(0, 0); }
+function renderNav() {
+  const nav = document.getElementById("nav");
+  nav.replaceChildren(...TABS.map(([id, label, short]) => {
+    const btn = el("button", { "aria-current": String(state.tab === id), onclick: () => setTab(id) });
+    btn.append(el("span", { class: "nav-label nav-label--full" }, label), el("span", { class: "nav-label nav-label--short" }, short));
+    return btn;
+  }));
+  const funnel = document.getElementById("funnel");
+  const nShort = Object.keys(state.short).length;
+  const nights = state.route.reduce((a, r) => a + r.nights, 0);
+  const avail = availNights();
+  funnel.replaceChildren(
+    el("div", { class: "funnel-stat" }, el("b", {}, PLACES.length), el("span", { class: "funnel-label" }, "Long-List")),
+    el("div", { class: "funnel-stat" }, el("b", {}, nShort), el("span", { class: "funnel-label" }, "Short-List")),
+    el("div", { class: "funnel-stat funnel-stat--route" }, el("b", {}, state.route.length),
+      el("span", { class: "funnel-label" }, `Route · ${nights}/${avail} N`)));
+}
+function render() {
+  renderNav();
+  const fn = { rahmen: vRahmen, long: vLong, short: vShort, present: vPresent, fragen: vFragen }[state.tab];
+  view.replaceChildren(fn());
+}
+
+/* ---------- 1 · Rahmen ---------- */
+function vRahmen() {
+  const box = el("div");
+  box.append(
+    el("h2", {}, `Das Rahmenwerk: ${fmtDateLong(START)} – ${fmtDateLong(TRIP_END())} (7 Nächte)`),
+    el("div", { class: "callout" },
+      el("b", {}, "Wintertermin = andere Dolomiten. "),
+      "Hütten und viele Lifte sind noch zu, die Skisaison startet um den 5.–8. Dezember. Wandern funktioniert am besten auf Talwegen, Waalwegen und Uferpromenaden. Passstraßen (Falzarego, Pordoi, Sella, Gröden) sind wetterabhängig – Echtzeit-Portale vor jeder Fahrt prüfen."),
+    el("div", { class: "grid" },
+      el("div", { class: "card" }, el("h3", {}, "🧭 Anreise ab Bremen"), el("p", {}, `≈ 1.000 km, ca. 10 h reine Fahrzeit (Schätzung). Abfahrt ${fmtDateLong(START)} aus Bremen. Optional Zwischenstopp München am ${fmtDateLong(transitOutDate())} (1. Advent) – sonst einen langen Fahrtag. Rückreise nach ${fmtDateLong(TRIP_END())} spiegelbar. Bis zu 6 Nächte vor Ort – ideal für 3×2 oder 2×3 Nächte.`)),
+      el("div", { class: "card" }, el("h3", {}, "🚗 Auto"), el("p", {}, "Mercedes A 140 mit Allwetterreifen, noch ohne Ketten. Darum: Talstraßen bevorzugen (Eisacktal, Pustertal, Etschtal), keine hohen Pässe. Ketten besorgen und Probe montieren; Allwetterreifen nur mit Alpine-Symbol (3PMSF) sinnvoll – Regeln prüfen.")),
+      el("div", { class: "card" }, el("h3", {}, "🐕 Corgi (5 J.)"), el("p", {}, "1–2 h spazieren am Stück, Pausen sind eingeplant → Touren ca. 4–7 km, flach, mit Café-/Bank-Stopps. Streusalz → Pfoten abwischen. Keine Wellness-Planung nötig.")),
+      el("div", { class: "card" }, el("h3", {}, "🎄 Märkte"), el("p", {}, "Weihnachtsmärkte in Bozen, Meran, Brixen und Bruneck öffnen meist um den 27.–28.11. – Termine 2026 bitte vorab prüfen.")),
+      el("div", { class: "card" }, el("h3", {}, "🏠 Ferienwohnung"), el("p", {}, "Bis ca. 120 €/Nacht, gemütlich (Kamin/Kachelofen, Küche, Leseecke), Hund erlaubt. 2–3 Nächte pro Ort: so bleibt Zeit zum Kochen, Lesen und Spazieren.")),
+      el("div", { class: "card" }, el("h3", {}, "🇮🇹 Mehr Italien"), el("p", {}, "Neu in der Long-List: Verona, Padova, Gardasee (Riva/Limone), Belluno, Treviso, Asolo – plus Presets E–G. Filter „Fokus Italien“ zeigt Veneto, Trentino und Gardasee. Südtirol bleibt fürs Erste deutschsprachig; Rück- oder Verlängerungstour nach Süden passt zu Bassano/Vicenza aus eurer Short-List."))));
+  box.append(el("h2", {}, "Checkliste vor der Abreise"));
+  const list = el("div", { class: "card" });
+  CHECKLIST.forEach((txt, i) => {
+    const id = "chk" + i;
+    list.append(el("div", { class: "row" },
+      el("input", { type: "checkbox", id, checked: !!state.checks[i], onchange: e => { if (e.target.checked) state.checks[i] = true; else delete state.checks[i]; save(); } }),
+      el("label", { for: id }, txt)));
+  });
+  box.append(list);
+  box.append(el("div", { class: "callout" }, el("b", {}, "Sicherheitsrelevant: "), "Wintertauglichkeit des Fahrzeugs, Wetter-/Lawinenlage, Leinenpflicht und Datenschutz bei Buchungen (keine Ausweis-/Zahlungsdaten in Notizen der App speichern)."));
+  box.append(vDataTools());
+  box.append(el("p", { class: "img-credit" }, "Fotos: Wikimedia Commons (siehe ATTRIBUTION.md). Wanderungen & Highlights: Links zu Komoot, TripAdvisor und Google Maps (extern, ohne Einbettung)."));
+  return box;
+}
+
+/* Export/Import: Datei-Download lokal (kein Netzwerk). */
+function vDataTools() {
+  const wrap = el("div", { class: "card", style: "margin-top:16px" }, el("h3", {}, "Daten sichern / teilen"));
+  wrap.append(el("p", { class: "muted" }, "Alles bleibt lokal im Browser. Export als JSON-Datei, Import mit Validierung."));
+  const imp = el("input", { type: "file", accept: "application/json", style: "display:none", onchange: ev => {
+    const f = ev.target.files[0]; if (!f) return;
+    if (f.size > 200000) { alert("Datei zu groß."); return; }       // Größenlimit als Schutz
+    const r = new FileReader();
+    r.onload = () => { try { state = sanitize(JSON.parse(r.result)); save(); render(); } catch (e) { alert("Ungültige Datei."); } };
+    r.readAsText(f);
+  }});
+  wrap.append(el("div", { class: "row" },
+    el("button", { class: "btn", onclick: () => {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+      const a = el("a", { href: URL.createObjectURL(blob), download: "dolomiten-winter-2026.json" });
+      a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }}, "Export (JSON)"),
+    el("button", { class: "btn", onclick: () => imp.click() }, "Import"),
+    el("button", { class: "btn", onclick: () => { if (confirm("Alles zurücksetzen?")) { state = defaultState(); save(); render(); } } }, "Zurücksetzen"),
+    imp));
+  return wrap;
+}
+
+/* ---------- 2 · Long-List ---------- */
+let filters = { dogOk: false, winterOk: false, italien: false, sort: "fit" };
+function vLong() {
+  const box = el("div");
+  box.append(el("h2", {}, "Long-List: alle Kandidaten"),
+    el("p", { class: "muted" }, "Stellt links eure Prioritäten ein (0 = egal, 5 = sehr wichtig). Die Passung sortiert die Liste. Mit ♥ übernehmt ihr Orte in die Short-List."));
+  /* Gewichtungs-Slider */
+  const wbox = el("div", { class: "card" }, el("h3", {}, "Eure Prioritäten"));
+  const grid = el("div", { class: "grid" });
+  for (const c of CRITERIA) {
+    const out = el("b", {}, state.weights[c.key]);
+    grid.append(el("div", {},
+      el("label", { for: "w" + c.key }, c.label + ": ", out),
+      el("input", { type: "range", id: "w" + c.key, min: 0, max: 5, step: 1, value: state.weights[c.key], style: "width:100%",
+        oninput: e => { state.weights[c.key] = Number(e.target.value); out.textContent = e.target.value; save(); renderCards(); } })));
+  }
+  wbox.append(grid);
+  wbox.append(el("div", { class: "row", style: "margin-top:8px" },
+    el("label", {}, el("input", { type: "checkbox", checked: filters.dogOk, onchange: e => { filters.dogOk = e.target.checked; renderCards(); } }), " nur hundetauglich (≥ 4)"),
+    el("label", {}, el("input", { type: "checkbox", checked: filters.winterOk, onchange: e => { filters.winterOk = e.target.checked; renderCards(); } }), " nur wintersicher (≥ 4)"),
+    el("label", {}, el("input", { type: "checkbox", checked: filters.italien, onchange: e => { filters.italien = e.target.checked; renderCards(); } }), " Fokus Italien (Veneto, Trentino, Gardasee …)")));
+  box.append(wbox);
+  box.append(el("details", { class: "section-fold" },
+    el("summary", { class: "section-fold-h" }, "Orientierung: Reliefkarte"),
+    el("p", { class: "muted" }, "Stadt anklicken → Städtebündel oder Einzelaktionen."),
+    travelMap({ interactive: true })));
+
+  const cards = el("div", { class: "grid", style: "margin-top:12px" });
+  box.append(cards);
+
+  function renderCards() {
+    const list = PLACES.filter(p => (!filters.dogOk || p.s.h >= 4) && (!filters.winterOk || p.s.wi >= 4) && (!filters.italien || isItalien(p)))
+      .sort((a, b) => fit(b) - fit(a));
+    cards.replaceChildren(...list.map(placeCard));
+    renderNav();
+  }
+  renderCards();
+  return box;
+}
+
+function bar(label, v) {
+  return el("div", { class: "bar" }, el("span", {}, label), el("span", {}, el("i", { style: `width:${v * 20}%` })));
+}
+function placeCard(p) {
+  const sel = !!state.short[p.id];
+  const card = el("div", { class: "card" + (sel ? " sel" : "") + (p.id === "hallstatt" ? " faded" : "") });
+  const hero = imgEl(p.img, "Eindruck: " + p.name, "place-photo");
+  if (hero) card.append(hero);
+  card.append(
+    el("div", { class: "row", style: "justify-content:space-between" },
+      el("h3", {}, p.name),
+      el("button", { class: "btn small" + (sel ? " on" : ""), "aria-pressed": String(sel),
+        onclick: () => { if (sel) delete state.short[p.id]; else state.short[p.id] = true; save(); render(); } },
+        sel ? "♥ Short-List" : "♡ merken")),
+    el("div", { class: "muted" }, p.region + " · Passung ", el("b", {}, fit(p) + " %"), ` · ≈ ${fmtMin(homeMin(p))} ab ${HOME.name}`),
+    el("div", { class: "chips" }, p.tags.map(t => el("span", { class: "chip" }, t))),
+    el("p", {}, p.why));
+  const scores = el("div", { class: "score-bars" });
+  CRITERIA.forEach(c => scores.append(bar(c.label.split(" ")[0], p.s[c.key])));
+  card.append(scores);
+  const hikeMedia = (p.media || []).filter(m => m.kind === "hike");
+  const hlMedia = (p.media || []).filter(m => m.kind === "highlight");
+  const actGrid = mediaGrid(hikeMedia.length ? hikeMedia : p.media, p);
+  if (actGrid) {
+    card.append(el("div", { class: "section-impressions" },
+      el("h4", {}, hikeMedia.length ? "Wanderrouten (Fotos & Links)" : "Geplante Eindrücke"),
+      actGrid));
+  }
+  const hlGrid = hikeMedia.length && hlMedia.length ? mediaGrid(hlMedia, p) : null;
+  if (hlGrid) card.append(el("div", { class: "section-impressions", style: "margin-top:10px;padding-top:10px" },
+    el("h4", {}, "Highlights (Fotos & Links)"), hlGrid));
+  card.append(el("details", {}, el("summary", {}, "Wandern, Highlights, Hund & Risiko"),
+    el("b", {}, "Wanderungen"), el("ul", { class: "tight", style: "list-style:none;padding:0" }, p.hikes.map(x => activityLine(p, x, p.media, "hike"))),
+    el("b", {}, "Highlights"), el("ul", { class: "tight", style: "list-style:none;padding:0" }, p.highlights.map(x => activityLine(p, x, p.media, "highlight"))),
+    el("p", {}, "🐕 ", p.dog), el("p", { class: "warn" }, "⚠ ", p.risk)));
+  card.append(el("textarea", { rows: 2, maxlength: 1000, placeholder: "Eure Notiz (keine persönlichen Daten)…", "aria-label": "Notiz zu " + p.name,
+    oninput: e => { state.notes[p.id] = e.target.value; save(); } }));
+  card.querySelector("textarea").value = state.notes[p.id] || "";
+  return card;
+}
+
+/* ---------- 3 · Short-List & Route ---------- */
+function vShort() {
+  const box = el("div");
+  const ids = Object.keys(state.short);
+  box.append(el("h2", {}, "Short-List"));
+  if (!ids.length) box.append(el("p", { class: "muted" }, "Noch leer – merkt euch in der Long-List Orte mit ♡, oder startet unten mit einem Preset."));
+  else {
+    const rows = ids.map(byId).sort((a, b) => fit(b) - fit(a));
+    const showScores = window.matchMedia("(min-width: 561px)").matches;
+    const ths = [el("th", {}, "Ort"), el("th", {}, "Passung")];
+    const tds = p => [el("td", {}, p.name), el("td", {}, fit(p) + " %")];
+    if (showScores) CRITERIA.forEach(c => ths.push(el("th", { class: "col-score" }, c.label.split(" ")[0])));
+    const body = rows.map(p => {
+      const cells = tds(p);
+      if (showScores) CRITERIA.forEach(c => cells.push(el("td", { class: "col-score" }, p.s[c.key])));
+      return el("tr", {}, ...cells);
+    });
+    box.append(el("p", { class: "muted scroll-hint" }, "Tabelle: nach links wischen für alle Kriterien."),
+      el("div", { class: "scroll" }, el("table", { class: "short-table" },
+        el("thead", {}, el("tr", {}, ...ths)),
+        el("tbody", {}, body))));
+  }
+
+  const mapOpen = typeof window !== "undefined" && window.matchMedia("(min-width: 561px)").matches;
+  box.append(el("details", { class: "section-fold", open: mapOpen },
+    el("summary", { class: "section-fold-h" }, "Orientierung: Reliefkarte & Städtebündel"),
+    el("p", { class: "muted" }, "Stadt anklicken → Routen-Bündel (Presets A–G)."),
+    travelMap({ interactive: true })));
+  box.append(el("h2", {}, "Routen-Vorschläge"));
+  box.append(el("div", { class: "grid" }, PRESETS.map(pr => {
+    const active = state.route.length && pr.stops.length === state.route.length
+      && pr.stops.every(([id, n], i) => state.route[i]?.id === id && state.route[i]?.nights === n);
+    return el("div", { class: "card" + (active ? " sel" : "") },
+      el("h3", {}, pr.name), el("p", {}, pr.desc),
+      el("div", { class: "row place-card-actions", style: "margin-top:8px" },
+        el("button", { class: "btn small primary", onclick: () => applyPreset(pr) }, active ? "Aktiv" : "Übernehmen"),
+        el("button", { class: "btn small", onclick: () => {
+          state.mapFocus = pr.stops[0][0]; save(); render();
+        } }, "Karte")));
+  })));
+
+  /* Routen-Builder */
+  box.append(el("h2", {}, "Eure Route"));
+  const backNight = addDays(TRIP_END(), -1);
+  const tcard = el("div", { class: "card" }, el("h3", {}, `Anreise & Rückreise (Start ${fmtDate(START)})`),
+    el("div", { class: "row" },
+      el("label", {}, el("input", { type: "checkbox", checked: state.transit.out, onchange: e => { state.transit.out = e.target.checked; save(); render(); } }), ` Optional: München ${fmtDate(transitOutDate())} (vor Abfahrt Mo 30.11.)`),
+      el("label", {}, el("input", { type: "checkbox", checked: state.transit.back, onchange: e => { state.transit.back = e.target.checked; save(); render(); } }), ` Zwischenübernachtung Rückreise (${fmtDate(backNight)})`)),
+    el("p", { class: "muted" }, "Standard: Mo 30.11. los aus Bremen. Ohne Zwischenstopp mehr Nächte vor Ort, aber ~10 h am Stück – für Fahrer und Hund anstrengend."));
+  box.append(tcard);
+  const avail = availNights();
+  const sumN = state.route.reduce((a, r) => a + r.nights, 0);
+  const status = sumN === avail ? el("span", { class: "ok" }, `✓ ${avail} Nächte vor Ort verplant`)
+                                : el("span", { class: "warn" }, `${sumN}/${avail} Nächte – ${sumN < avail ? "noch " + (avail - sumN) + " übrig" : (sumN - avail) + " zu viel"}`);
+  box.append(el("p", {}, status));
+  if (state.route.length < 3 || state.route.length > 4)
+    box.append(el("p", { class: "warn" }, "Hinweis: Gewünscht sind 3–4 Stationen (aktuell " + state.route.length + ")."));
+
+  const rb = el("div");
+  const routeList = el("div", { class: "grid" });
+  state.route.forEach((r, i) => {
+    const p = byId(r.id);
+    const prev = i > 0 ? byId(state.route[i - 1].id) : null;
+    const mins = prev ? driveMin(prev, p) : 0;
+    const routeCard = el("div", { class: "card" });
+    const routeImg = imgEl(p.img, p.name, "place-photo");
+    if (routeImg) routeCard.append(routeImg);
+    routeCard.append(
+      el("h3", {}, `${i + 1}. ${p.name}`),
+      prev ? el("div", { class: mins > 180 ? "warn" : "muted" }, `≈ ${fmtMin(mins)} ab ${prev.name} (grobe Schätzung${mins > 180 ? " – lang!" : ""})`)
+           : el("div", { class: "muted" }, `≈ ${fmtMin(homeMin(p))} ab ${HOME.name} (Schätzung, ohne Pausen)`),
+      el("div", { class: "row", style: "margin-top:6px" },
+        el("label", { for: "n" + i }, "Nächte:"),
+        el("input", { type: "number", id: "n" + i, min: 1, max: 8, value: r.nights, onchange: e => { r.nights = Math.min(8, Math.max(1, Math.round(Number(e.target.value)) || 1)); save(); render(); } }),
+        el("button", { class: "btn small", "aria-label": "nach oben", onclick: () => move(i, -1) }, "↑"),
+        el("button", { class: "btn small", "aria-label": "nach unten", onclick: () => move(i, 1) }, "↓"),
+        el("button", { class: "btn small", onclick: () => { state.route.splice(i, 1); save(); render(); } }, "Entfernen")));
+    routeList.append(routeCard);
+  });
+  rb.append(routeList);
+  function move(i, d) { const j = i + d; if (j < 0 || j >= state.route.length) return; [state.route[i], state.route[j]] = [state.route[j], state.route[i]]; save(); render(); }
+
+  const sel = el("select", { "aria-label": "Station hinzufügen" }, el("option", { value: "" }, "Station hinzufügen…"),
+    ...PLACES.map(p => el("option", { value: p.id }, p.name)));
+  sel.addEventListener("change", () => { if (!sel.value) return; state.route.push({ id: sel.value, nights: Math.max(1, avail - sumN) }); save(); render(); });
+  rb.append(el("div", { style: "max-width:320px;margin-top:8px" }, sel));
+  box.append(rb);
+
+  if (state.route.length) {
+    box.append(el("h2", {}, "Zeitplan"),
+      el("p", { class: "muted" }, `Reise ${tripRangeLabel()} – Übersicht:`),
+      vTimeline(),
+      vDayPlan({ section: true }));
+  }
+  return box;
+}
+
+function mapBundlePanel(p) {
+  const presets = presetsForPlace(p.id);
+  const bundle = bundleIdsForPlace(p.id);
+  const panel = el("div", { class: "map-popup" },
+    el("h3", { style: "margin:0 0 6px" }, p.name),
+    el("p", { class: "muted", style: "margin:0 0 8px" }, p.region + (p.id === "hallstatt" ? " · Detour / Heimweg" : "")));
+  panel.append(el("p", {}, "Städtebündel: ", el("b", {}, bundle.map(id => placeLabel(byId(id))).join(" → "))));
+  const actions = el("div", { class: "row", style: "margin-top:10px" });
+  actions.append(el("button", { class: "btn small primary", onclick: () => applyStadtBundle(p) }, "Bündel übernehmen (Route + Short-List)"));
+  presets.forEach((pr, idx) => {
+    if (idx === 0) return;
+    actions.append(el("button", { class: "btn small", onclick: () => applyPreset(pr) }, pr.name.split("·")[0].trim()));
+  });
+  actions.append(el("button", { class: "btn small", onclick: () => {
+    if (state.short[p.id]) delete state.short[p.id]; else state.short[p.id] = true;
+    save(); render();
+  } }, state.short[p.id] ? "♥ Short-List" : "♡ merken"));
+  actions.append(el("button", { class: "btn small", onclick: () => {
+    state.route.push({ id: p.id, nights: Math.max(1, availNights() - state.route.reduce((a, r) => a + r.nights, 0)) });
+    state.mapFocus = null; save(); render();
+  } }, "+ Station"));
+  actions.append(el("button", { class: "btn small", onclick: () => { state.mapFocus = null; save(); render(); } }, "Schließen"));
+  panel.append(actions);
+  return panel;
+}
+
+/* Reliefkarte + Klick-Städte (Presets / Short-List / Route) — nur lokale Bilder & inline-SVG. */
+function travelMap({ interactive = true } = {}) {
+  const wrap = el("div", { class: "map-shell" });
+  const { w, h, src } = MAP_IMG;
+  const s = svg("svg", {
+    class: "map",
+    viewBox: `0 0 ${w} ${h}`,
+    role: "img",
+    "aria-label": "Reliefkarte Norditalien mit Planungsorten"
+  });
+  s.append(svg("image", { href: src, x: 0, y: 0, width: w, height: h, preserveAspectRatio: "xMidYMid meet" }));
+
+  const routeOrder = new Map(state.route.map((r, i) => [r.id, i + 1]));
+  const routePts = state.route.map(r => byId(r.id)).filter(Boolean);
+  if (routePts.length > 1) {
+    s.append(svg("polyline", {
+      points: routePts.map(p => { const { x, y } = mapXY(p); return `${x},${y}`; }).join(" "),
+      fill: "none", stroke: "#1f6f6b", "stroke-width": 4, "stroke-linecap": "round",
+      "stroke-linejoin": "round", opacity: 0.85, "stroke-dasharray": "10 6"
+    }));
+  }
+
+  const onKeyPin = (id) => e => {
+    if (!interactive) return;
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleMapFocus(id); }
+  };
+
+  for (const p of PLACES) {
+    const { x, y } = mapXY(p);
+    if (x < -20 || x > w + 20 || y < -20 || y > h + 20) continue;
+    const onRoute = routeOrder.has(p.id);
+    const routeN = routeOrder.get(p.id);
+    const onShort = !!state.short[p.id];
+    const focused = state.mapFocus === p.id;
+    const fill = onRoute ? "#1f6f6b" : onShort ? "#c9a227" : focused ? "#e8f0ef" : "#ffffff";
+    const stroke = p.id === "hallstatt" ? "#a32a2a" : "#1f2a2e";
+    const r = onRoute ? 13 : focused ? 12 : 9;
+    const g = svg("g", {
+      class: "map-pin",
+      role: interactive ? "button" : null,
+      tabindex: interactive ? "0" : null,
+      "aria-pressed": String(focused),
+      "aria-label": p.name + (onRoute ? `, Station ${routeN}` : ""),
+      onclick: interactive ? () => toggleMapFocus(p.id) : null,
+      onkeydown: interactive ? onKeyPin(p.id) : null
+    });
+    g.append(svg("circle", { cx: x, cy: y, r, fill, stroke, "stroke-width": focused ? 3 : 2, opacity: p.id === "hallstatt" ? 0.92 : 1 }));
+    if (onRoute)
+      g.append(svg("text", { x, y: y + 4, "text-anchor": "middle", "font-size": 11, style: "fill:#fff;font-weight:bold", "pointer-events": "none" }, String(routeN)));
+    else
+      g.append(svg("text", { class: "map-label", x, y: y - r - 4, "text-anchor": "middle" }, placeLabel(p)));
+    s.append(g);
+  }
+
+  const nx = w - 42, ny = 36;
+  const north = svg("g", { "aria-hidden": "true" });
+  north.append(svg("path", { d: `M${nx} ${ny + 18} L${nx} ${ny} L${nx + 8} ${ny + 10} Z`, fill: "#1f2a2e" }));
+  north.append(svg("text", { x: nx + 4, y: ny + 30, "font-size": 10, "text-anchor": "middle" }, "N"));
+  s.append(north);
+
+  const barW = 72;
+  const barY = h - 22, barX = 16;
+  const scale = svg("g", { "aria-hidden": "true" });
+  scale.append(svg("rect", { x: barX, y: barY, width: barW, height: 4, fill: "#1f2a2e" }));
+  scale.append(svg("rect", { x: barX, y: barY - 3, width: 2, height: 10, fill: "#1f2a2e" }));
+  scale.append(svg("rect", { x: barX + barW, y: barY - 3, width: 2, height: 10, fill: "#1f2a2e" }));
+  scale.append(svg("text", { x: barX + barW / 2, y: barY + 14, "font-size": 9, "text-anchor": "middle" }, "≈ 50 km"));
+  s.append(scale);
+
+  wrap.append(s);
+  wrap.append(el("div", { class: "map-legend" },
+    el("span", {}, el("i", { style: "background:#1f6f6b" }), "Route"),
+    el("span", {}, el("i", { style: "background:#c9a227" }), "Short-List"),
+    el("span", {}, el("i", { style: "background:#fff" }), "Kandidat"),
+    el("span", {}, "Klick = Städtebündel")));
+  if (interactive && state.mapFocus && byId(state.mapFocus))
+    wrap.append(mapBundlePanel(byId(state.mapFocus)));
+  return wrap;
+}
+
+/* ---------- Tagesplan-Entwurf ----------
+   Rhythmus (eure Wahl): früh los, nachmittags zurück in die Ferienwohnung (Kamin, Lesen, Kochen).
+   Ankunftstage = ruhig (Fahrt + Einkauf + Kurzspaziergang), Folgetage wechseln zwischen Highlight (3–4 h) und Ruhe. */
+const MUC = { name: "München", lat: 48.137, lon: 11.575 };
+/* München→Südtirol: überwiegend Autobahn (Brenner), daher Ø 70 km/h bei Faktor 1,35 (≈ 3,5 h bis Bozen). Schätzung! */
+function leg(a, b) {
+  if (a === HOME) return homeMin(b);
+  if (a === MUC) return Math.round(km(a, b) * 1.35 / 70 * 60 / 15) * 15;
+  return driveMin(a, b);
+}
+function buildDays() {
+  const days = []; let d = 0;
+  const pushAt = (date, title, items) => days.push({ date, title, items });
+  const push = (title, items) => pushAt(addDays(START, d++), title, items);
+  if (state.transit.out)
+    pushAt(addDays(START, -1), "Anreise → München", ["Früh starten, alle ~2 h Pause für den Corgi (Wiese/Raststätte)", "Übernachtung in München (Hund erlaubt prüfen)", "1. Advent: Christkindlmarkt/Altstadt nur kurz, Hundeeinschränkungen prüfen"]);
+  state.route.forEach((r, i) => {
+    const p = byId(r.id), f = FOOD[p.id] || {};
+    const prev = i === 0 ? (state.transit.out ? MUC : HOME) : byId(state.route[i - 1].id);
+    for (let n = 0; n < r.nights; n++) {
+      const hike = p.hikes[(i + n) % p.hikes.length];
+      if (n === 0) {
+        push(`Ankunft ${p.name}`, [`🚗 ≈ ${fmtMin(leg(prev, p))} (Schätzung, ohne Pausen)`, "Ferienwohnung beziehen, Kamin an, Einkauf (" + (f.kochen || "regional") + ")", "🥾 Kurzspaziergang vor Ort (~1 h)", "🍜 Abends kochen: " + (f.asia || "asiatisch mit Vorrat")]);
+      } else if (n % 2 === 1) {
+        push(`Highlight-Tag · ${p.name}`, ["Früh los (ca. 9 Uhr): 🥾 " + hike, "☕ Café-Stopp: " + (f.cafe || "Café vor Ort"), "✨ " + p.highlights[(i + n) % p.highlights.length], "Nachmittags (~15 Uhr) zurück, Kamin & Lesen, abends Restaurant oder Wok"]);
+      } else {
+        push(`Ruhetag · ${p.name}`, ["Spät frühstücken, kurze Runde (1–1,5 h) im Ort", "☕ Café: " + (f.cafe || "Café vor Ort"), "📖 Leseecke & Kamin, 🍜 Kochprojekt (asiatisch)"]);
+      }
+    }
+  });
+  if (state.transit.back) {
+    push("Rückreise → München", ["Frühstück, Auto packen, früh los", "Übernachtung München (Hund erlaubt prüfen)"]);
+    push("Heimreise → Bremen", ["≈ 7–8 h Fahrt, Pausen für Corgi alle ~2 h"]);
+  } else {
+    push("Heimreise → Bremen", ["≈ 10 h Fahrt: sehr früh los, Pausen für Corgi alle ~2 h (lang!)"]);
+  }
+  return days;
+}
+function dayPlanList() {
+  const list = el("div", { class: "day-plan-list" });
+  buildDays().forEach(dy => {
+    const det = el("details", { class: "day-fold" });
+    const preview = (dy.items[0] || "").replace(/^[^\s]+\s/, "").slice(0, 72) + ((dy.items[0] || "").length > 72 ? "…" : "");
+    det.append(el("summary", {},
+      el("span", { class: "day-sum-date" }, fmtDate(dy.date)),
+      el("span", { class: "day-sum-title" }, dy.title),
+      el("span", { class: "muted day-sum-prev" }, preview)));
+    det.append(el("ul", { class: "tight" }, dy.items.map(x => el("li", {}, x))));
+    list.append(det);
+  });
+  return list;
+}
+function vDayPlan({ section = false, compact = false } = {}) {
+  const days = buildDays();
+  const list = dayPlanList();
+  if (compact) return list;
+  if (!section) return list;
+  const wrap = el("details", { class: "section-fold day-plan-section", open: !!state.dayPlanOpen });
+  wrap.append(el("summary", { class: "section-fold-h" }, `Tagesplan-Entwürfe (${days.length} Tage, eingeklappt)`));
+  wrap.append(el("p", { class: "muted" }, "Rhythmus: früh los, nachmittags Ferienwohnung. Pro Tag aufklappen oder alle auf einmal:"));
+  wrap.append(el("button", {
+    type: "button", class: "btn small", style: "margin:4px 0 8px",
+    onclick: e => {
+      e.preventDefault();
+      const anyClosed = [...list.querySelectorAll("details.day-fold")].some(d => !d.open);
+      list.querySelectorAll("details.day-fold").forEach(d => { d.open = anyClosed; });
+    }
+  }, "Alle Tage auf-/zuklappen"));
+  wrap.append(list);
+  wrap.addEventListener("toggle", () => { state.dayPlanOpen = wrap.open; save(); });
+  return wrap;
+}
+
+function vTimeline() {
+  let day = 0;
+  const rows = [];
+  if (state.transit.out) rows.push(el("tr", {}, el("td", {}, "→"), el("td", {}, "Anreise: Zwischenübernachtung (München)"), el("td", {}, `${fmtDate(addDays(START, -1))} → ${fmtDate(START)}`), el("td", {}, 1)));
+  state.route.forEach((r, i) => {
+    const p = byId(r.id), a = addDays(START, day), b = addDays(START, day + r.nights);
+    day += r.nights;
+    rows.push(el("tr", {}, el("td", {}, i + 1), el("td", {}, p.name), el("td", {}, `${fmtDate(a)} → ${fmtDate(b)}`), el("td", {}, r.nights)));
+  });
+  if (state.transit.back) rows.push(el("tr", {}, el("td", {}, "←"), el("td", {}, "Rückreise: Zwischenübernachtung"), el("td", {}, `${fmtDate(addDays(START, day))} → ${fmtDate(addDays(START, day + 1))}`), el("td", {}, 1)));
+  return el("div", { class: "scroll", style: "margin-top:12px" }, el("table", {},
+    el("thead", {}, el("tr", {}, el("th", {}, "#"), el("th", {}, "Station"), el("th", {}, "Zeitraum"), el("th", {}, "Nächte"))), el("tbody", {}, rows)));
+}
+
+/* ---------- 4 · Präsentation ---------- */
+function vPresent() {
+  const box = el("div");
+  if (!state.route.length) { box.append(el("h2", {}, "Präsentation"), el("p", { class: "muted" }, "Erst eine Route in Schritt 3 anlegen.")); return box; }
+  const slides = [];
+  /* Folie 1: Titel */
+  slides.push(el("div", { class: "slide" },
+    el("h2", {}, "Dolomiten Winterreise"), el("div", { class: "big" }, `${tripRangeLabel()} · 7 Nächte · Start ${fmtDateLong(START)} ab Bremen`),
+    el("div", {}, "2 Erwachsene · 1 Corgi · Mercedes A 140"), el("div", { class: "chips" }, ["Wandern", "Wellness", "Kochen", "Lesen"].map(t => el("span", { class: "chip" }, t)))));
+  /* Folie 2: Überblick */
+  slides.push(el("div", { class: "slide" }, el("h2", {}, "Die Route"), travelMap({ interactive: false }), vTimeline()));
+  /* Folien pro Station */
+  let day = 0;
+  state.route.forEach((r, i) => {
+    const p = byId(r.id), prev = i > 0 ? byId(state.route[i - 1].id) : null;
+    const a = addDays(START, day), b = addDays(START, day + r.nights); day += r.nights;
+    const slide = el("div", { class: "slide" });
+    const slideImg = imgEl(p.img, p.name, "place-photo hero");
+    if (slideImg) slide.append(slideImg);
+    if (p.media?.length) slide.append(mediaGrid(p.media, p));
+    slide.append(
+      el("div", { class: "muted" }, `Station ${i + 1} von ${state.route.length} · ${fmtDate(a)} → ${fmtDate(b)} · ${r.nights} Nächte`),
+      el("h2", {}, p.name), el("div", { class: "muted" }, p.region),
+      prev ? el("div", { class: "muted" }, `🚗 ≈ ${fmtMin(driveMin(prev, p))} ab ${prev.name} (Schätzung)`) : el("div", { class: "muted" }, `🚗 ≈ ${fmtMin(homeMin(p))} ab ${HOME.name}${state.transit.out ? " (verteilt auf 2 Tage, 1 Zwischenübernachtung)" : ""}`),
+      el("p", { class: "big" }, p.why),
+      el("div", {}, el("b", {}, "🥾 Wandern"), el("ul", { class: "tight" }, p.hikes.map(x => el("li", {}, x)))),
+      el("div", {}, el("b", {}, "✨ Highlights"), el("ul", { class: "tight" }, p.highlights.map(x => el("li", {}, x)))),
+      el("div", {}, "🐕 ", p.dog), el("div", { class: "warn" }, "⚠ ", p.risk),
+      state.notes[p.id] ? el("div", { class: "callout" }, "📝 ", state.notes[p.id]) : null);
+    slides.push(slide);
+  });
+  slides.push(el("div", { class: "slide" },
+    el("h2", {}, "Tagesplan"),
+    el("p", { class: "muted" }, "Kurzüberblick – Details in Schritt 3."),
+    vDayPlan({ compact: true })));
+  /* Schlussfolie */
+  slides.push(el("div", { class: "slide" }, el("h2", {}, "Vor der Abfahrt"),
+    el("ul", { class: "tight" }, CHECKLIST.map(t => el("li", {}, t)))));
+
+  state.slide = Math.min(state.slide, slides.length - 1);
+  const holder = el("div"); holder.append(slides[state.slide]);
+  const info = el("span", { class: "muted" });
+  const go = d => { state.slide = Math.min(slides.length - 1, Math.max(0, state.slide + d)); save(); holder.replaceChildren(slides[state.slide]); info.textContent = `${state.slide + 1} / ${slides.length}`; };
+  info.textContent = `${state.slide + 1} / ${slides.length}`;
+  box.append(el("h2", {}, "Präsentation"), holder,
+    el("div", { class: "pager" }, el("button", { class: "btn", onclick: () => go(-1) }, "← zurück"), info, el("button", { class: "btn primary", onclick: () => go(1) }, "weiter →")),
+    el("p", { class: "muted" }, "Tipp: Pfeiltasten ← → blättern. Drucken (Strg+P) gibt alle Inhalte als PDF aus."));
+  window._go = go;
+  return box;
+}
+document.addEventListener("keydown", e => {
+  if (/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) return;
+  if (e.key === "Escape" && state.mapFocus) { state.mapFocus = null; save(); render(); return; }
+  if (state.tab !== "present" || !window._go) return;
+  if (e.key === "ArrowRight") window._go(1);
+  if (e.key === "ArrowLeft") window._go(-1);
+});
+
+/* ---------- 5 · Offene Fragen ---------- */
+function vFragen() {
+  const box = el("div", {}, el("h2", {}, "Fragen & Antworten"),
+    el("p", { class: "muted" }, "Vorbelegt mit euren bisherigen Antworten. Neue Fragen sind mit NEU markiert. Bitte keine Adressen, Namen oder Kontaktdaten eintragen."));
+  QUESTIONS.forEach(q => {
+    const val = state.answers[q.id] || "";
+    const input = q.type === "select"
+      ? el("select", { "aria-label": q.q }, el("option", { value: "" }, "– wählen –"), ...q.opts.map(o => el("option", { value: o }, o)))
+      : el("textarea", { rows: 2, maxlength: 1000, "aria-label": q.q, placeholder: q.hint || "" });
+    input.value = val;
+    input.addEventListener("input", () => { state.answers[q.id] = input.value; save(); });
+    box.append(el("div", { class: "card", style: "margin-bottom:10px" }, el("p", {}, el("b", {}, q.q)), input));
+  });
+  return box;
+}
+
+window.matchMedia("(min-width: 561px)").addEventListener("change", () => {
+  if (state.tab === "short" || state.tab === "long") render();
+});
+applyImageManifest().then(render);
+</script>
+</body>
+</html>
