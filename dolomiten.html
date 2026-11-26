@@ -34,18 +34,21 @@
   h3{margin:0 0 4px;font-size:1.05rem}
 
   /* Navigation */
-  nav{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+  nav{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
   nav button,.btn{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--ink);
-       padding:8px 14px;border-radius:999px;cursor:pointer}
+       padding:8px 14px;border-radius:999px;cursor:pointer;white-space:nowrap}
+  .nav-label--short{display:none}
   nav button[aria-current="true"],.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
   .btn.small{padding:4px 10px;font-size:.85rem}
   .btn.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
   button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 
   /* Funnel (Long -> Short) */
-  .funnel{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
-  .funnel div{flex:1;min-width:120px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 12px}
-  .funnel b{font-size:1.4rem;display:block}
+  .funnel{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+  .funnel-stat{flex:1;min-width:5.5rem;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 12px}
+  .funnel-stat b{font-size:1.35rem;line-height:1.1}
+  .funnel-label{display:block;font-size:.78rem;color:var(--muted);margin-top:2px}
+  .scroll-hint{display:none;font-size:.75rem;margin:4px 0 0}
 
   /* Karten */
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
@@ -65,7 +68,8 @@
   input[type=number]{width:70px}
   table{border-collapse:collapse;width:100%;font-size:.88rem}
   th,td{border-bottom:1px solid var(--line);padding:6px;text-align:left;vertical-align:top}
-  .scroll{overflow-x:auto}
+  .scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  .scroll table{min-width:min(100%,520px)}
   .callout{border-left:4px solid var(--warn);background:var(--card);padding:10px 14px;border-radius:8px;margin:8px 0}
   .map-shell{position:relative;margin:14px 0}
   svg.map{width:100%;height:auto;display:block;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);background:#dce8e4}
@@ -112,12 +116,62 @@
   .day-sum-prev{font-size:.8rem;flex:1 1 12rem}
   .section-fold-h{font-size:1.05rem}
   @media (max-width:560px){
+    header.sticky-head{padding:8px 12px 6px}
+    header h1{font-size:1.12rem;line-height:1.25;margin-bottom:2px}
+    .sub{font-size:.78rem;line-height:1.35}
+  .sub-detail{display:none}
+    main{padding:0 12px 40px}
+    h2{margin:14px 0 6px;font-size:1.05rem}
+    h3{font-size:.98rem}
+    .card{padding:11px 12px;border-radius:12px}
+    .grid{grid-template-columns:minmax(0,1fr);gap:10px}
+    .callout{padding:8px 10px;font-size:.88rem}
+    .chips{gap:3px}
+    .chip{font-size:.72rem;padding:1px 7px}
+    nav{
+      flex-wrap:nowrap;overflow-x:auto;gap:6px;margin:6px -12px 0;padding:2px 12px 6px;
+      -webkit-overflow-scrolling:touch;scrollbar-width:none
+    }
+    nav::-webkit-scrollbar{display:none}
+    nav button{flex:0 0 auto;min-height:40px;padding:8px 12px;font-size:.82rem}
+    .nav-label--full{display:none}
+    .nav-label--short{display:inline}
+    .funnel{
+      flex-wrap:nowrap;overflow-x:auto;gap:6px;margin-top:6px;padding-bottom:2px;
+      -webkit-overflow-scrolling:touch;scrollbar-width:none
+    }
+    .funnel::-webkit-scrollbar{display:none}
+    .funnel-stat{flex:0 0 auto;min-width:0;padding:6px 10px;display:flex;align-items:baseline;gap:6px}
+    .funnel-stat b{font-size:1.05rem}
+    .funnel-label{display:inline;margin:0;font-size:.75rem}
+    .funnel-stat--route{max-width:9.5rem}
+    .funnel-stat--route .funnel-label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .short-table .col-score{display:table-cell}
+    .scroll-hint{display:block}
+    .map-popup .row .btn{flex:1 1 calc(50% - 4px);justify-content:center;text-align:center}
+    .map-legend{gap:6px}
+    .place-card-actions .btn{width:100%}
     nav button,.btn{min-height:44px}
+    .btn.small{min-height:40px;padding:6px 10px}
     .score-bars{margin-bottom:4px}
-    .bar{grid-template-columns:6.5rem minmax(0,1fr);font-size:.78rem;gap:8px}
-    .section-impressions{margin-top:18px;padding-top:14px}
+    .bar{grid-template-columns:5.5rem minmax(0,1fr);font-size:.75rem;gap:6px}
+    .section-impressions{margin-top:12px;padding-top:10px}
     .media-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0}
     .media-item figcaption{font-size:.7rem}
+    .activity-line .hike-thumb{width:56px}
+    .activity-text{min-width:8rem}
+    details.section-fold,details.day-fold{margin:6px 0;padding:0 10px 8px}
+    details.section-fold>summary,details.day-fold>summary{padding:8px 2px}
+    .day-sum-date{min-width:5.2rem;font-size:.85rem}
+    .pager{flex-wrap:wrap;gap:8px;justify-content:center}
+    .pager .btn{flex:1 1 auto}
+    table{font-size:.8rem}
+    th,td{padding:5px 4px}
+    textarea{min-height:4.5rem}
+    .slide{min-height:auto;padding:16px}
+  }
+  @media (min-width:561px){
+    .short-table .col-score{display:table-cell}
   }
 </style>
 </head>
@@ -125,7 +179,10 @@
 <a class="skip" href="#view">Zum Inhalt</a>
 <header class="sticky-head">
   <h1>🏔️ Dolomiten Winterreise 2026</h1>
-  <div class="sub" id="trip-range">Mo 30.11. – So 07.12.2026 · Start Mo 30.11. ab Bremen · 2 Erwachsene · 1 Corgi · Mercedes A 140 (Benzin)</div>
+  <div class="sub" id="trip-range">
+    <span class="sub-primary">Mo 30.11. – So 07.12. · Start ab Bremen</span>
+    <span class="sub-detail"> · 2 Erwachsene · Corgi · A 140</span>
+  </div>
   <div class="funnel" id="funnel" aria-live="polite"></div>
   <nav id="nav" aria-label="Bereiche"></nav>
 </header>
@@ -624,20 +681,29 @@ const fmtMin = m => `${Math.floor(m / 60)} h ${String(m % 60).padStart(2, "0")} 
    Rendering
    ===================================================================== */
 const view = document.getElementById("view");
-const TABS = [["long", "2 · Long-List"], ["short", "3 · Short-List & Route"], ["present", "4 · Präsentation"]];
+const TABS = [
+  ["long", "2 · Long-List", "Long-List"],
+  ["short", "3 · Short-List & Route", "Route"],
+  ["present", "4 · Präsentation", "Folien"]
+];
 
 function setTab(t) { state.tab = normalizeTab(t); save(); render(); window.scrollTo(0, 0); }
 function renderNav() {
   const nav = document.getElementById("nav");
-  nav.replaceChildren(...TABS.map(([id, label]) =>
-    el("button", { "aria-current": String(state.tab === id), onclick: () => setTab(id) }, label)));
+  nav.replaceChildren(...TABS.map(([id, label, short]) => {
+    const btn = el("button", { "aria-current": String(state.tab === id), onclick: () => setTab(id) });
+    btn.append(el("span", { class: "nav-label nav-label--full" }, label), el("span", { class: "nav-label nav-label--short" }, short));
+    return btn;
+  }));
   const funnel = document.getElementById("funnel");
   const nShort = Object.keys(state.short).length;
   const nights = state.route.reduce((a, r) => a + r.nights, 0);
+  const avail = availNights();
   funnel.replaceChildren(
-    el("div", {}, el("b", {}, PLACES.length), "Long-List"),
-    el("div", {}, el("b", {}, nShort), "Short-List"),
-    el("div", {}, el("b", {}, `${state.route.length} Stationen`), `Route · ${nights}/${availNights()} Nächte`));
+    el("div", { class: "funnel-stat" }, el("b", {}, PLACES.length), el("span", { class: "funnel-label" }, "Long-List")),
+    el("div", { class: "funnel-stat" }, el("b", {}, nShort), el("span", { class: "funnel-label" }, "Short-List")),
+    el("div", { class: "funnel-stat funnel-stat--route" }, el("b", {}, state.route.length),
+      el("span", { class: "funnel-label" }, `Route · ${nights}/${avail} N`)));
 }
 function render() {
   renderNav();
@@ -787,12 +853,23 @@ function vShort() {
   if (!ids.length) box.append(el("p", { class: "muted" }, "Noch leer – merkt euch in der Long-List Orte mit ♡, oder startet unten mit einem Preset."));
   else {
     const rows = ids.map(byId).sort((a, b) => fit(b) - fit(a));
-    box.append(el("div", { class: "scroll" }, el("table", {},
-      el("thead", {}, el("tr", {}, el("th", {}, "Ort"), el("th", {}, "Passung"), ...CRITERIA.map(c => el("th", {}, c.label.split(" ")[0])))),
-      el("tbody", {}, rows.map(p => el("tr", {}, el("td", {}, p.name), el("td", {}, fit(p) + " %"), ...CRITERIA.map(c => el("td", {}, p.s[c.key]))))))));
+    const showScores = window.matchMedia("(min-width: 561px)").matches;
+    const ths = [el("th", {}, "Ort"), el("th", {}, "Passung")];
+    const tds = p => [el("td", {}, p.name), el("td", {}, fit(p) + " %")];
+    if (showScores) CRITERIA.forEach(c => ths.push(el("th", { class: "col-score" }, c.label.split(" ")[0])));
+    const body = rows.map(p => {
+      const cells = tds(p);
+      if (showScores) CRITERIA.forEach(c => cells.push(el("td", { class: "col-score" }, p.s[c.key])));
+      return el("tr", {}, ...cells);
+    });
+    box.append(el("p", { class: "muted scroll-hint" }, "Tabelle: nach links wischen für alle Kriterien."),
+      el("div", { class: "scroll" }, el("table", { class: "short-table" },
+        el("thead", {}, el("tr", {}, ...ths)),
+        el("tbody", {}, body))));
   }
 
-  box.append(el("details", { class: "section-fold", open: true },
+  const mapOpen = typeof window !== "undefined" && window.matchMedia("(min-width: 561px)").matches;
+  box.append(el("details", { class: "section-fold", open: mapOpen },
     el("summary", { class: "section-fold-h" }, "Orientierung: Reliefkarte & Städtebündel"),
     el("p", { class: "muted" }, "Stadt anklicken → Routen-Bündel (Presets A–G)."),
     travelMap({ interactive: true })));
@@ -802,10 +879,11 @@ function vShort() {
       && pr.stops.every(([id, n], i) => state.route[i]?.id === id && state.route[i]?.nights === n);
     return el("div", { class: "card" + (active ? " sel" : "") },
       el("h3", {}, pr.name), el("p", {}, pr.desc),
-      el("button", { class: "btn small primary", onclick: () => applyPreset(pr) }, active ? "Aktiv" : "Übernehmen"),
-      el("button", { class: "btn small", style: "margin-left:6px", onclick: () => {
-        state.mapFocus = pr.stops[0][0]; state.tab = "short"; save(); render();
-      } }, "Auf Karte zeigen"));
+      el("div", { class: "row place-card-actions", style: "margin-top:8px" },
+        el("button", { class: "btn small primary", onclick: () => applyPreset(pr) }, active ? "Aktiv" : "Übernehmen"),
+        el("button", { class: "btn small", onclick: () => {
+          state.mapFocus = pr.stops[0][0]; save(); render();
+        } }, "Karte")),
   })));
 
   /* Routen-Builder */
@@ -1108,7 +1186,9 @@ function vPresent() {
   return box;
 }
 document.addEventListener("keydown", e => {
-  if (state.tab !== "present" || !window._go || /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) return;
+  if (/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) return;
+  if (e.key === "Escape" && state.mapFocus) { state.mapFocus = null; save(); render(); return; }
+  if (state.tab !== "present" || !window._go) return;
   if (e.key === "ArrowRight") window._go(1);
   if (e.key === "ArrowLeft") window._go(-1);
 });
