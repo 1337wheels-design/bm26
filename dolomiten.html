@@ -102,7 +102,17 @@
   .score-bars{display:grid;gap:8px;margin:10px 0 0}
   .section-impressions{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);clear:both}
   .section-impressions h4{margin:0 0 10px;font-size:.95rem;font-weight:600}
+  a.skip{position:absolute;left:-9999px;top:auto}
+  a.skip:focus{left:16px;top:12px;z-index:99;background:var(--card);padding:8px 12px;border-radius:8px;border:1px solid var(--line)}
+  header.sticky-head{position:sticky;top:0;z-index:8;background:var(--bg);border-bottom:1px solid var(--line);padding-bottom:10px}
+  details.section-fold,details.day-fold{border:1px solid var(--line);border-radius:12px;padding:0 12px 10px;margin:8px 0;background:var(--card)}
+  details.section-fold>summary,details.day-fold>summary{cursor:pointer;padding:10px 4px;font-weight:600;list-style-position:outside}
+  details.day-fold>summary{font-weight:500;font-size:.92rem;display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline}
+  .day-sum-date{min-width:6.5rem;color:var(--accent);font-weight:600}
+  .day-sum-prev{font-size:.8rem;flex:1 1 12rem}
+  .section-fold-h{font-size:1.05rem}
   @media (max-width:560px){
+    nav button,.btn{min-height:44px}
     .score-bars{margin-bottom:4px}
     .bar{grid-template-columns:6.5rem minmax(0,1fr);font-size:.78rem;gap:8px}
     .section-impressions{margin-top:18px;padding-top:14px}
@@ -112,9 +122,10 @@
 </style>
 </head>
 <body>
-<header>
+<a class="skip" href="#view">Zum Inhalt</a>
+<header class="sticky-head">
   <h1>🏔️ Dolomiten Winterreise 2026</h1>
-  <div class="sub">30.11. – 07.12.2026 · Start Bremen · 2 Erwachsene · 1 Corgi · Mercedes A 140 (Benzin) · Wandern · Wellness · Kochen · Lesen</div>
+  <div class="sub" id="trip-range">Mo 30.11. – So 07.12.2026 · Start Mo 30.11. ab Bremen · 2 Erwachsene · 1 Corgi · Mercedes A 140 (Benzin)</div>
   <div class="funnel" id="funnel" aria-live="polite"></div>
   <nav id="nav" aria-label="Bereiche"></nav>
 </header>
@@ -134,8 +145,9 @@
    ===================================================================== */
 
 /* ---------- Konstanten ---------- */
-const START = new Date(2026, 10, 30);   // 30.11.2026 (erste Nacht am Ziel; Monat 0-basiert!)
-const TOTAL_NIGHTS = 7;                 // 30.11. -> 07.12.
+const START = new Date(2026, 10, 30);   // Mo 30.11.2026 – erster Reisetag / erste Nacht Südtirol (Monat 0-basiert)
+const TOTAL_NIGHTS = 7;                 // bis Abreise So 07.12. (7 Übernachtungen)
+const TRIP_END = () => addDays(START, TOTAL_NIGHTS);
 const STORE_KEY = "dolomiten-winter-2026-v2";
 /* Startregion: Bremen (nur grobe Koordinate der Stadt, keine Adresse). Dient der Fahrzeit-Schätzung. */
 const HOME = { name: "Bremen", lat: 53.08, lon: 8.80 };
@@ -390,7 +402,7 @@ const QUESTIONS = [
   { id:"corgi", q:"Corgi (5 Jahre): Gassi-Radius", type:"text", pre:"1–2 h am Stück spazieren, Pausen werden eingelegt" },
   { id:"auto", q:"Reifen/Ketten", type:"text", pre:"Allwetterreifen, bisher keine Schneeketten → Täler bevorzugen" },
   { id:"tempo", q:"Tempo", type:"text", pre:"50/50 Highlights und Ruhe" },
-  { id:"zw_hin", q:"Zwischenübernachtung Hinreise", type:"text", pre:"Erster Stopp München (29.11.)" },
+  { id:"zw_hin", q:"Zwischenübernachtung Hinreise", type:"text", pre:"Optional So 29.11. München – sonst Abfahrt Mo 30.11. aus Bremen" },
   { id:"zw_rueck", q:"Zwischenübernachtung Rückreise", type:"text", pre:"Vielleicht (in der App an-/abschaltbar)" },
   { id:"fewo", q:"Gemütliche Ferienwohnung", type:"text", pre:"Kamin, Küche, Leseecke" },
   { id:"kochen", q:"Kochen & Essen", type:"text", pre:"Asiatisch kochen; zusätzlich Cafés und Restaurants einplanen" },
@@ -522,7 +534,10 @@ async function applyImageManifest() {
   }
 }
 const fmtDate = d => d.toLocaleDateString("de-DE", { weekday: "short", day: "2-digit", month: "2-digit" });
+const fmtDateLong = d => d.toLocaleDateString("de-DE", { weekday: "long", day: "2-digit", month: "2-digit", year: "numeric" });
 const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+const transitOutDate = () => addDays(START, -1);
+const tripRangeLabel = () => `${fmtDate(START)} – ${fmtDate(TRIP_END())}`;
 
 /* ---------- Zustand (localStorage) ---------- */
 const VISIBLE_TABS = new Set(["long", "short", "present"]);
@@ -534,7 +549,8 @@ const defaultState = () => ({
   short: {},        // id -> true (Short-List)
   notes: {},        // id -> Text
   route: [],        // [{id, nights}]
-  transit: { out: true, back: true },  // Zwischenübernachtung Hin-/Rückreise
+  transit: { out: false, back: true }, // Standard: Abfahrt Mo 30.11.; München So 29.11. optional
+  dayPlanOpen: false,
   answers: Object.fromEntries(QUESTIONS.filter(q => q.pre).map(q => [q.id, q.pre])),  // bisherige Antworten vorbelegt
   checks: {},       // Checklisten-Index -> true
   slide: 0,
@@ -562,9 +578,10 @@ function sanitize(raw) {
     s.route = raw.route.filter(r => r && known.has(r.id)).slice(0, 8)
       .map(r => ({ id: r.id, nights: Math.min(8, Math.max(1, Math.round(Number(r.nights)) || 1)) }));
   if (raw.transit && typeof raw.transit === "object") {
-    s.transit.out = raw.transit.out !== false;
+    s.transit.out = raw.transit.out === true;
     s.transit.back = raw.transit.back !== false;
   }
+  if (raw.dayPlanOpen === true) s.dayPlanOpen = true;
   const qids = new Set(QUESTIONS.map(q => q.id));
   if (raw.answers && typeof raw.answers === "object")
     for (const id of Object.keys(raw.answers)) if (qids.has(id)) s.answers[id] = String(raw.answers[id]).slice(0, 1000);
@@ -632,12 +649,12 @@ function render() {
 function vRahmen() {
   const box = el("div");
   box.append(
-    el("h2", {}, "Das Rahmenwerk: 30.11. – 07.12.2026 (7 Nächte)"),
+    el("h2", {}, `Das Rahmenwerk: ${fmtDateLong(START)} – ${fmtDateLong(TRIP_END())} (7 Nächte)`),
     el("div", { class: "callout" },
       el("b", {}, "Wintertermin = andere Dolomiten. "),
       "Hütten und viele Lifte sind noch zu, die Skisaison startet um den 5.–8. Dezember. Wandern funktioniert am besten auf Talwegen, Waalwegen und Uferpromenaden. Passstraßen (Falzarego, Pordoi, Sella, Gröden) sind wetterabhängig – Echtzeit-Portale vor jeder Fahrt prüfen."),
     el("div", { class: "grid" },
-      el("div", { class: "card" }, el("h3", {}, "🧭 Anreise ab Bremen"), el("p", {}, "≈ 1.000 km, ca. 10 h reine Fahrzeit (Schätzung). Reisezeitraum ab 30.11. Optional Zwischenstopp München am 29.11. (1. Advent), am 30.11. weiter über den Brenner (München → Bozen ≈ 3,5 h). Rückreise genauso. Damit bleiben bis zu 6 Nächte vor Ort – ideal für 3 Stationen à 2 Nächte oder 2 à 3.")),
+      el("div", { class: "card" }, el("h3", {}, "🧭 Anreise ab Bremen"), el("p", {}, `≈ 1.000 km, ca. 10 h reine Fahrzeit (Schätzung). Abfahrt ${fmtDateLong(START)} aus Bremen. Optional Zwischenstopp München am ${fmtDateLong(transitOutDate())} (1. Advent) – sonst einen langen Fahrtag. Rückreise nach ${fmtDateLong(TRIP_END())} spiegelbar. Bis zu 6 Nächte vor Ort – ideal für 3×2 oder 2×3 Nächte.`)),
       el("div", { class: "card" }, el("h3", {}, "🚗 Auto"), el("p", {}, "Mercedes A 140 mit Allwetterreifen, noch ohne Ketten. Darum: Talstraßen bevorzugen (Eisacktal, Pustertal, Etschtal), keine hohen Pässe. Ketten besorgen und Probe montieren; Allwetterreifen nur mit Alpine-Symbol (3PMSF) sinnvoll – Regeln prüfen.")),
       el("div", { class: "card" }, el("h3", {}, "🐕 Corgi (5 J.)"), el("p", {}, "1–2 h spazieren am Stück, Pausen sind eingeplant → Touren ca. 4–7 km, flach, mit Café-/Bank-Stopps. Streusalz → Pfoten abwischen. Keine Wellness-Planung nötig.")),
       el("div", { class: "card" }, el("h3", {}, "🎄 Märkte"), el("p", {}, "Weihnachtsmärkte in Bozen, Meran, Brixen und Bruneck öffnen meist um den 27.–28.11. – Termine 2026 bitte vorab prüfen.")),
@@ -687,10 +704,6 @@ function vLong() {
   const box = el("div");
   box.append(el("h2", {}, "Long-List: alle Kandidaten"),
     el("p", { class: "muted" }, "Stellt links eure Prioritäten ein (0 = egal, 5 = sehr wichtig). Die Passung sortiert die Liste. Mit ♥ übernehmt ihr Orte in die Short-List."));
-  box.append(el("h3", {}, "Orientierung: Reliefkarte"),
-    el("p", { class: "muted" }, "Stadt anklicken → Städtebündel (Short-List + Routen-Preset) oder Einzelaktionen. Grün = eure Route, Gold = Short-List."),
-    travelMap({ interactive: true }));
-
   /* Gewichtungs-Slider */
   const wbox = el("div", { class: "card" }, el("h3", {}, "Eure Prioritäten"));
   const grid = el("div", { class: "grid" });
@@ -707,6 +720,10 @@ function vLong() {
     el("label", {}, el("input", { type: "checkbox", checked: filters.winterOk, onchange: e => { filters.winterOk = e.target.checked; renderCards(); } }), " nur wintersicher (≥ 4)"),
     el("label", {}, el("input", { type: "checkbox", checked: filters.italien, onchange: e => { filters.italien = e.target.checked; renderCards(); } }), " Fokus Italien (Veneto, Trentino, Gardasee …)")));
   box.append(wbox);
+  box.append(el("details", { class: "section-fold" },
+    el("summary", { class: "section-fold-h" }, "Orientierung: Reliefkarte"),
+    el("p", { class: "muted" }, "Stadt anklicken → Städtebündel oder Einzelaktionen."),
+    travelMap({ interactive: true })));
 
   const cards = el("div", { class: "grid", style: "margin-top:12px" });
   box.append(cards);
@@ -775,10 +792,10 @@ function vShort() {
       el("tbody", {}, rows.map(p => el("tr", {}, el("td", {}, p.name), el("td", {}, fit(p) + " %"), ...CRITERIA.map(c => el("td", {}, p.s[c.key]))))))));
   }
 
-  /* Presets */
-  box.append(el("h2", {}, "Orientierung & Städtebündel"),
-    el("p", { class: "muted" }, "Reliefkarte mit Klick: wählt das passende Routen-Bündel (Presets A–G) ab der angeklickten Stadt."),
-    travelMap({ interactive: true }));
+  box.append(el("details", { class: "section-fold", open: true },
+    el("summary", { class: "section-fold-h" }, "Orientierung: Reliefkarte & Städtebündel"),
+    el("p", { class: "muted" }, "Stadt anklicken → Routen-Bündel (Presets A–G)."),
+    travelMap({ interactive: true })));
   box.append(el("h2", {}, "Routen-Vorschläge"));
   box.append(el("div", { class: "grid" }, PRESETS.map(pr => {
     const active = state.route.length && pr.stops.length === state.route.length
@@ -793,11 +810,12 @@ function vShort() {
 
   /* Routen-Builder */
   box.append(el("h2", {}, "Eure Route"));
-  const tcard = el("div", { class: "card" }, el("h3", {}, "Anreise & Rückreise ab Bremen (≈ 1.000 km)"),
+  const backNight = addDays(TRIP_END(), -1);
+  const tcard = el("div", { class: "card" }, el("h3", {}, `Anreise & Rückreise (Start ${fmtDate(START)})`),
     el("div", { class: "row" },
-      el("label", {}, el("input", { type: "checkbox", checked: state.transit.out, onchange: e => { state.transit.out = e.target.checked; save(); render(); } }), " Zwischenübernachtung Hinreise (29.11., München)"),
-      el("label", {}, el("input", { type: "checkbox", checked: state.transit.back, onchange: e => { state.transit.back = e.target.checked; save(); render(); } }), " Zwischenübernachtung Rückreise (06.12.)")),
-    el("p", { class: "muted" }, "Ohne Zwischenstopp bleiben mehr Nächte vor Ort, aber ca. 10 h Fahrt am Stück – für Fahrer und Hund anstrengend."));
+      el("label", {}, el("input", { type: "checkbox", checked: state.transit.out, onchange: e => { state.transit.out = e.target.checked; save(); render(); } }), ` Optional: München ${fmtDate(transitOutDate())} (vor Abfahrt Mo 30.11.)`),
+      el("label", {}, el("input", { type: "checkbox", checked: state.transit.back, onchange: e => { state.transit.back = e.target.checked; save(); render(); } }), ` Zwischenübernachtung Rückreise (${fmtDate(backNight)})`)),
+    el("p", { class: "muted" }, "Standard: Mo 30.11. los aus Bremen. Ohne Zwischenstopp mehr Nächte vor Ort, aber ~10 h am Stück – für Fahrer und Hund anstrengend."));
   box.append(tcard);
   const avail = availNights();
   const sumN = state.route.reduce((a, r) => a + r.nights, 0);
@@ -838,8 +856,10 @@ function vShort() {
   box.append(rb);
 
   if (state.route.length) {
-    box.append(el("h2", {}, "Eure Route auf der Karte"), travelMap({ interactive: true }), vTimeline(),
-      el("h2", {}, "Tagesplan (Entwurf)"), el("p", { class: "muted" }, "Rhythmus: früh los, nachmittags zurück in die Ferienwohnung; 50/50 Highlight- und Ruhetage."), vDayPlan());
+    box.append(el("h2", {}, "Zeitplan"),
+      el("p", { class: "muted" }, `Reise ${tripRangeLabel()} – Übersicht:`),
+      vTimeline(),
+      vDayPlan({ section: true }));
   }
   return box;
 }
@@ -988,9 +1008,39 @@ function buildDays() {
   }
   return days;
 }
-function vDayPlan() {
-  return el("div", { class: "grid" }, buildDays().map(dy => el("div", { class: "card" },
-    el("div", { class: "muted" }, fmtDate(dy.date)), el("h3", {}, dy.title), el("ul", { class: "tight" }, dy.items.map(x => el("li", {}, x))))));
+function dayPlanList() {
+  const list = el("div", { class: "day-plan-list" });
+  buildDays().forEach(dy => {
+    const det = el("details", { class: "day-fold" });
+    const preview = (dy.items[0] || "").replace(/^[^\s]+\s/, "").slice(0, 72) + ((dy.items[0] || "").length > 72 ? "…" : "");
+    det.append(el("summary", {},
+      el("span", { class: "day-sum-date" }, fmtDate(dy.date)),
+      el("span", { class: "day-sum-title" }, dy.title),
+      el("span", { class: "muted day-sum-prev" }, preview)));
+    det.append(el("ul", { class: "tight" }, dy.items.map(x => el("li", {}, x))));
+    list.append(det);
+  });
+  return list;
+}
+function vDayPlan({ section = false, compact = false } = {}) {
+  const days = buildDays();
+  const list = dayPlanList();
+  if (compact) return list;
+  if (!section) return list;
+  const wrap = el("details", { class: "section-fold day-plan-section", open: !!state.dayPlanOpen });
+  wrap.append(el("summary", { class: "section-fold-h" }, `Tagesplan-Entwürfe (${days.length} Tage, eingeklappt)`));
+  wrap.append(el("p", { class: "muted" }, "Rhythmus: früh los, nachmittags Ferienwohnung. Pro Tag aufklappen oder alle auf einmal:"));
+  wrap.append(el("button", {
+    type: "button", class: "btn small", style: "margin:4px 0 8px",
+    onclick: e => {
+      e.preventDefault();
+      const anyClosed = [...list.querySelectorAll("details.day-fold")].some(d => !d.open);
+      list.querySelectorAll("details.day-fold").forEach(d => { d.open = anyClosed; });
+    }
+  }, "Alle Tage auf-/zuklappen"));
+  wrap.append(list);
+  wrap.addEventListener("toggle", () => { state.dayPlanOpen = wrap.open; save(); });
+  return wrap;
 }
 
 function vTimeline() {
@@ -1014,7 +1064,7 @@ function vPresent() {
   const slides = [];
   /* Folie 1: Titel */
   slides.push(el("div", { class: "slide" },
-    el("h2", {}, "Dolomiten Winterreise"), el("div", { class: "big" }, "30.11. – 07.12.2026 · 7 Nächte · ab Bremen"),
+    el("h2", {}, "Dolomiten Winterreise"), el("div", { class: "big" }, `${tripRangeLabel()} · 7 Nächte · Start ${fmtDateLong(START)} ab Bremen`),
     el("div", {}, "2 Erwachsene · 1 Corgi · Mercedes A 140"), el("div", { class: "chips" }, ["Wandern", "Wellness", "Kochen", "Lesen"].map(t => el("span", { class: "chip" }, t)))));
   /* Folie 2: Überblick */
   slides.push(el("div", { class: "slide" }, el("h2", {}, "Die Route"), travelMap({ interactive: false }), vTimeline()));
@@ -1038,7 +1088,10 @@ function vPresent() {
       state.notes[p.id] ? el("div", { class: "callout" }, "📝 ", state.notes[p.id]) : null);
     slides.push(slide);
   });
-  slides.push(el("div", { class: "slide" }, el("h2", {}, "Tagesplan"), vDayPlan()));
+  slides.push(el("div", { class: "slide" },
+    el("h2", {}, "Tagesplan"),
+    el("p", { class: "muted" }, "Kurzüberblick – Details in Schritt 3."),
+    vDayPlan({ compact: true })));
   /* Schlussfolie */
   slides.push(el("div", { class: "slide" }, el("h2", {}, "Vor der Abfahrt"),
     el("ul", { class: "tight" }, CHECKLIST.map(t => el("li", {}, t)))));
